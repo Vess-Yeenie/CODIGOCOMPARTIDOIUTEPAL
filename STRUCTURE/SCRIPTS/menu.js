@@ -11,6 +11,18 @@ const trabajosDeGrado = [
     carrera: "INFORMATICA",
     pdf: "STRUCTURE/PDFs/TRABAJO DE GRADO INFORMATICA.pdf" // 
   },
+  {
+    nombre: "ESTRATEGIAS MOTIVACIONALES PARA LA MEJORA DE LA SATISFACCIÓN LABORAL DE LOS EMPLEADOS EN LA EMPRESA MARTÍNEZ REYES ADUANA S.R.L.",
+    año: 2021,
+    carrera: "ADMINISTRACION",
+    pdf: "STRUCTURE/PDFs/TG IUTEPAL EDUARDO BASTIDAS.pdf" // 
+  },
+  {
+    nombre: "Sistema de Gestión de Mantenimiento Preventivo y Correctivo a las máquinas de ensacado de Urea del Complejo Petroquímico Hugo Chávez, Morón- Carabobo.",
+    año: 2024,
+    carrera: "PRODUCCION",
+    pdf: "STRUCTURE/PDFs/TEG_Marbelis_Pérez PRODUCCION INDUSTRIAL.pdf" // 
+  },
 //   {
 //     nombre: "Modelado Financiero Avanzado",
 //     año: 2024,
@@ -53,6 +65,7 @@ trabajos.forEach(trabajo => {
     
     contenedorCards.appendChild(card);
 });
+
 // Escuchar los clics en todos los botones "Ver PDF"
 document.querySelectorAll('.doc-card').forEach(card => {
   card.addEventListener('click', (event) => {
@@ -72,6 +85,7 @@ document.querySelectorAll('.doc-card').forEach(card => {
   });
 });
 
+    
 
 // Manejo del menú desplegable de fecha
 const dateDropdown = document.getElementById('dateDropdown');
@@ -299,3 +313,4 @@ addTrabajoForm.addEventListener('submit', function(e) {
     addTrabajoForm.reset();
     applyFilters();
 });
+applyFilters()

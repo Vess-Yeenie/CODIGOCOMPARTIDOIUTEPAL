@@ -8,7 +8,7 @@ const validarUsuario  = (e) => {
         return;
     }else{
         
-        window.location.href = "STRUCTURE/HTML/menu.html";
+        window.location.href = "menu.html";
     }
 
 }

@@ -33,6 +33,8 @@ const trabajosDeGrado = [
 ];
 
 localStorage.setItem('trabajosDeGrado', JSON.stringify(trabajosDeGrado));
+let logs = JSON.parse(localStorage.getItem('logs')) || [];
+console.log(logs)
 
 // Obtener y parsear los datos
 const data = localStorage.getItem('trabajosDeGrado');
@@ -42,7 +44,7 @@ const docCards = document.querySelectorAll('.doc-card');
 
 trabajos.forEach(trabajo => {
 
-    console.log(contenedorCards)
+   
     // 1. Crear el elemento Card
     const card = document.createElement('div');
     card.className = 'doc-card';
@@ -314,3 +316,7 @@ addTrabajoForm.addEventListener('submit', function(e) {
     applyFilters();
 });
 applyFilters()
+
+
+//dios mio
+

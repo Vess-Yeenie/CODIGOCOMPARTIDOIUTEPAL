@@ -9,7 +9,7 @@ function updateTime() {
     seconds = seconds < 10 ? '0' + seconds : seconds;
 
     const timeString = `${hours}:${minutes}:${seconds}`;
-    document.getElementById('time-display').textContent = `HORA ${timeString}`;
+    document.getElementById('time-display').textContent = `HORA: ${timeString}`;
 }
 
 // Actualizar la hora inmediatamente y luego cada segundo

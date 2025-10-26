@@ -45,7 +45,7 @@ body {
     width: 200px; /* Ajusta el tamaño del logo */
     height: auto;
     /* Ajustes para que el logo se vea bien sobre la imagen de fondo */
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5)); 
+    filter: drop-shadow(10px 10px 5px rgba(255, 255, 255, 0.9)); 
   
 }
 
@@ -88,6 +88,7 @@ body {
     width: 70%; 
     max-width: 350px;
     transition: background-color 0.3s ease;
+    
 }
 
 .btn a{
@@ -96,6 +97,8 @@ body {
 }
 .btn:hover {
     background-color: #e0e0e0;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .time-display {

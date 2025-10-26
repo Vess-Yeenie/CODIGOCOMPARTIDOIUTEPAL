@@ -26,3 +26,4 @@ let $inputUser = document.querySelector("#user"),
     $formInput = document.querySelector(".form");
 
 $formInput.addEventListener("submit", validarUsuario);
+

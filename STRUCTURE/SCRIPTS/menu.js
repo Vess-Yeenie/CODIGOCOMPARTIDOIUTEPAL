@@ -3,32 +3,30 @@ const trabajosDeGrado = [
     nombre: "ESTRATEGIAS PARA EL MEJORAMIENTO EN EL PROCESO DE CALCULO, PAGO Y RETENCION DEL IMPUESTO AL VALOR AGREGADO (I.V.A.) EN LA EMPRESA RECTIFICADORA DE MOTORESJ&D C.A. DE MORÓN ESTADO CARABOBO",
     año: 2018,
     carrera: "ADMINISTRACION",
+    tipo: "trabajo",
     pdf: "STRUCTURE/PDFs/TRABAJO DE GRADO MIXARI Y YOSMERY (1).pdf" // 
   },
   {
     nombre: "Diseño de un Sistema automatizado que registre y controle la matrícula de los alumnos de la Escuela Básica Nacional “Taborda”, ubicada en Puerto Cabello, Estado Carabobo.",
     año: 2018,
     carrera: "INFORMATICA",
+    tipo: "trabajo",
     pdf: "STRUCTURE/PDFs/TRABAJO DE GRADO INFORMATICA.pdf" // 
   },
   {
     nombre: "ESTRATEGIAS MOTIVACIONALES PARA LA MEJORA DE LA SATISFACCIÓN LABORAL DE LOS EMPLEADOS EN LA EMPRESA MARTÍNEZ REYES ADUANA S.R.L.",
     año: 2021,
     carrera: "ADMINISTRACION",
+    tipo: "presentacion",
     pdf: "STRUCTURE/PDFs/TG IUTEPAL EDUARDO BASTIDAS.pdf" // 
   },
   {
     nombre: "Sistema de Gestión de Mantenimiento Preventivo y Correctivo a las máquinas de ensacado de Urea del Complejo Petroquímico Hugo Chávez, Morón- Carabobo.",
     año: 2024,
     carrera: "PRODUCCION",
+    tipo: "resumen",
     pdf: "STRUCTURE/PDFs/TEG_Marbelis_Pérez PRODUCCION INDUSTRIAL.pdf" // 
   },
-//   {
-//     nombre: "Modelado Financiero Avanzado",
-//     año: 2024,
-//     carrera: "Administración de Empresas",
-//     pdf: "ruta/al/pdf/financiero.pdf" 
-//   }
   // ... más trabajos
 ];
 
@@ -44,7 +42,6 @@ const docCards = document.querySelectorAll('.doc-card');
 
 trabajos.forEach(trabajo => {
 
-   
     // 1. Crear el elemento Card
     const card = document.createElement('div');
     card.className = 'doc-card';
@@ -53,7 +50,8 @@ trabajos.forEach(trabajo => {
     card.dataset.pdfUrl = trabajo.pdf; 
     card.dataset.carrera = trabajo.carrera.toUpperCase(); 
     card.dataset.ano = trabajo.año; 
-    
+    // Nuevo: tipo del documento (fallback a 'trabajo')
+    card.dataset.tipo = trabajo.tipo ? trabajo.tipo : 'trabajo';
     
     // 3. Rellenar el contenido de la Card
     card.innerHTML =`
@@ -95,6 +93,8 @@ const selectedDate = document.getElementById('selectedDate');
 const monthYearMenu = document.getElementById('monthYearMenu');
 const yearSelect = document.getElementById('yearSelect');
 const setYear = document.getElementById('setYear');
+// selector de tipo (ahora situado en el header, fuera del menú de fecha)
+const typeFilter = document.getElementById('typeFilter');
 
 
 
@@ -143,6 +143,7 @@ monthYearMenu.addEventListener('click', function(e) {
 
 let selectedCarrera = null;
 let selectedAno = 'todos'; // Inicializa antes de cualquier uso
+let selectedTipo = 'todos'; // Nuevo: filtro por tipo
 
 // Llena el selector de años (desde el año más bajo hasta 2025), dejando "Todos" como primera opción
 yearSelect.innerHTML = '<option value="todos" selected>Todos</option>';
@@ -170,18 +171,20 @@ docCards.forEach(card => {
     }
 });
 
-// Filtrado combinado de trabajos (carrera, año y búsqueda)
+// Filtrado combinado de trabajos (carrera, año, tipo y búsqueda)
 function applyFilters() {
     const docSection = document.querySelector('.documents');
     let cards = Array.from(document.querySelectorAll('.doc-card'));
     cards = cards.filter(card => {
         const cardCarrera = card.getAttribute('data-carrera');
         const cardAno = card.getAttribute('data-ano');
+        const cardTipo = card.getAttribute('data-tipo');
         const infoText = card.querySelector('.doc-info').textContent.toLowerCase();
         const carreraMatch = selectedCarrera ? cardCarrera === selectedCarrera : true;
         const anoMatch = (selectedAno === 'todos') ? true : cardAno === selectedAno;
+        const tipoMatch = (selectedTipo === 'todos') ? true : cardTipo === selectedTipo;
         const searchMatch = searchText ? infoText.includes(searchText) : true;
-        return carreraMatch && anoMatch && searchMatch;
+        return carreraMatch && anoMatch && tipoMatch && searchMatch;
     });
 
     // Si no hay carrera seleccionada, ordenar por año descendente
@@ -202,14 +205,20 @@ function applyFilters() {
 }
 
 // Manejo del filtro de año
-//establecimiento del año seleccionado y actualización del texto
-//además de ocultar el menú y aplicar los filtros
 setYear.addEventListener('click', function(e) {
     selectedAno = yearSelect.value;
     selectedDate.textContent = selectedAno === 'todos' ? 'Todos' : selectedAno;
     monthYearMenu.style.display = 'none';
     applyFilters();
 });
+
+// Nuevo: escucha para filtro por tipo
+if (typeFilter) {
+    typeFilter.addEventListener('change', function() {
+        selectedTipo = this.value;
+        applyFilters();
+    });
+}
 
 // Manejo del filtro de carrera
 const sidebarButtons = document.querySelectorAll('.sidebar button');
@@ -265,8 +274,10 @@ addTrabajoForm.addEventListener('submit', function(e) {
     const ano = document.getElementById('trabajoAno').value;
     const pdfInput = document.getElementById('trabajoPdf');
     const pdfFile = pdfInput.files[0];
+    // Nuevo: tipo desde el modal
+    const tipo = document.getElementById('trabajoTipo').value || 'trabajo';
 
-    if (!nombre || !carrera || !ano || !pdfFile) return;
+    if (!nombre || !carrera || !ano || !pdfFile || !tipo) return;
 
     // Formatea la carrera: solo la primera letra en mayúscula
     const carreraFormateada = carrera.charAt(0).toUpperCase() + carrera.slice(1).toLowerCase().replace('_', ' ');
@@ -277,6 +288,8 @@ addTrabajoForm.addEventListener('submit', function(e) {
     newCard.className = 'doc-card';
     newCard.setAttribute('data-carrera', carrera);
     newCard.setAttribute('data-ano', ano);
+    // Nuevo: setear el tipo en la tarjeta
+    newCard.setAttribute('data-tipo', tipo);
 
     // X para trabajos antiguos
     const xDiv = document.createElement('div');

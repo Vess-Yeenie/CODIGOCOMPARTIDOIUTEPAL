@@ -2,6 +2,8 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #fff;
+    overflow: hidden;
+    
 }
 
 .header {
@@ -101,11 +103,13 @@ body {
 .main-content {
     display: flex;
     height: calc(100vh - 60px);
+    overflow: scroll;
+   
 }
 
 .sidebar {
     position: sticky;
-    top: 70px; /* Ajusta según la altura de la barra de búsqueda/header */
+    top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
     background: #151c63; /* Azul igual que barra de búsqueda */
     padding: 20px 0;
@@ -122,8 +126,15 @@ body {
     padding: 10px 30px;
     border-radius: 10px;
     margin-bottom: 15px;
+   
     font-size: 1.1em;
     cursor: pointer;
+}
+
+.sidebar-title:hover{
+    background: #3a48e5;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .sidebar button {
@@ -140,9 +151,15 @@ body {
 }
 
 .sidebar button.selected {
-    background: #4dd0e1; /* Tono más claro que #00bcd4 */
+    background: #4d68e1; /* Tono más claro que #00bcd4 */
     color: #fff;
     font-weight: bold;
+}
+
+.sidebar button:hover{
+    background: #4d68e1;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .documents {
@@ -190,7 +207,7 @@ body {
 .doc-icon {
     width: 100px;
     height: 120px;
-    background: url('https://cdn-icons-png.flaticon.com/512/337/337946.png') no-repeat center/contain;
+    background: url('../IMG/PDF.png') no-repeat center/contain;
     margin-bottom: 10px;
 }
 
@@ -198,6 +215,7 @@ body {
     text-align: center;
     font-size: 1em;
     color: #333;
+    margin-bottom: 20px;
 }
 
 #addTrabajoBtn {
@@ -208,6 +226,14 @@ body {
     padding: 10px;
     cursor: pointer;
     border-radius: 4px;
+
+}
+
+#addTrabajoBtn:hover{
+    background: #0080ff;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    color: white;
 }
 
 .modal {

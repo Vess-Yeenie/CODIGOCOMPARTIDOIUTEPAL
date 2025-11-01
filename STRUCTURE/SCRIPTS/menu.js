@@ -30,10 +30,34 @@ const defaultTrabajos = [
     carrera: "PRODUCCION",
     tipo: "resumen",
     pdf: "STRUCTURE/PDFs/TEG_Marbelis_Pérez PRODUCCION INDUSTRIAL.pdf"
+  },
+  {
+    id: 't5',
+    nombre: "PLAN DE RECUPERACIÓN DE OPERATIVIDAD DE ASCENSORES DEL INSTITUTO UNIVERSITARIO DE TECNOLOGÍA JUAN PABLO PÉREZ ALFONZO - AMPLIACIÓN PUERTO CABELLO",
+    año: 2018,
+    carrera: "PRODUCCION",
+    tipo: "resumen",
+    pdf: "STRUCTURE/PDFs/TEG_JOUSEPH_DÍAZ_DEFINITIVO_JOUSEPH_DÍAZ_LESSIRE_ELECTRONICA.pdf"
+  },
+  {
+    id: 't6',
+    nombre: "MEJORA ESTRUCTURAL DEL SISTEMA DE CRIBAS EN LA UNIDAD DE GRANULACION DE LA PLANTA DE UREA.",
+    año: 2024,
+    carrera: "PRODUCCION",
+    tipo: "trabajo",
+    pdf: "STRUCTURE/PDFs/TEG_Luis_Mencías PRODUCCION INDUSTRAL.pdf"
+  },
+  {
+    id: 't7',
+    nombre: "PLAN DE MANTENIMIENTO PREVENTIVO A UNA MAQUINA JUMBO 320 C EN LA EMPRESA MULTIRECICLAJES PC.CA",
+    año: 2024,
+    carrera: "PRODUCCION",
+    tipo: "trabajo",
+    pdf: "STRUCTURE/PDFs/TEG_EdwinMedina PRODUCCION INDUSTRIAL.pdf"
   }
 ];
 
-let trabajos = JSON.parse(localStorage.getItem('trabajosDeGrado')) || defaultTrabajos.slice();
+let trabajos =  defaultTrabajos.slice() || JSON.parse(localStorage.getItem('trabajosDeGrado')) ;
 // Asegurar ids únicos
 trabajos = trabajos.map(item => ({ ...item, id: item.id || (Date.now().toString() + Math.random().toString(36).slice(2)) }));
 localStorage.setItem('trabajosDeGrado', JSON.stringify(trabajos));
@@ -382,43 +406,6 @@ if (dateDropdown && monthYearMenu) {
         e.stopPropagation();
     });
 }
-
-// --- Nuevo: eliminación vía logo (antes de ir al inicio) ---
-(function(){
-    const homeLogoLink = document.getElementById('homeLogo');
-    if (!homeLogoLink) return;
-    homeLogoLink.addEventListener('click', function(e){
-        // Si es guest, no preguntar ni eliminar, navegar normalmente
-        if (isGuest) {
-            // Dejar que el enlace navegue de forma normal
-            return;
-        }
-        // Evitar navegación inmediata para procesar la posible eliminación
-        e.preventDefault();
-        const href = homeLogoLink.href || 'Index.html';
-        const confirmar = confirm('¿Desea eliminar los documentos antiguos (más de 5 años) antes de ir al inicio?');
-        if (confirmar) {
-            const currentYear = new Date().getFullYear();
-            // Filtrar trabajos: conservar solo los que NO son antiguos
-            trabajos = trabajos.filter(t => {
-                const y = parseInt(t.año, 10) || 0;
-                return !(currentYear - y > 5);
-            });
-            // limpiar objectURLs asociados si existieran
-            Object.keys(inMemoryPdfMap).forEach(id => {
-                // si el id ya no existe en trabajos eliminar su objectURL
-                if (!trabajos.find(t => t.id === id)) {
-                    try { URL.revokeObjectURL(inMemoryPdfMap[id]); } catch (err) {}
-                    delete inMemoryPdfMap[id];
-                }
-            });
-            saveToStorage();
-            renderCards();
-        }
-        // Redirigir al inicio (aunque no haya confirmado)
-        window.location.href = href;
-    });
-})();
 
 // --- Función para abrir modal de reporte ---
 function openReportModal() {

@@ -207,7 +207,7 @@ body {
 .doc-icon {
     width: 100px;
     height: 120px;
-    background: url('https://cdn-icons-png.flaticon.com/512/337/337946.png') no-repeat center/contain;
+    background: url('../IMG/PDF.png') no-repeat center/contain;
     margin-bottom: 10px;
 }
 

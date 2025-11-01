@@ -8,7 +8,7 @@
 </head>
 <body>
     <header class="header">  
-        <a href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
+        <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
         <div class="search-bar">
             <span class="search-icon">&#128269;</span>
             <input type="text" placeholder="BUSQUEDA">
@@ -24,6 +24,14 @@
                 <button id="setYear">OK</button>
             </div>
         </div>
+        <div class="type-filter" style="display:inline-block; margin-left:8px;">
+            <select id="typeFilter">
+                <option value="todos" selected>Todos</option>
+                <option value="trabajo">Trabajo de grado</option>
+                <option value="presentacion">Presentación</option>
+                <option value="resumen">Hoja de resumen</option>
+            </select>
+        </div>
     </header>
     <main class="main-content">
         <aside class="sidebar">
@@ -34,39 +42,63 @@
             <button data-carrera="CONTABILIDAD">CONTABILIDAD</button>
             <button data-carrera="ADMINISTRACION">ADMINISTRACIÓN DE EMPRESAS</button>
             <button id="addTrabajoBtn">Añadir trabajo</button>
+            <button id="elaborarReporteBtn">Elaborar Reporte</button>
         </aside>
         <section class="documents">
-            <div class="doc-card" data-carrera="INFORMATICA" data-ano="2023">
+            <!-- <div class="doc-card" data-carrera="INFORMATICA" data-ano="2023" data-tipo="presentacion">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Algoritmos, Informática, 2023</div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
             </div>
-            <div class="doc-card" data-carrera="PRODUCCION" data-ano="2022">
+            <div class="doc-card" data-carrera="PRODUCCION" data-ano="2022" data-tipo="trabajo">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Gestión de Procesos, Producción Industrial, 2022</div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
             </div>
-            <div class="doc-card" data-carrera="ELECTRONICA" data-ano="2021">
+            <div class="doc-card" data-carrera="ELECTRONICA" data-ano="2021" data-tipo="resumen">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Circuitos Digitales, Electrónica, 2021</div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
             </div>
-            </div>
-            <div class="doc-card" data-carrera="CONTABILIDAD" data-ano="2024">
+            <div class="doc-card" data-carrera="CONTABILIDAD" data-ano="2024" data-tipo="trabajo">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Auditoría, Contabilidad, 2024</div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
             </div>
-            <div class="doc-card" data-carrera="ADMINISTRACION" data-ano="2025">
+            <div class="doc-card" data-carrera="ADMINISTRACION" data-ano="2025" data-tipo="presentacion">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Planificación Empresarial, Administración de Empresas, 2025</div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
             </div>
-            <div class="doc-card" data-carrera="INFORMATICA" data-ano="2022">
+            <div class="doc-card" data-carrera="INFORMATICA" data-ano="2022" data-tipo="resumen">
                 <div class="doc-x" style="display:none;">&#10006;</div>
                 <div class="doc-icon"></div>
                 <div class="doc-info">Bases de Datos, Informática, 2022</div>
-            </div>
+                <div class="doc-actions">
+                    <button class="edit-btn">✎</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
+            </div> -->
         </section>
     </main>
     <!-- Modal para añadir trabajo -->
@@ -75,6 +107,7 @@
             <span class="close-modal" id="closeModalBtn">&times;</span>
             <h2>Añadir trabajo</h2>
             <form id="addTrabajoForm">
+                <input type="hidden" id="editingId" value="">
                 <label>Nombre del trabajo:</label>
                 <input type="text" id="trabajoNombre" required>
                 <label>Carrera:</label>
@@ -88,12 +121,31 @@
                 </select>
                 <label>Año:</label>
                 <input type="number" id="trabajoAno" min="2000" max="2025" required>
-                <label>Archivo PDF:</label>
-                <input type="file" id="trabajoPdf" accept="application/pdf" required>
+                <label>Tipo de documento:</label>
+                <select id="trabajoTipo" required>
+                    <option value="">Seleccione</option>
+                    <option value="trabajo">Trabajo de grado</option>
+                    <option value="presentacion">Presentación</option
+                    <option value="resumen">Hoja de resumen</option>
+                </select>
+                <label>Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
+                <input type="file" id="trabajoPdf" accept="application/pdf">
                 <button type="submit">Guardar</button>
             </form>
         </div>
     </div>
+
+    <!-- Nuevo: Modal para mostrar el reporte de accesos/revisiones -->
+    <div id="reportModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="reportCloseBtn">&times;</span>
+            <h2>Reporte de Usuarios y Documentos Revisados</h2>
+            <div id="reportContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
+                <!-- Contenido generado por JS -->
+            </div>
+        </div>
+    </div>
+
     <script src="STRUCTURE/SCRIPTS/menu.js"></script>
 </body>
 </html>

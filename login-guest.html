@@ -30,6 +30,33 @@
         </div>
     </main>
     <script src="login-guest.js"></script>
+    <script>
+    // filepath: c:\Users\USUARIO\Documents\Elias\GitHub\CODIGOCOMPARTIDOIUTEPAL\login-guest.html
+    (function(){
+        const sendBtn = document.getElementById('send');
+        if (!sendBtn) return;
+        sendBtn.addEventListener('click', function(e){
+            e.preventDefault();
+            const userInput = document.getElementById('user');
+            const name = (userInput && userInput.value || '').trim();
+            if (!name) {
+                alert('Por favor introduzca su nombre.');
+                return;
+            }
+            // marcar como guest, guardar nombre y eliminar admin si existiera
+            try {
+                localStorage.setItem('guest', 'true');
+                localStorage.setItem('guestUser', name);
+                localStorage.removeItem('admin');
+                localStorage.removeItem('adminUser');
+            } catch (err) {
+                console.warn('No se pudo guardar en localStorage', err);
+            }
+            // redirigir al menú
+            window.location.href = 'menu.html';
+        });
+    })();
+    </script>
 </body>
 
 </html>

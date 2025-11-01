@@ -31,6 +31,35 @@
         </div>
     </main>
     <script src="login.js"></script>
+    <script>
+    // filepath: c:\Users\USUARIO\Documents\Elias\GitHub\CODIGOCOMPARTIDOIUTEPAL\login-admin.html
+    (function(){
+        const sendBtn = document.getElementById('send');
+        if (!sendBtn) return;
+        sendBtn.addEventListener('click', function(e){
+            e.preventDefault();
+            const userInput = document.getElementById('user');
+            const passInput = document.getElementById('password');
+            const name = (userInput && userInput.value || '').trim();
+            const pass = (passInput && passInput.value || '').trim();
+            if (!name || !pass) {
+                alert('Por favor introduzca usuario y contraseña.');
+                return;
+            }
+            // marcar como admin y eliminar guest si existiera
+            try {
+                localStorage.setItem('admin', 'true');
+                localStorage.setItem('adminUser', name);
+                localStorage.removeItem('guest');
+                localStorage.removeItem('guestUser');
+            } catch (err) {
+                console.warn('No se pudo guardar en localStorage', err);
+            }
+            // redirigir al menú
+            window.location.href = 'menu.html';
+        });
+    })();
+    </script>
 </body>
 
 </html>

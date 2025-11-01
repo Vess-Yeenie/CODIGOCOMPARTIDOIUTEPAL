@@ -8,7 +8,7 @@
 </head>
 <body>
     <header class="header">  
-        <a href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
+        <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
         <div class="search-bar">
             <span class="search-icon">&#128269;</span>
             <input type="text" placeholder="BUSQUEDA">
@@ -42,6 +42,7 @@
             <button data-carrera="CONTABILIDAD">CONTABILIDAD</button>
             <button data-carrera="ADMINISTRACION">ADMINISTRACIÓN DE EMPRESAS</button>
             <button id="addTrabajoBtn">Añadir trabajo</button>
+            <button id="elaborarReporteBtn">Elaborar Reporte</button>
         </aside>
         <section class="documents">
             <!-- <div class="doc-card" data-carrera="INFORMATICA" data-ano="2023" data-tipo="presentacion">
@@ -124,7 +125,7 @@
                 <select id="trabajoTipo" required>
                     <option value="">Seleccione</option>
                     <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option>
+                    <option value="presentacion">Presentación</option
                     <option value="resumen">Hoja de resumen</option>
                 </select>
                 <label>Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
@@ -133,6 +134,18 @@
             </form>
         </div>
     </div>
+
+    <!-- Nuevo: Modal para mostrar el reporte de accesos/revisiones -->
+    <div id="reportModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="reportCloseBtn">&times;</span>
+            <h2>Reporte de Usuarios y Documentos Revisados</h2>
+            <div id="reportContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
+                <!-- Contenido generado por JS -->
+            </div>
+        </div>
+    </div>
+
     <script src="STRUCTURE/SCRIPTS/menu.js"></script>
 </body>
 </html>

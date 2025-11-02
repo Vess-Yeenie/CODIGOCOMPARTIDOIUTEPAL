@@ -1,0 +1,108 @@
+/* Blue full-screen background and centered spinner + loading bar */
+:root{
+    --bg: #0D47A1; /* deep blue */
+    --accent: #4fc3f7;
+    --track: rgba(255,255,255,0.12);
+    --white: #ffffff;
+}
+
+html,body{
+    height:100%;
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+.loading-screen{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    z-index:9999;
+    background: linear-gradient(180deg, rgba(13,71,161,1) 0%, rgba(10,50,120,1) 100%);
+    transition:opacity .6s ease, visibility .6s;
+}
+
+/* Spinner */
+.spinner-wrap{
+    width:220px;
+    height:220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.spinner{
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.4), inset 0 -6px 20px rgba(255,255,255,0.03);
+    animation: spin 2s linear infinite;
+    background: #ffffff;
+}
+
+/* Logo inside spinner */
+.logo-img{
+    width:72%;
+    height:auto;
+    display:block;
+    border-radius:12%;
+
+}
+
+/* Loading bar */
+.loading-bar{
+    width:420px;
+    max-width:85vw;
+    height:14px;
+    background: var(--track);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.progress{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--accent), #1976D2 70%);
+    border-radius:10px;
+    transition: width .18s linear;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+/* Text */
+.loading-text{
+    color:var(--white);
+    font-weight:600;
+    letter-spacing:0.4px;
+}
+
+/* Fade out */
+.loading-screen.loaded{
+    opacity:0;
+    pointer-events:none;
+}
+
+/* Animations */
+@keyframes spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+@keyframes innerSpin {
+    
+}
+
+/* Responsive smaller screens */
+@media (max-width:480px){
+    .spinner-wrap{ width:150px; height:150px; }
+    .spinner{ width:130px; height:130px; }
+    .loading-bar{ width:86vw; height:12px; }
+}

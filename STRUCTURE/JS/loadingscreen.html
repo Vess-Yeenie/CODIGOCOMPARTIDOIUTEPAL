@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Carga</title>
+    <link rel="stylesheet" href="loadingscreen.css">
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen" aria-hidden="false">
+        <div class="spinner-wrap">
+            <div class="spinner">
+                <img src="../IMG/iutepal_logo.png" alt="logo" class="logo-img">
+            </div>
+        </div>
+
+        <div class="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="loading-text">Cargando <span id="pct">0%</span></div>
+    </div>
+
+    <script>
+        (function(){
+            var pct = 0;
+            var progress = document.getElementById('progress');
+            var pctEl = document.getElementById('pct');
+            var screen = document.getElementById('loadingScreen');
+
+            var interval = setInterval(function(){
+                pct++;
+                if(pct > 100) pct = 100;
+                progress.style.width = pct + '%';
+                pctEl.textContent = pct + '%';
+                screen.setAttribute('aria-hidden', pct === 100 ? 'true' : 'false');
+
+                if(pct === 100){
+                    clearInterval(interval);
+                    screen.classList.add('loaded');
+                    setTimeout(function(){
+                        screen.style.display = 'none';
+                    }, 650);
+                }
+            }, 25); // ~2.5s to 100%
+        })();
+    </script>
+</body>
+</html>

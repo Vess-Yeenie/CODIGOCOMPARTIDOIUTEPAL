@@ -29,13 +29,22 @@
             </form>
         </div>
     </main>
-    <script src="login-guest.js"></script>
+    <!-- <script src="login-guest.js"></script> -->
+    <!-- Añadimos Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
     // filepath: c:\Users\USUARIO\Documents\Elias\GitHub\CODIGOCOMPARTIDOIUTEPAL\login-guest.html
     (function(){
+        const SUPABASE_URL = 'https://hvltuptwytwgbxhsmdis.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2bHR1cHR3eXR3Z2J4aHNtZGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMDY1ODMsImV4cCI6MjA3NzU4MjU4M30.OtfKc6qGT0L4bzvpWSMBMbxz1-NU4trSH89koj_UIts';
+        const supabase = window.supabase && window.supabase.createClient
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
+
         const sendBtn = document.getElementById('send');
         if (!sendBtn) return;
-        sendBtn.addEventListener('click', function(e){
+        sendBtn.addEventListener('click', async function(e){
             e.preventDefault();
             const userInput = document.getElementById('user');
             const name = (userInput && userInput.value || '').trim();
@@ -43,6 +52,40 @@
                 alert('Por favor introduzca su nombre.');
                 return;
             }
+
+            // Intentar insertar en la tabla "invitados" solo si no existe ya ese nombre
+            if (supabase) {
+                try {
+                    // 1) buscar existencia
+                    const { data: existing, error: selError } = await supabase
+                        .from('invitados')
+                        .select('id')
+                        .eq('nombre', name)
+                        .limit(1);
+
+                    if (selError) {
+                        console.warn('Error al consultar invitados:', selError.message || selError);
+                    } else if (existing && existing.length) {
+                        console.debug('Invitado ya registrado, no se insertará de nuevo:', existing[0]);
+                    } else {
+                        // 2) insertar solo si no existe
+                        const { data, error } = await supabase
+                            .from('invitados')
+                            .insert([{ nombre: name }])
+                            .select();
+                        if (error) {
+                            console.warn('No se pudo guardar en la tabla invitados:', error.message || error);
+                        } else {
+                            console.debug('Invitado creado en BD:', data && data[0]);
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Error al acceder a Supabase:', err);
+                }
+            } else {
+                console.warn('Supabase no disponible, se almacenará solo localmente.');
+            }
+
             // marcar como guest, guardar nombre y eliminar admin si existiera
             try {
                 localStorage.setItem('guest', 'true');

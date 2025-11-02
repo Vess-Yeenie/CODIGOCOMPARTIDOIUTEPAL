@@ -30,13 +30,54 @@
             </form>
         </div>
     </main>
-    <script src="login.js"></script>
+    <!-- <script src="login.js"></script> -->
+    <!-- Añadimos Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
     // filepath: c:\Users\USUARIO\Documents\Elias\GitHub\CODIGOCOMPARTIDOIUTEPAL\login-admin.html
     (function(){
+        const SUPABASE_URL = 'https://hvltuptwytwgbxhsmdis.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2bHR1cHR3eXR3Z2J4aHNtZGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMDY1ODMsImV4cCI6MjA3NzU4MjU4M30.OtfKc6qGT0L4bzvpWSMBMbxz1-NU4trSH89koj_UIts';
+        const supabase = window.supabase && window.supabase.createClient
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
+
         const sendBtn = document.getElementById('send');
         if (!sendBtn) return;
-        sendBtn.addEventListener('click', function(e){
+
+        // Tablas candidatas a consultar (ajusta si conoces el nombre exacto)
+        const TABLE_CANDIDATES = ['admin'];
+
+        async function findUserByNombre(nombre) {
+            if (!supabase) throw new Error('Supabase no está cargado.');
+            for (const table of TABLE_CANDIDATES) {
+                try {
+                    const { data, error } = await supabase
+                        .from("admin")
+                        .select('*')
+                        .eq('nombre', nombre)
+                        .limit(1);
+                        console.log(supabase.from("admin"))
+                    if (error) {
+                        // si la tabla no existe, supabase suele devolver un error; probamos la siguiente
+                        // ignoramos errores de relación inexistente y seguimos intentando otras tablas
+                        console.debug(`Tabla ${table}:`, error.message || error);
+                        continue;
+                    }
+                    if (data && data.length) {
+                        console.log(data)
+                        return { table, row: data[0] };
+                    }
+                } catch (err) {
+                    console.debug(`Error consultando ${table}:`, err.message || err);
+                    continue;
+                }
+            }
+            return null;
+        }
+
+        sendBtn.addEventListener('click', async function(e){
             e.preventDefault();
             const userInput = document.getElementById('user');
             const passInput = document.getElementById('password');
@@ -46,17 +87,40 @@
                 alert('Por favor introduzca usuario y contraseña.');
                 return;
             }
-            // marcar como admin y eliminar guest si existiera
-            try {
-                localStorage.setItem('admin', 'true');
-                localStorage.setItem('adminUser', name);
-                localStorage.removeItem('guest');
-                localStorage.removeItem('guestUser');
-            } catch (err) {
-                console.warn('No se pudo guardar en localStorage', err);
+
+            if (!supabase) {
+                alert('Error: cliente Supabase no disponible. Revisa la conexión.');
+                return;
             }
-            // redirigir al menú
-            window.location.href = 'menu.html';
+
+            try {
+                const found = await findUserByNombre(name);
+                
+                if (!found) {
+                    alert('Usuario no encontrado.');
+                    return;
+                }
+                const userRow = found.row;
+                // Comparación simple: password almacenado en 'password_hash'
+                // Si en tu BD usas hash, aquí debes comparar con la función/hash correcta.
+                const stored = userRow.password_hash || userRow.password || userRow.passwordHash || '';
+                if (stored === pass) {
+                    // login exitoso: marcar admin y redirigir
+                    try {
+                        localStorage.setItem('admin', 'true');
+                        localStorage.setItem('adminUser', name);
+                        // limpiar flag guest por seguridad
+                        localStorage.removeItem('guest');
+                        localStorage.removeItem('guestUser');
+                    } catch (err) { console.warn('No se pudo guardar en localStorage', err); }
+                    window.location.href = 'menu.html';
+                } else {
+                    alert('Contraseña incorrecta.');
+                }
+            } catch (err) {
+                console.error('Error en login:', err);
+                alert('Error al validar usuario. Revisa la consola.');
+            }
         });
     })();
     </script>

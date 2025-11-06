@@ -26,7 +26,7 @@ body {
     text-align: center;
     
     padding: 15px;
-    box-shadow: 2px 2px 9px rgb(100, 100, 100);
+    box-shadow: 5px 5px 9px rgb(0, 0, 0);
 }
 
 .login__title {
@@ -71,7 +71,7 @@ body {
     font-weight: 700;
     color: black;
     padding: 7px 3px;
-    background-color: rgb(1, 54, 151);
+    background-color: rgb(20, 84, 203);
     color: white;
     border: none;
     border-radius: 2px;

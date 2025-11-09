@@ -115,11 +115,6 @@ body {
     color: #e0e0e0;
 }
 
-.filterTitle-2{
-    font-size: 1em;
-    color: #e0e0e0;
-    padding-left: 20px;
-}
 
 .dropdown-icon {
     margin-left: 10px;
@@ -195,6 +190,7 @@ body {
     flex: 1;
     background: #fff;
     align-items: start; /* asegurar que todas las cards se alineen por la parte superior */
+    grid-auto-rows: 1fr; /* cada fila tendrá celdas de igual altura */
 }
 
 .doc-card {
@@ -202,68 +198,47 @@ body {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding-bottom: 1rem;
-    /* mantener una altura mínima pero permitir crecimiento según contenido */
-    min-height: 320px;
-    box-sizing: border-box;
-    justify-content: flex-start;
     padding: 12px;
-    /* quitar overflow para que el contenido crezca naturalmente */
+    box-sizing: border-box;
+    /* ocupar toda la altura de la celda del grid para lograr simetría */
+    height: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Ajuste: permitir mostrar texto completo (no line-clamp / ellipsis) */
-.doc-info {
-    text-align: center;
-    font-size: 0.95em;
-    color: #333;
-    margin: 12px 0;
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    /* eliminar -webkit-line-clamp y propiedades relacionadas */
-    /* -webkit-box-orient, -webkit-line-clamp, overflow, text-overflow removidos */
-}
-
-.doc-card.old-doc {
-    position: relative;
-    opacity: 0.7;
-    border: 2px solid red;
-}
-
-.doc-card .doc-x {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 2em;
-    color: red;
-    pointer-events: none;
-    z-index: 4;
-    font-weight: bold;
-    background: white;
-    border-radius: 50%;
-    padding: 0 8px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.2);
-    display: none;
-}
-
-.doc-card.old-doc .doc-x {
-    display: block;
+.doc-card:hover{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 /* icono PDF fijo y consistente */
 .doc-icon {
     width: 120px;    /* tamaño fijo */
-    height: 140px;   /* tamaño fijo */
+    height: 120px;   /* usar proporción cuadrada más simétrica */
     background-image: url('../IMG/PDF.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     flex: 0 0 auto;
     align-self: center;
     box-sizing: border-box;
+}
+
+/* área de texto: ocupar espacio central y permitir scroll interno si es muy largo */
+.doc-info {
+    text-align: center;
+    font-size: 0.95em;
+    color: #333;
+    margin: 12px 0;
+    flex: 1 1 auto;            /* tomar el espacio intermedio */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    overflow: auto;            /* evita que la tarjeta crezca descontrolada */
+    word-break: break-word;
 }
 
 /* acciones alineadas en fila y siempre al final de la tarjeta */
@@ -274,6 +249,36 @@ body {
     align-items: center;
     justify-content: center;
     margin-top: auto; /* empuja las acciones al fondo de la tarjeta */
+}
+
+/* botones: tamaño y alineación uniformes */
+.doc-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 40px;
+    margin: 0;
+}
+.doc-btn:hover{
+    background: #0080ff;
+    transform: scale(1.03);
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    color: white;
+}
+
+/* icono dentro de botón */
+.btn-icon{
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 #addTrabajoBtn {
@@ -362,4 +367,52 @@ body {
     width: auto;
     min-width: 40px;
     margin: 0; /* el gap entre botones lo controla .card-actions */
+}
+.doc-btn:hover{
+    background: #0080ff;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    color: white;
+}
+.btn-icon{
+  height: 20px;
+}
+.type-btn{
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 20px;
+    margin-right: 8px;
+    font-size: 0.9em;
+}
+.type-btn:hover{
+    background: #0080ff;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    color: white;
+}
+.type-filter .type-btn {
+    background: #e0e0e0;
+    color: #111;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    padding: 11px 15px;
+    margin-right: 25px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+/* .type-btn{
+    
+} */
+.type-filter .type-btn:hover {
+    background: #d6d6d6;
+    transform: translateY(-1px);
+}
+.type-filter .type-btn.selected {
+    background: #2834bb;
+    color: #fff;
+    border-color: #1a237e;
+    box-shadow: 0 2px 6px rgba(24,35,128,0.25);
 }

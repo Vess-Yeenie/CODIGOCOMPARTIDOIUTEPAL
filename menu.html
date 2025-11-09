@@ -13,6 +13,11 @@
             <span class="search-icon">&#128269;</span>
             <input type="text" placeholder="BUSQUEDA">
         </div>
+        <div class="type-filter" style="display:inline-block; margin-left:8px;" id="typeButtons">
+            <button class="type-btn" data-type="trabajo">Trabajo</button>
+            <button class="type-btn" data-type="presentacion">Presentación</button>
+            <button class="type-btn" data-type="resumen">Hoja de resumen</button>
+        </div>
         <h1 class="filterTitle">Filtrar por año:</h1>
         <div class="date-dropdown" id="dateDropdown">
             <span id="selectedDate"></span>
@@ -25,15 +30,7 @@
                 <button id="setYear">OK</button>
             </div>
         </div>
-        <h1 class="filterTitle-2">Filtrar por tipo:</h1>
-        <div class="type-filter" style="display:inline-block; margin-left:8px;">
-            <select id="typeFilter">
-                <option value="todos" selected>Todos</option>
-                <option value="trabajo">Trabajo de grado</option>
-                <option value="presentacion">Presentación</option>
-                <option value="resumen">Hoja de resumen</option>
-            </select>
-        </div>
+       
     </header>
     <main class="main-content">
         <aside class="sidebar">

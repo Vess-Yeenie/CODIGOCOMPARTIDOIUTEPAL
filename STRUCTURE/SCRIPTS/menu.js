@@ -229,8 +229,6 @@ const isGuest = (function() {
 // Referencias DOM
 const contenedorCards = document.querySelector('.documents');
 const searchInput = document.querySelector('.search-bar input');
-const typeFilter = document.getElementById('typeFilter');
-const yearSelect = document.getElementById('yearSelect');
 const setYear = document.getElementById('setYear');
 const selectedDate = document.getElementById('selectedDate');
 // Nuevo: referencias para el dropdown de fecha
@@ -281,16 +279,10 @@ function renderCards() {
         card.dataset.ano = item.año;
         card.dataset.tipo = item.tipo || 'trabajo';
 
-        const xDiv = document.createElement('div');
-        xDiv.className = 'doc-x';
-        xDiv.innerHTML = '&#10006;';
-        xDiv.style.display = (new Date().getFullYear() - item.año > 5) ? 'block' : 'none';
-        card.appendChild(xDiv);
-
         const iconDiv = document.createElement('div');
         iconDiv.className = 'doc-icon';
         card.appendChild(iconDiv);
-
+        
         const infoDiv = document.createElement('div');
         infoDiv.className = 'doc-info';
         // Mostrar texto completo (sin truncado)
@@ -298,17 +290,17 @@ function renderCards() {
         infoDiv.textContent = fullText;
         infoDiv.title = fullText;
         card.appendChild(infoDiv);
-
+        
         // acciones: si es guest -> solo Descargar; si no -> Editar + Descargar + Eliminar
         const actions = document.createElement('div');
         actions.className = 'card-actions';
         if (isGuest) {
-            actions.innerHTML = `<button class="download-btn doc-btn" title="Descargar" data-id="${item.id}">⬇</button>`;
+            actions.innerHTML = `<button class="download-btn doc-btn" title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>`;
         } else {
             actions.innerHTML = `
-                <button class="edit-btn doc-btn" title="Editar" data-id="${item.id}">✎</button>
-                <button class="download-btn doc-btn" doc-btn title="Descargar" data-id="${item.id}">⬇</button>
-                <button class="delete-btn doc-btn" title="Eliminar" data-id="${item.id}">🗑</button>
+                <button class="edit-btn doc-btn" title="Editar" data-id="${item.id}"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>
+                <button class="download-btn doc-btn" doc-btn title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
+                <button class="delete-btn doc-btn" title="Eliminar" data-id="${item.id}"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>
             `;
         }
         card.appendChild(actions);
@@ -490,10 +482,34 @@ searchInput.addEventListener('input', function() {
     renderCards();
 });
 
-typeFilter.addEventListener('change', function() {
-    selectedTipo = this.value;
-    renderCards();
-});
+// Reemplazamos el select por botones en el header
+const typeButtonsContainer = document.getElementById('typeButtons');
+const typeButtons = typeButtonsContainer ? Array.from(typeButtonsContainer.querySelectorAll('.type-btn')) : [];
+
+// Nuevo manejo: listeners en los botones de tipo, usando la clase "selected"
+if (typeButtons && typeButtons.length) {
+    // Asegurar que no haya clases previas
+    typeButtons.forEach(btn => btn.classList.remove('selected'));
+
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const t = btn.dataset.type;
+            // Toggle: si se pulsa el mismo botón, volver a 'todos' (sin selección)
+            if (selectedTipo === t) {
+                selectedTipo = 'todos';
+            } else {
+                selectedTipo = t;
+            }
+            // actualizar clases "selected"
+            typeButtons.forEach(b => b.classList.remove('selected'));
+            if (selectedTipo !== 'todos') {
+                const toActivate = typeButtons.find(b => b.dataset.type === selectedTipo);
+                if (toActivate) toActivate.classList.add('selected');
+            }
+            renderCards();
+        });
+    });
+}
 
 setYear.addEventListener('click', function() {
     selectedAno = yearSelect.value;

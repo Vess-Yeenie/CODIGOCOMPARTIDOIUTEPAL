@@ -30,10 +30,177 @@ const defaultTrabajos = [
     carrera: "PRODUCCION",
     tipo: "resumen",
     pdf: "STRUCTURE/PDFs/TEG_Marbelis_Pérez PRODUCCION INDUSTRIAL.pdf"
-  }
+  },
+  {
+    id: 't5',
+    nombre: "PLAN DE RECUPERACIÓN DE OPERATIVIDAD DE ASCENSORES DEL INSTITUTO UNIVERSITARIO DE TECNOLOGÍA JUAN PABLO PÉREZ ALFONZO - AMPLIACIÓN PUERTO CABELLO",
+    año: 2018,
+    carrera: "PRODUCCION",
+    tipo: "resumen",
+    pdf: "STRUCTURE/PDFs/TEG_JOUSEPH_DÍAZ_DEFINITIVO_JOUSEPH_DÍAZ_LESSIRE_ELECTRONICA.pdf"
+  },
+  {
+    id: 't6',
+    nombre: "MEJORA ESTRUCTURAL DEL SISTEMA DE CRIBAS EN LA UNIDAD DE GRANULACION DE LA PLANTA DE UREA.",
+    año: 2024,
+    carrera: "PRODUCCION",
+    tipo: "trabajo",
+    pdf: "STRUCTURE/PDFs/TEG_Luis_Mencías PRODUCCION INDUSTRAL.pdf"
+  },
+  {
+    id: 't7',
+    nombre: "PLAN DE MANTENIMIENTO PREVENTIVO A UNA MAQUINA JUMBO 320 C EN LA EMPRESA MULTIRECICLAJES PC.CA",
+    año: 2024,
+    carrera: "PRODUCCION",
+    tipo: "trabajo",
+    pdf: "STRUCTURE/PDFs/TEG_EdwinMedina PRODUCCION INDUSTRIAL.pdf"
+  },
+  {
+id: "t8",
+ nombre: "Estrategias contables para la optimización de la gestión presupuestaria en el departamento de repuesto de la empresa Toyoprimium, C.A. Puerto Cabello Estado Carabobo",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/estrategias_contables_para_la_optimizacion_de_la_gestion_presupuestaria_en_el_departamento_de_de_la.pdf"
+ },
+{
+id: "t9",
+ nombre: "ESTRATEGIAS ADMINISTRATIVAS Y CONTABLES PARA MEJORAR EL MODO DE COBRANZA EN LA EMPRESA SERVICIO DE D G M DE PUERTO CABELLO",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/estrategias_administrativas_y_contables_para_mejorar_el_modo_de_cobranza_en_la_empresa_servicio_de_d.pdf"
+ },
+{
+id: "t10",
+ nombre: "Sistema contable administrativo para adecuar la información financiera de la Empresa inversiones Halcones C.A Estado Carabobo, Puerto Cabello 2024",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/sistema_contable_administrativo_para_adecuar_la_informacion_financiera_de_la_empresa_inversiones_c_a.pdf" },
+{
+id: "t11",
+ nombre: "ESTRATEGIAS ADMINISTRATIVAS PARA LA OPTIMIZACIÓN DE LA GESTIÓN CONTABLE DE LA EMPRESA F. STANZIONE, S.A. PUERTO CABELLO - ESTADO CARABOBO",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/ESTRATEGIAS ADMINISTRATIVAS PARA LA OPTIMIZACIÓN DE LA GESTIÓN.pdf" },
+{
+id: "t12",
+ nombre: "ESTRATEGIAS GERENCIALES PARA OPTIMIZAR EL DESARROLLO LABORAL DE LOS TRABAJADORES EN LA AGENCIA ADUANAL MARGUANI C.A PUERTO CABELLO ESTADO CARABOBO.”.",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/ESTRATEGIAS GERENCIALES PARA OPTIMIZAR EL DESARROLLO LABORAL.pdf"
+ },
+{
+id: "t13",
+ nombre: "ESTRATEGIAS CONTABLES PARA ADECUAR LOS GASTOS EN LA EMPRESA AGENTES ADUANALES MARIEKA C.A, EN PUERTO CABELLO, EDO. CARABOBO",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/estrategias_contables_para_adecuar_los_gastos_en_la_empresa_agentes_aduanales_marieka_c_a_en_puerto.pdf"
+ },
+{
+id: "t14",
+ nombre: "ESTRATEGIAS GERENCIALES PARA OPTIMIZAR LA GESTION CONTABLE EN LA EMPRESA SUGAR FANTASY PUERTO CABELLO EDO. CARABOBO",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/estrategias_gerenciales_para_optimizar_la_gestion_contable_en_la_empresa_sugar_fantasy_puerto_edo.pdf"
+ },
+{
+id: "t15",
+ nombre: "ESTRATEGIAS CONTABLES PARA EL FORTALECIMIENTO DE LA GESTION ADMINISTRATIV A EN LA EMPRESA FARIÑAS Y COLINA, C.A., AGENTE DE ADUANAS",
+año: 2024,
+carrera: "CONTABILIDAD",
+tipo: "resumen",
+pdf: "STRUCTURE/PDFs/estrategias_contables_para_el_fortalecimiento_de_la_gestion_administrativ_a_en_la_empresa_farinas_y.pdf"
+ },
+{
+id: "t16",
+ nombre: "Método contable para el control del inventario en la empresa Andy Repuestos F.P,Puerto Cabello Estado Carabobo",
+ año: 2024,
+ carrera: "CONTABILIDAD",
+ tipo: "resumen",
+ pdf: "Método contable para el control del inventario en la empresa Andy Repuestos.pdf"
+ },
+ {
+ id: "t17",
+ nombre: "IMPLEMENTACIÓN DE PRÁCTICAS DE LABORATORIO ENMICROCONTROLADORES Y PLC PARA ELECTRÓNICA",
+ año: 2024,
+ carrera: "ELECTRONICA",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/de_puerto_cabello_la_investigacion_se_enmarca_bajo_la_modalidad_de_proyecto_factible_con_el_fin_de_7.pdf"
+  },
+{ 
+ id: "t18",
+ nombre: "PROPUESTA DE IMPLEMENTACIÓN DE PRÁCTICAS DE LABORATORIO EN MÁQUINAS ELÉCTRICAS PARA ELECTRÓNICA",
+ año: 2024,
+ carrera: "ELECTRONICA",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/proporcionando_a_los_estudiantes_una_experiencia_de_aprendizaje_mas_completa_y_significativa_la_los.pdf"
+ },
+{
+ id: "t19",
+ nombre: "PLAN DE RECUPERACIÓN DE OPERATIVIDAD DE ASCENSORES DEL INSTITUTO UNIVERSITARIO DE TECNOLOGÍA JUAN PABLO PÉREZ ALFONZO - AMPLIACIÓN PUERTO CABELLO",
+ año: 2024,
+ carrera: "ELECTRONICA",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/PLAN DE RECUPERACIÓN DE OPERATIVIDAD DE ASCENSORES.pdf"
+},
+{
+    id: "t20",
+ nombre: "PROPUESTA PARA LA IMPLEMENTACIÓN DE UN SISTEMA DE GESTIÓN DE LA CALIDAD, BASADO EN LA NORMA ISO 9001:2015, PARA LA EMPRESA INDUSTRIAS ALIMENTICIAS COCOA, C.A.",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/ampliacion_puerto_cabello_propuesta_para_la_implementacion_de_un_sistema_de_gestion_de_la_calidad_en.pdf"
+ },
+{
+    id: "t21",
+ nombre: "PROPUESTA DE UN PROGRAMA DE SEGURIDAD Y SALUD OCUPACIONAL PARA REDUCIR LESIONES Y ENFERMEDADES LABORALES EN EL AREA DE SOLDADURA DIRIGIDA A LOS TRABAJADORES DE LA ASOCIACIÓN COOPERATIVA FABRISOL RL.UBICADO EN EL MUNICIPIO JUAN JOSE MORA.",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/propuesta_de_un_programa_de_seguridad_y_salud_ocupacional_para_reducir_lesiones_y_enfermedades_en_el.pdf"
+ },
+{
+    id: "t22",
+ nombre: "PLAN DE MANTENIMIENTO PREVENTIVO A MAQUINA JUMBO 320C EN LA EMPRESA MULTIRECICLAJES PC",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/plan_de_mantenimiento_preventivo_a_maquina_jumbo_320c_en_la_empresa_multireciclajes_pc.pdf"
+ },
+{
+    id: "t23",
+ nombre: "Sistema de Gestión de Mantenimiento Preventivo y Correctivo a las máquinas de ensacado de Urea del Complejo Petroquímico Hugo Chávez, Morón- Carabobo.",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/sistema_de_gestion_de_mantenimiento_preventivo_y_correctivo_a_las_maquinas_de_ensacado_de_urea_del.pdf"
+ },
+{
+    id: "t24",
+ nombre: "MEDIDAS PARA MEJORAR LAS CONDICIONES DE SEGURIDAD Y SALUD LABORAL EN LAS OPERACIONES DE LA EMPRESA SUPERCINES COSTA MAR C.A.",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/medidas_para_mejorar_las_condiciones_de_seguridad_y_salud_laboral_en_las_operaciones_de_la_empresa_c.pdf"
+ },
+{
+    id: "t25",
+ nombre: "EVALUACIÓN DEL SISTEMA DE ENSACADO PARA LA MINIMIZACIÓN DE RIESGOS LABORALES DE LA EMPRESA FERRO ALUMINIO CA",
+ año: 2024,
+ carrera: "PRODUCCION",
+ tipo: "resumen",
+ pdf: "STRUCTURE/PDFs/evaluacion_del_sistema_de_ensacado_para_la_minimizacion_de_riesgos_laborales_de_la_empresa_ferro_ca.pdf"
+ },
+
 ];
 
-let trabajos = JSON.parse(localStorage.getItem('trabajosDeGrado')) || defaultTrabajos.slice();
+let trabajos =  defaultTrabajos.slice() || JSON.parse(localStorage.getItem('trabajosDeGrado')) ;
 // Asegurar ids únicos
 trabajos = trabajos.map(item => ({ ...item, id: item.id || (Date.now().toString() + Math.random().toString(36).slice(2)) }));
 localStorage.setItem('trabajosDeGrado', JSON.stringify(trabajos));
@@ -62,8 +229,6 @@ const isGuest = (function() {
 // Referencias DOM
 const contenedorCards = document.querySelector('.documents');
 const searchInput = document.querySelector('.search-bar input');
-const typeFilter = document.getElementById('typeFilter');
-const yearSelect = document.getElementById('yearSelect');
 const setYear = document.getElementById('setYear');
 const selectedDate = document.getElementById('selectedDate');
 // Nuevo: referencias para el dropdown de fecha
@@ -114,31 +279,28 @@ function renderCards() {
         card.dataset.ano = item.año;
         card.dataset.tipo = item.tipo || 'trabajo';
 
-        const xDiv = document.createElement('div');
-        xDiv.className = 'doc-x';
-        xDiv.innerHTML = '&#10006;';
-        xDiv.style.display = (new Date().getFullYear() - item.año > 5) ? 'block' : 'none';
-        card.appendChild(xDiv);
-
         const iconDiv = document.createElement('div');
         iconDiv.className = 'doc-icon';
         card.appendChild(iconDiv);
-
+        
         const infoDiv = document.createElement('div');
         infoDiv.className = 'doc-info';
-        infoDiv.textContent = `${item.nombre}, ${item.carrera.charAt(0).toUpperCase() + item.carrera.slice(1).toLowerCase().replace('_', ' ')}, ${item.año}`;
+        // Mostrar texto completo (sin truncado)
+        const fullText = `${item.nombre || 'Sin título'}, ${item.carrera || ''}, ${item.año || ''}`;
+        infoDiv.textContent = fullText;
+        infoDiv.title = fullText;
         card.appendChild(infoDiv);
-
+        
         // acciones: si es guest -> solo Descargar; si no -> Editar + Descargar + Eliminar
         const actions = document.createElement('div');
         actions.className = 'card-actions';
         if (isGuest) {
-            actions.innerHTML = `<button class="download-btn" title="Descargar" data-id="${item.id}">⬇</button>`;
+            actions.innerHTML = `<button class="download-btn doc-btn" title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>`;
         } else {
             actions.innerHTML = `
-                <button class="edit-btn" title="Editar" data-id="${item.id}">✎</button>
-                <button class="download-btn" title="Descargar" data-id="${item.id}">⬇</button>
-                <button class="delete-btn" title="Eliminar" data-id="${item.id}">🗑</button>
+                <button class="edit-btn doc-btn" title="Editar" data-id="${item.id}"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>
+                <button class="download-btn doc-btn" doc-btn title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
+                <button class="delete-btn doc-btn" title="Eliminar" data-id="${item.id}"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>
             `;
         }
         card.appendChild(actions);
@@ -320,10 +482,34 @@ searchInput.addEventListener('input', function() {
     renderCards();
 });
 
-typeFilter.addEventListener('change', function() {
-    selectedTipo = this.value;
-    renderCards();
-});
+// Reemplazamos el select por botones en el header
+const typeButtonsContainer = document.getElementById('typeButtons');
+const typeButtons = typeButtonsContainer ? Array.from(typeButtonsContainer.querySelectorAll('.type-btn')) : [];
+
+// Nuevo manejo: listeners en los botones de tipo, usando la clase "selected"
+if (typeButtons && typeButtons.length) {
+    // Asegurar que no haya clases previas
+    typeButtons.forEach(btn => btn.classList.remove('selected'));
+
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const t = btn.dataset.type;
+            // Toggle: si se pulsa el mismo botón, volver a 'todos' (sin selección)
+            if (selectedTipo === t) {
+                selectedTipo = 'todos';
+            } else {
+                selectedTipo = t;
+            }
+            // actualizar clases "selected"
+            typeButtons.forEach(b => b.classList.remove('selected'));
+            if (selectedTipo !== 'todos') {
+                const toActivate = typeButtons.find(b => b.dataset.type === selectedTipo);
+                if (toActivate) toActivate.classList.add('selected');
+            }
+            renderCards();
+        });
+    });
+}
 
 setYear.addEventListener('click', function() {
     selectedAno = yearSelect.value;
@@ -382,43 +568,6 @@ if (dateDropdown && monthYearMenu) {
         e.stopPropagation();
     });
 }
-
-// --- Nuevo: eliminación vía logo (antes de ir al inicio) ---
-(function(){
-    const homeLogoLink = document.getElementById('homeLogo');
-    if (!homeLogoLink) return;
-    homeLogoLink.addEventListener('click', function(e){
-        // Si es guest, no preguntar ni eliminar, navegar normalmente
-        if (isGuest) {
-            // Dejar que el enlace navegue de forma normal
-            return;
-        }
-        // Evitar navegación inmediata para procesar la posible eliminación
-        e.preventDefault();
-        const href = homeLogoLink.href || 'Index.html';
-        const confirmar = confirm('¿Desea eliminar los documentos antiguos (más de 5 años) antes de ir al inicio?');
-        if (confirmar) {
-            const currentYear = new Date().getFullYear();
-            // Filtrar trabajos: conservar solo los que NO son antiguos
-            trabajos = trabajos.filter(t => {
-                const y = parseInt(t.año, 10) || 0;
-                return !(currentYear - y > 5);
-            });
-            // limpiar objectURLs asociados si existieran
-            Object.keys(inMemoryPdfMap).forEach(id => {
-                // si el id ya no existe en trabajos eliminar su objectURL
-                if (!trabajos.find(t => t.id === id)) {
-                    try { URL.revokeObjectURL(inMemoryPdfMap[id]); } catch (err) {}
-                    delete inMemoryPdfMap[id];
-                }
-            });
-            saveToStorage();
-            renderCards();
-        }
-        // Redirigir al inicio (aunque no haya confirmado)
-        window.location.href = href;
-    });
-})();
 
 // --- Función para abrir modal de reporte ---
 function openReportModal() {

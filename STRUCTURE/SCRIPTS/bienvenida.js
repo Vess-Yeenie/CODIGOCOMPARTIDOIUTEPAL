@@ -30,3 +30,11 @@ guestBtn.addEventListener("click", (e)=>{
     e.preventDefault();
     window.location.href = "login-guest.html"
 })
+
+const registerBtn = document.querySelector(".btn-register");
+
+registerBtn.addEventListener("click", (e)=>{
+
+    e.preventDefault();
+    window.location.href = "user-register.html"
+})

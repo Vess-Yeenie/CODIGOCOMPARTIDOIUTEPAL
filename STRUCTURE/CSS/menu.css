@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #fff;
+    background: #d0cece;
     overflow: hidden;
     
 }
@@ -10,7 +10,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #1a237e; /* Azul igual que barra de búsqueda */
+    background: #29329d; /* Azul igual que barra de búsqueda */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -50,6 +50,7 @@ body {
     width: 100%;
     outline: none;
     padding: 5px;
+    border-radius: 25px;
 }
 
 .date-dropdown {
@@ -131,7 +132,7 @@ body {
     position: sticky;
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
-    background: #151c63; /* Azul igual que barra de búsqueda */
+    background: #1d2585; /* Azul igual que barra de búsqueda */
     padding: 20px 0;
     width: 220px;
     display: flex;
@@ -185,19 +186,25 @@ body {
 .documents {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 40px;
+    gap: 100px;
     padding: 40px;
     flex: 1;
-    background: #fff;
+    background: #d0cece;
     align-items: start; /* asegurar que todas las cards se alineen por la parte superior */
     grid-auto-rows: 1fr; /* cada fila tendrá celdas de igual altura */
 }
+
 
 .doc-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
+    margin-bottom:20px;
+    /* mantener una altura mínima pero permitir crecimiento según contenido */
+    min-height: 320px;
+    box-sizing: border-box;
+    justify-content: flex-start;
     padding: 12px;
     box-sizing: border-box;
     /* ocupar toda la altura de la celda del grid para lograr simetría */
@@ -288,7 +295,7 @@ body {
     border: none;
     padding: 10px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 25px;
 
 }
 
@@ -416,3 +423,4 @@ body {
     border-color: #1a237e;
     box-shadow: 0 2px 6px rgba(24,35,128,0.25);
 }
+

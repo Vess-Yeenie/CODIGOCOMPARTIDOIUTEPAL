@@ -13,6 +13,7 @@ body {
     align-items: center;
     background-color: #f0f2f5; /* Un color de fondo suave */
     overflow: hidden; /* Evitar barras de desplazamiento si el contenido no lo requiere */
+    user-select: none;
 }
 
 .container {
@@ -46,6 +47,7 @@ body {
     height: auto;
     /* Ajustes para que el logo se vea bien sobre la imagen de fondo */
     filter: drop-shadow(10px 10px 5px rgba(255, 255, 255, 0.9)); 
+    user-select: none;
   
 }
 

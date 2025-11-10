@@ -226,11 +226,21 @@ const isGuest = (function() {
     }
 })();
 
+// Nuevo: detectar si el usuario es "IUTEPALISTA"
+const isIutepalista = (function() {
+    try {
+        // Asume que esta clave se guarda en el login exitoso (como sugerimos antes)
+        return localStorage.getItem('iutepalistaStatus') === 'true';
+    } catch (e) {
+        return false;
+    }
+})();
+
+
+
 // Referencias DOM
 const contenedorCards = document.querySelector('.documents');
 const searchInput = document.querySelector('.search-bar input');
-const typeFilter = document.getElementById('typeFilter');
-const yearSelect = document.getElementById('yearSelect');
 const setYear = document.getElementById('setYear');
 const selectedDate = document.getElementById('selectedDate');
 // Nuevo: referencias para el dropdown de fecha
@@ -259,14 +269,56 @@ function renderCards() {
     contenedorCards.innerHTML = '';
     const now = new Date();
     // aplicar filtros sobre array antes de crear DOM
-    let items = trabajos.filter(item => {
-        const carreraMatch = selectedCarrera ? item.carrera.toUpperCase() === selectedCarrera : true;
-        const anoMatch = (selectedAno === 'todos') ? true : String(item.año) === String(selectedAno);
-        const tipoMatch = (selectedTipo === 'todos') ? true : item.tipo === selectedTipo;
-        const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || (item.carrera && item.carrera.toLowerCase().includes(searchText)) : true;
-        return carreraMatch && anoMatch && tipoMatch && searchMatch;
-    });
+   // CÓDIGO MODIFICADO (dentro de renderCards)
 
+    let items = trabajos.filter(item => {
+    
+    // Filtros existentes
+    const carreraMatch = selectedCarrera ? item.carrera.toUpperCase() === selectedCarrera : true;
+    const anoMatch = (selectedAno === 'todos') ? true : String(item.año) === String(selectedAno);
+    const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || (item.carrera && item.carrera.toLowerCase().includes(searchText)) : true;
+    
+    // 🟢 RESTRICCIÓN DE TIPO (Actualizada)
+    let typeRestriction;
+
+    if (isAdmin) {
+        // Excepción ADMIN: ve todos los tipos
+        typeRestriction = true;
+    } else if (isIutepalista) {
+        // IUTEPALISTA: solo ve 'resumen'
+        typeRestriction = item.tipo === 'resumen';
+    } else {
+        // VISITANTE/NO IUTEPALISTA: ve 'trabajo' o 'presentacion'
+        typeRestriction = item.tipo === 'trabajo' || item.tipo === 'presentacion';
+    }
+
+    // Filtro de tipo seleccionado (de los botones)
+    const tipoMatch = (selectedTipo === 'todos') ? true : item.tipo === selectedTipo;
+    
+    // La restricción de tipo debe cumplirse, y luego el filtro de tipo (si se aplica)
+    return typeRestriction && carreraMatch && anoMatch && tipoMatch && searchMatch;
+});
+// CÓDIGO MODIFICADO (Al inicio de renderCards)
+
+// 🟢 Ajuste de visibilidad de botones de tipo
+if (typeButtonsContainer) {
+    typeButtons.forEach(btn => {
+        const type = btn.dataset.type;
+        
+        if (isAdmin) {
+            // ADMIN: Muestra todos los botones
+            btn.style.display = '';
+        } else if (isIutepalista) {
+            // IUTEPALISTA: Muestra solo 'resumen'
+            btn.style.display = (type === 'resumen') ? '' : 'none';
+        } else {
+            // VISITANTE/NO IUTEPALISTA: Muestra 'trabajo' y 'presentacion'
+            btn.style.display = (type === 'trabajo' || type === 'presentacion') ? '' : 'none';
+        }
+    });
+}
+
+contenedorCards.innerHTML = '';
     // si no hay carrera seleccionada, ordenar por año descendente
     if (!selectedCarrera) {
         items.sort((a, b) => b.año - a.año);
@@ -281,16 +333,10 @@ function renderCards() {
         card.dataset.ano = item.año;
         card.dataset.tipo = item.tipo || 'trabajo';
 
-        const xDiv = document.createElement('div');
-        xDiv.className = 'doc-x';
-        xDiv.innerHTML = '&#10006;';
-        xDiv.style.display = (new Date().getFullYear() - item.año > 5) ? 'block' : 'none';
-        card.appendChild(xDiv);
-
         const iconDiv = document.createElement('div');
         iconDiv.className = 'doc-icon';
         card.appendChild(iconDiv);
-
+        
         const infoDiv = document.createElement('div');
         infoDiv.className = 'doc-info';
         // Mostrar texto completo (sin truncado)
@@ -298,17 +344,17 @@ function renderCards() {
         infoDiv.textContent = fullText;
         infoDiv.title = fullText;
         card.appendChild(infoDiv);
-
+        
         // acciones: si es guest -> solo Descargar; si no -> Editar + Descargar + Eliminar
         const actions = document.createElement('div');
         actions.className = 'card-actions';
         if (isGuest) {
-            actions.innerHTML = `<button class="download-btn doc-btn" title="Descargar" data-id="${item.id}">⬇</button>`;
+            actions.innerHTML = `<button class="download-btn doc-btn" title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>`;
         } else {
             actions.innerHTML = `
-                <button class="edit-btn doc-btn" title="Editar" data-id="${item.id}">✎</button>
-                <button class="download-btn doc-btn" doc-btn title="Descargar" data-id="${item.id}">⬇</button>
-                <button class="delete-btn doc-btn" title="Eliminar" data-id="${item.id}">🗑</button>
+                <button class="edit-btn doc-btn" title="Editar" data-id="${item.id}"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>
+                <button class="download-btn doc-btn" doc-btn title="Descargar" data-id="${item.id}"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
+                <button class="delete-btn doc-btn" title="Eliminar" data-id="${item.id}"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>
             `;
         }
         card.appendChild(actions);
@@ -490,10 +536,34 @@ searchInput.addEventListener('input', function() {
     renderCards();
 });
 
-typeFilter.addEventListener('change', function() {
-    selectedTipo = this.value;
-    renderCards();
-});
+// Reemplazamos el select por botones en el header
+const typeButtonsContainer = document.getElementById('typeButtons');
+const typeButtons = typeButtonsContainer ? Array.from(typeButtonsContainer.querySelectorAll('.type-btn')) : [];
+
+// Nuevo manejo: listeners en los botones de tipo, usando la clase "selected"
+if (typeButtons && typeButtons.length) {
+    // Asegurar que no haya clases previas
+    typeButtons.forEach(btn => btn.classList.remove('selected'));
+
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const t = btn.dataset.type;
+            // Toggle: si se pulsa el mismo botón, volver a 'todos' (sin selección)
+            if (selectedTipo === t) {
+                selectedTipo = 'todos';
+            } else {
+                selectedTipo = t;
+            }
+            // actualizar clases "selected"
+            typeButtons.forEach(b => b.classList.remove('selected'));
+            if (selectedTipo !== 'todos') {
+                const toActivate = typeButtons.find(b => b.dataset.type === selectedTipo);
+                if (toActivate) toActivate.classList.add('selected');
+            }
+            renderCards();
+        });
+    });
+}
 
 setYear.addEventListener('click', function() {
     selectedAno = yearSelect.value;

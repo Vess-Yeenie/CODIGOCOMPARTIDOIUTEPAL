@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
     <link rel="stylesheet" href="STRUCTURE/CSS/menu.css">
 </head>
+
 <body>
-    <header class="header">  
+    <header class="header">
         <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
         <div class="search-bar">
             <span class="search-icon">&#128269;</span>
@@ -30,16 +32,31 @@
                 <button id="setYear">OK</button>
             </div>
         </div>
-       
+
     </header>
     <main class="main-content">
         <aside class="sidebar">
             <div class="sidebar-title">CARRERAS</div>
-            <button data-carrera="INFORMATICA">INFORMÁTICA</button>
-            <button data-carrera="PRODUCCION">PRODUCCIÓN INDUSTRIAL</button>
-            <button data-carrera="ELECTRONICA">ELECTRÓNICA</button>
-            <button data-carrera="CONTABILIDAD">CONTABILIDAD</button>
-            <button data-carrera="ADMINISTRACION">ADMINISTRACIÓN DE EMPRESAS</button>
+            <button data-carrera="INFORMATICA">
+                <span class="btn-text">INFORMÁTICA</span>
+                <span class="btn-icon right-icon" data-icon="informatica"></span>
+            </button>
+            <button data-carrera="PRODUCCION">
+                <span class="btn-text">PRODUCCIÓN INDUSTRIAL</span>
+                <span class="btn-icon right-icon" data-icon="produccion"></span>
+            </button>
+            <button data-carrera="ELECTRONICA">
+                <span class="btn-text">ELECTRÓNICA</span>
+                <span class="btn-icon right-icon" data-icon="electronica"></span>
+            </button>
+            <button data-carrera="CONTABILIDAD">
+                <span class="btn-text">CONTABILIDAD</span>
+                <span class="btn-icon right-icon" data-icon="contabilidad"></span>
+            </button>
+            <button data-carrera="ADMINISTRACION">
+                <span class="btn-text">ADMINISTRACIÓN DE EMPRESAS</span>
+                <span class="btn-icon right-icon" data-icon="adminis"></span>
+            </button>
             <button id="addTrabajoBtn">Añadir trabajo</button>
             <button id="elaborarReporteBtn">Elaborar Reporte</button>
         </aside>
@@ -147,4 +164,5 @@
 
     <script src="STRUCTURE/SCRIPTS/menu.js"></script>
 </body>
+
 </html>

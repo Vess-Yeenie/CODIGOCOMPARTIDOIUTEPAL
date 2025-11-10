@@ -196,6 +196,8 @@ body {
     
 }
 
+/* STRUCTURE/CSS/menu.css */
+
 
 .doc-card {
     display: flex;
@@ -426,4 +428,63 @@ body {
     border-color: #1a237e;
     box-shadow: 0 2px 6px rgba(24,35,128,0.25);
 }
+.sidebar button {
+    background: #fff;
+    color: #000; 
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    margin: 8px 0;
+    width: 180px;
+   font-size: 0.9em;
+    cursor: pointer;
+    
+    /* ✅ CLAVE: Usar Flexbox para alinear contenido */
+    display: flex;
+    justify-content: space-between; /* Distribuye el espacio entre el texto y el icono */
+    align-items: center; /* Alineación vertical */
+    text-align: left; /* Aunque usemos flexbox, es bueno mantenerlo */
+}
 
+.sidebar button .btn-text {
+    /* Permitir que el texto ocupe el espacio */
+    flex-grow: 1;
+    text-align: left; 
+}
+
+
+.btn-icon.right-icon {
+    /* ✅ SOLUCIÓN CLAVE: Forzar al span a respetar las propiedades width/height */
+    display: inline-block; 
+    
+    width: 20px;  /* Ya definido */
+    height: 20px; /* Ya definido */
+    margin-left: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; 
+}
+/* 🔌 SVGs específicos: DEBES AJUSTAR LAS RUTAS */
+.sidebar button [data-icon="informatica"] {
+    background-image: url('../IMG/computer.svg'); 
+}
+
+.sidebar button [data-icon="produccion"] {
+    background-image: url('../IMG/factory.svg'); 
+     width: 35px; /* Tamaño del icono */
+    height: 35px;
+}
+
+.sidebar button [data-icon="electronica"] {
+    background-image: url('../IMG/circuit.svg'); 
+}
+
+.sidebar button [data-icon="contabilidad"] {
+    background-image: url('../IMG/calculator.svg'); 
+}
+
+.sidebar button [data-icon="adminis"] {
+    background-image: url('../IMG/chart.svg'); 
+ width: 40px; /* Tamaño del icono */
+    height: 40px;
+}

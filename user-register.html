@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="STRUCTURE/CSS/login.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <main class="login">
+        <div class="login__container">
+            <h1 class="login__title">Registrarse</h1>
+            <form class="form">
+                <label for="user" class="form__label">Nombre:</label>
+                <input type="text" class="form__input" id="user">
+                <label for="user" class="form__label">Apellido</label>
+                <input type="text" class="form__input">
+                <label for="password" class="form__label">Contraseña:</label>
+                <input type="password" class="form__input" id="passwordGuest">
+                <label for="password" class="form__label">Confirmar Contraseña</label>
+                <input type="password" class="form__input" id="confirm">
+                <label for="email" class="form__label">Correo Electrónico:</label>
+                <input type="email" class="form__input" id="emailGuest">
+                <label for="checkbox" class="form__label">IUTEPALISTA:</label>
+                <input type="checkbox" class="form__input" id="iutepalGuest">
+
+                <div class="form__buttons">
+
+                    <button class="form__button"> <a href="index.html">Cancelar </a></button>
+                    <button class="form__button" id="send"> Aceptar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <!-- <script src="login-guest.js"></script> -->
+    <script>
+   (function(){
+    const form = document.querySelector('.form');
+    // Selectores ya corregidos de la conversación anterior:
+    const inputNombre = document.getElementById('user');
+    const inputApellido = document.querySelector('input[type="text"]:nth-of-type(2)');
+    const inputPassword = document.getElementById('passwordGuest'); // Corregido ID
+    const inputConfirm = document.querySelector('#confirm'); // Corregido selector
+    const inputEmail = document.getElementById('emailGuest');
+    
+   
+    const inputIutepalista = document.getElementById('iutepalGuest'); 
+
+    function getUsuarios() {
+        try {
+            return JSON.parse(localStorage.getItem('usuarios')) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+    function saveUsuarios(arr) {
+        localStorage.setItem('usuarios', JSON.stringify(arr));
+    }
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+        
+        const nombre = (inputNombre && inputNombre.value || '').trim();
+        const apellido = (inputApellido && inputApellido.value || '').trim();
+        const password = (inputPassword && inputPassword.value || '').trim();
+        const confirm = (inputConfirm && inputConfirm.value || '').trim();
+        const email = (inputEmail && inputEmail.value || '').trim().toLowerCase();
+        
+     
+        const esIutepalista = inputIutepalista ? inputIutepalista.checked : false;
+
+        // Aquí no validamos el checkbox porque no es un campo obligatorio para el registro.
+        if (!nombre || !apellido || !password || !confirm || !email) {
+            alert('Complete todos los campos obligatorios.');
+            return;
+        }
+        if (password !== confirm) {
+            alert('Las contraseñas no coinciden.');
+            return;
+        }
+        // validación básica de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Ingrese un correo válido.');
+            return;
+        }
+
+        const usuarios = getUsuarios();
+        // evitar duplicados por email
+        if (usuarios.find(u => u.email === email)) {
+            alert('Ya existe un usuario con ese correo.');
+            return;
+        }
+
+        const nuevo = {
+            nombre: nombre,
+            apellido: apellido,
+            password: password,
+            email: email,
+            esIutepalista: esIutepalista,
+            fechaRegistro: new Date().toISOString()
+        };
+        
+        usuarios.push(nuevo);
+        saveUsuarios(usuarios);
+        alert(`Registro exitoso. Ahora puede iniciar sesión.`);
+        window.location.href = 'login-guest.html';
+    });
+})();
+    </script>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #d0cece;
+    background: #ffffff;
     overflow: hidden;
     
 }
@@ -123,8 +123,9 @@ body {
 
 .main-content {
     display: flex;
-    height: calc(100vh - 60px);
-    overflow: scroll;
+    
+    height: calc(100vh - 60px); 
+    overflow: auto;
    
 }
 
@@ -189,9 +190,10 @@ body {
     gap: 100px;
     padding: 40px;
     flex: 1;
-    background: #d0cece;
-    align-items: start; /* asegurar que todas las cards se alineen por la parte superior */
-    grid-auto-rows: 1fr; /* cada fila tendrá celdas de igual altura */
+    align-content: start;
+    grid-auto-rows: 1fr;
+    align-items: stretch /* asegurar que todas las cards se alineen por la parte superior */
+    
 }
 
 
@@ -210,6 +212,7 @@ body {
     /* ocupar toda la altura de la celda del grid para lograr simetría */
     height: 100%;
     width: 100%;
+    
     justify-content: flex-start;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

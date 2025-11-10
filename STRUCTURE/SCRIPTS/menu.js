@@ -226,6 +226,18 @@ const isGuest = (function() {
     }
 })();
 
+// Nuevo: detectar si el usuario es "IUTEPALISTA"
+const isIutepalista = (function() {
+    try {
+        // Asume que esta clave se guarda en el login exitoso (como sugerimos antes)
+        return localStorage.getItem('iutepalistaStatus') === 'true';
+    } catch (e) {
+        return false;
+    }
+})();
+
+
+
 // Referencias DOM
 const contenedorCards = document.querySelector('.documents');
 const searchInput = document.querySelector('.search-bar input');
@@ -257,14 +269,56 @@ function renderCards() {
     contenedorCards.innerHTML = '';
     const now = new Date();
     // aplicar filtros sobre array antes de crear DOM
-    let items = trabajos.filter(item => {
-        const carreraMatch = selectedCarrera ? item.carrera.toUpperCase() === selectedCarrera : true;
-        const anoMatch = (selectedAno === 'todos') ? true : String(item.año) === String(selectedAno);
-        const tipoMatch = (selectedTipo === 'todos') ? true : item.tipo === selectedTipo;
-        const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || (item.carrera && item.carrera.toLowerCase().includes(searchText)) : true;
-        return carreraMatch && anoMatch && tipoMatch && searchMatch;
-    });
+   // CÓDIGO MODIFICADO (dentro de renderCards)
 
+    let items = trabajos.filter(item => {
+    
+    // Filtros existentes
+    const carreraMatch = selectedCarrera ? item.carrera.toUpperCase() === selectedCarrera : true;
+    const anoMatch = (selectedAno === 'todos') ? true : String(item.año) === String(selectedAno);
+    const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || (item.carrera && item.carrera.toLowerCase().includes(searchText)) : true;
+    
+    // 🟢 RESTRICCIÓN DE TIPO (Actualizada)
+    let typeRestriction;
+
+    if (isAdmin) {
+        // Excepción ADMIN: ve todos los tipos
+        typeRestriction = true;
+    } else if (isIutepalista) {
+        // IUTEPALISTA: solo ve 'resumen'
+        typeRestriction = item.tipo === 'resumen';
+    } else {
+        // VISITANTE/NO IUTEPALISTA: ve 'trabajo' o 'presentacion'
+        typeRestriction = item.tipo === 'trabajo' || item.tipo === 'presentacion';
+    }
+
+    // Filtro de tipo seleccionado (de los botones)
+    const tipoMatch = (selectedTipo === 'todos') ? true : item.tipo === selectedTipo;
+    
+    // La restricción de tipo debe cumplirse, y luego el filtro de tipo (si se aplica)
+    return typeRestriction && carreraMatch && anoMatch && tipoMatch && searchMatch;
+});
+// CÓDIGO MODIFICADO (Al inicio de renderCards)
+
+// 🟢 Ajuste de visibilidad de botones de tipo
+if (typeButtonsContainer) {
+    typeButtons.forEach(btn => {
+        const type = btn.dataset.type;
+        
+        if (isAdmin) {
+            // ADMIN: Muestra todos los botones
+            btn.style.display = '';
+        } else if (isIutepalista) {
+            // IUTEPALISTA: Muestra solo 'resumen'
+            btn.style.display = (type === 'resumen') ? '' : 'none';
+        } else {
+            // VISITANTE/NO IUTEPALISTA: Muestra 'trabajo' y 'presentacion'
+            btn.style.display = (type === 'trabajo' || type === 'presentacion') ? '' : 'none';
+        }
+    });
+}
+
+contenedorCards.innerHTML = '';
     // si no hay carrera seleccionada, ordenar por año descendente
     if (!selectedCarrera) {
         items.sort((a, b) => b.año - a.año);

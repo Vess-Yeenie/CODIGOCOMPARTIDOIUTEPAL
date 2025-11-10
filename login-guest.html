@@ -18,12 +18,12 @@
         <div class="login__container">
             <h1 class="login__title">Iniciar Sesión</h1>
             <form class="form">
-                <label for="user" class="form__label">Nombre de usuario:</label>
-                <input type="text" class="form__input" id="user">
-                <label for="password" class="form__label">Contraseña:</label>
-                <input type="password" class="form__input" id="passwordGuest">
+                <!-- <label for="user" class="form__label">Nombre de usuario:</label>
+                <input type="text" class="form__input" id="user"> -->
                 <label for="email" class="form__label">Correo Electrónico:</label>
                 <input type="email" class="form__input" id="emailGuest">
+                <label for="password" class="form__label">Contraseña:</label>
+                <input type="password" class="form__input" id="passwordGuest">
                 <div class="form__buttons">
 
                     <button class="form__button"> <a href="index.html">Cancelar </a></button>
@@ -32,34 +32,8 @@
             </form>
         </div>
     </main>
+    <!-- usar script centralizado para login -->
     <script src="login-guest.js"></script>
-    <script>
-    // filepath: c:\Users\USUARIO\Documents\Elias\GitHub\CODIGOCOMPARTIDOIUTEPAL\login-guest.html
-    (function(){
-        const sendBtn = document.getElementById('send');
-        if (!sendBtn) return;
-        sendBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            const userInput = document.getElementById('user');
-            const name = (userInput && userInput.value || '').trim();
-            if (!name) {
-                alert('Por favor introduzca su nombre.');
-                return;
-            }
-            // marcar como guest, guardar nombre y eliminar admin si existiera
-            try {
-                localStorage.setItem('guest', 'true');
-                localStorage.setItem('guestUser', name);
-                localStorage.removeItem('admin');
-                localStorage.removeItem('adminUser');
-            } catch (err) {
-                console.warn('No se pudo guardar en localStorage', err);
-            }
-            // redirigir al menú
-            window.location.href = 'menu.html';
-        });
-    })();
-    </script>
 </body>
 
 </html>

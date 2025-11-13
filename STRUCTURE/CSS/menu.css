@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     background: #ffffff;
     overflow: hidden;
-    
+     padding-bottom: 50px;
 }
 
 .header {
@@ -112,7 +112,7 @@ body {
 .filterTitle{
 
     font-size: 1em;
-    padding-left: 500px;
+    padding-left: 20px;
     color: #e0e0e0;
 }
 
@@ -124,9 +124,10 @@ body {
 .main-content {
     display: flex;
     
-    height: calc(100vh - 60px); 
+   height: calc(100vh - 150px); /* 60px (header) + 60px (footer) = 120px */
+    
     overflow: auto;
-   
+    
 }
 
 .sidebar {
@@ -134,7 +135,7 @@ body {
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
     background: #1d2585; /* Azul igual que barra de búsqueda */
-    padding: 20px 0;
+    padding: 40px 0;
     width: 220px;
     display: flex;
     flex-direction: column;
@@ -189,11 +190,15 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 100px;
     padding: 40px;
-    flex: 1;
-    align-content: start;
-    grid-auto-rows: 1fr;
-    align-items: stretch /* asegurar que todas las cards se alineen por la parte superior */
     
+    grid-auto-rows: auto; 
+    
+    /* Asegura que los elementos se alineen al inicio (arriba) */
+    align-content: start; 
+    align-items: start; 
+    
+    
+    flex: 1; /
 }
 
 /* STRUCTURE/CSS/menu.css */
@@ -204,18 +209,16 @@ body {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    margin-bottom:20px;
-    /* mantener una altura mínima pero permitir crecimiento según contenido */
-    min-height: 320px;
-    box-sizing: border-box;
-    justify-content: flex-start;
-    padding: 12px;
-    box-sizing: border-box;
-    /* ocupar toda la altura de la celda del grid para lograr simetría */
-    height: 100%;
-    width: 100%;
+    margin-bottom: 20px; /* Si esto causa espacio extra al final, puedes ajustarlo */
     
-    justify-content: flex-start;
+    
+    height: 100%; 
+
+    min-height: 320px; 
+    
+    box-sizing: border-box;
+    justify-content: flex-start; /* Alinea el contenido de la tarjeta arriba */
+    padding: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .doc-card:hover{
@@ -238,19 +241,17 @@ body {
     box-sizing: border-box;
 }
 
-/* área de texto: ocupar espacio central y permitir scroll interno si es muy largo */
 .doc-info {
     text-align: center;
     font-size: 0.95em;
     color: #333;
     margin: 12px 0;
-    flex: 1 1 auto;            /* tomar el espacio intermedio */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: 1 1 auto; 
+    display: block; 
     padding: 8px;
-    overflow: auto;            /* evita que la tarjeta crezca descontrolada */
+    overflow: auto; 
     word-break: break-word;
+    max-height: 130px; 
 }
 
 /* acciones alineadas en fila y siempre al final de la tarjeta */
@@ -389,7 +390,7 @@ body {
 .btn-icon{
   height: 20px;
 }
-.type-btn{
+.type-btnHeader{
     background: #1976d2;
     color: #fff;
     border: none;
@@ -399,13 +400,13 @@ body {
     margin-right: 8px;
     font-size: 0.9em;
 }
-.type-btn:hover{
+.type-btnHeader:hover{
     background: #0080ff;
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
     color: white;
 }
-.type-filter .type-btn {
+.type-filter .type-btnHeader {
     background: #e0e0e0;
     color: #111;
     border: 1px solid #cfcfcf;
@@ -418,16 +419,29 @@ body {
 /* .type-btn{
     
 } */
-.type-filter .type-btn:hover {
+.type-filter .type-btnHeader:hover {
     background: #d6d6d6;
     transform: translateY(-1px);
 }
-.type-filter .type-btn.selected {
+.type-filter .type-btnHeader.selected {
     background: #2834bb;
     color: #fff;
     border-color: #1a237e;
     box-shadow: 0 2px 6px rgba(24,35,128,0.25);
 }
+
+
+.type-filter .special-btn {
+  
+    background: #4653e6; /* Verde o algún color neutro */
+    color: #fff;
+    border-color: #29329d3C;
+}
+.type-filter .special-btn:hover {
+    background: #3441cf;
+    transform: translateY(-1px);
+}
+/* Asegúrate de que los estilos base de .type-btn ya están definidos para el padding y la forma */
 .sidebar button {
     background: #fff;
     color: #000; 
@@ -487,4 +501,95 @@ body {
     background-image: url('../IMG/chart.svg'); 
  width: 40px; /* Tamaño del icono */
     height: 40px;
+}
+/* STRUCTURE/CSS/menu.css */
+
+/* Título principal del documento */
+.doc-title {
+    text-align: center;
+    font-size: 1.0em; 
+   
+    color: #000000; /* Azul oscuro para destacar */
+    margin: 10px 0 5px 0;
+    padding: 8px 8px;
+    flex: 1 1 auto; /* Permite que el título ocupe el espacio central */
+    
+    overflow: auto;
+}
+
+/* Contenedor de las etiquetas (Carrera y Año) */
+.tag-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Espacio entre las etiquetas */
+    margin-bottom: 15px; /* Separación de los botones de acción */
+    flex: 0 0 auto; /* No se estira */
+}
+/* Estilo base para todas las etiquetas */
+.tag {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px; /* Forma de píldora */
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Estilo específico para el año */
+.ano-tag {
+    background-color: #757575; /* Gris fijo */
+}
+
+/* Estilo para la carrera (Colores distintivos) */
+
+.carrera-tag[data-carrera-color="INFORMATICA"] {
+    background-color: #00bcd4; /* Cian */
+}
+
+.carrera-tag[data-carrera-color="PRODUCCION"] {
+    background-color: #ff9800; /* Naranja */
+}
+
+.carrera-tag[data-carrera-color="ELECTRONICA"] {
+    background-color: #4caf50; /* Verde */
+}
+
+.carrera-tag[data-carrera-color="CONTABILIDAD"] {
+    background-color: #e91e63; /* Rosa/Fucsia */
+}
+
+.carrera-tag[data-carrera-color="ADMINISTRACION"] {
+    background-color: #2196f3; /* Azul Claro */
+}
+/* ================================================= */
+/* 3. ESTILOS DEL FOOTER */
+/* ================================================= */
+
+.main-footer {
+    /* Fija el footer en la parte inferior de la ventana (fixed position) */
+    position: fixed; 
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    
+    /* Usa los mismos colores azules que tu header */
+    background: #29329d; 
+    color: #ffffff;
+    
+    padding: 15px 30px;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+    display: flex;
+  justify-content: center;
+    align-items: center;
+    max-width: 1400px; /* O el ancho máximo que uses en el header */
+    margin: 0 auto;
+    font-size: 0.85em;
+}
+.footer-content p {
+    text-align: center;
 }

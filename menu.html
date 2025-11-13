@@ -6,20 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
     <link rel="stylesheet" href="STRUCTURE/CSS/menu.css">
+    
 </head>
 
-<body>
+
     <header class="header">
         <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
         <div class="search-bar">
             <span class="search-icon">&#128269;</span>
             <input type="text" placeholder="BUSQUEDA">
         </div>
-        <div class="type-filter" style="display:inline-block; margin-left:8px;" id="typeButtons">
-            <button class="type-btn" data-type="trabajo">Trabajo</button>
-            <button class="type-btn" data-type="presentacion">Presentación</button>
-            <button class="type-btn" data-type="resumen">Hoja de resumen</button>
-        </div>
+    <div class="type-filter" style="display:inline-block; margin-left:8px;" id="typeButtons">
+    <button class="type-btn type-btnHeader" data-type="trabajo">Trabajo</button>
+    <button class="type-btn type-btnHeader" data-type="presentacion">Presentación</button>
+    <button class="type-btn type-btnHeader" data-type="resumen">Hoja de resumen</button>
+
+    <button id="openLineasModalBtn" class="type-btnHeader special-btn">Líneas de Investigación</button>
+
+</div>
         <h1 class="filterTitle">Filtrar por año:</h1>
         <div class="date-dropdown" id="dateDropdown">
             <span id="selectedDate"></span>
@@ -161,8 +165,22 @@
             </div>
         </div>
     </div>
+    <!-- Modal de Lineas de Investigacion -->
+    <div id="lineasModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%; width: 800px; height: 90vh;">
+            <span class="close-modal" id="closeLineasModalBtn">&times;</span>
+            <h2>Líneas de Investigación</h2>
+            <iframe id="lineasPdfViewer" style="width: 100%; height: calc(100% - 50px);" frameborder="0"></iframe>
+        </div>
+    </div>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
+          
+        </div>
+    </footer>
 
     <script src="STRUCTURE/SCRIPTS/menu.js"></script>
-</body>
+
 
 </html>

@@ -446,7 +446,7 @@ body {
     color: white;
 }
 .type-filter .type-btnHeader {
-    background: #e0e0e0;
+    background: #2b66d2;
     color: #111;
     border: 1px solid #cfcfcf;
     border-radius: 6px;
@@ -459,7 +459,7 @@ body {
     
 } */
 .type-filter .type-btnHeader:hover {
-    background: #d6d6d6;
+    background: #08177b;
     transform: translateY(-1px);
 }
 .type-filter .type-btnHeader.selected {
@@ -522,6 +522,15 @@ body {
 .sidebar button [data-icon="informatica"] {
     background-image: url('../IMG/computer.svg'); 
     
+}
+
+.header-filter-ico{
+    width: 20px;
+    height: auto;
+}
+
+#header-btn-text{
+    color: #ffffff;
 }
 
 .sidebar button [data-icon="produccion"] {

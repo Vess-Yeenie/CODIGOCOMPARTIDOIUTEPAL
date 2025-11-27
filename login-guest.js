@@ -62,6 +62,9 @@
             logs.push(actualLog);
             localStorage.setItem("logs", JSON.stringify(logs));
             
+            // Guardar usuario actual para asociar futuras acciones (vistas/descargas)
+            try { localStorage.setItem('currentUserName', found.nombre); } catch (e) { /* noop */ }
+
             // Marcar usuario como invitado
             localStorage.setItem('guest', 'true');
             localStorage.removeItem('admin');

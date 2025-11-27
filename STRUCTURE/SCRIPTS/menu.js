@@ -201,13 +201,64 @@ const defaultTrabajos = [
     },
 ];
 
-let trabajos =  defaultTrabajos.slice() || JSON.parse(localStorage.getItem('trabajosDeGrado')) ;
-// Asegurar ids únicos
-trabajos = trabajos.map(item => ({ ...item, id: item.id || (Date.now().toString() + Math.random().toString(36).slice(2)) }));
-localStorage.setItem('trabajosDeGrado', JSON.stringify(trabajos));
+let trabajos = []; // quedará inicializado por loadTrabajos()
+
+function ensureIds(arr) {
+    return arr.map(item => ({ ...item, id: item.id || (Date.now().toString() + Math.random().toString(36).slice(2)) }));
+}
+
+function loadTrabajos() {
+    try {
+        const stored = localStorage.getItem('trabajosDeGrado');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length) {
+                trabajos = ensureIds(parsed);
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('Error leyendo trabajos desde localStorage:', e);
+    }
+    // fallback a datos por defecto
+    trabajos = ensureIds(defaultTrabajos.slice());
+    // guardar el fallback en storage para la primera carga
+    saveToStorage();
+}
+
+// llamar inicialización
+loadTrabajos();
 
 // Map para URLs creadas en sesión (no persisten al recargar)
 const inMemoryPdfMap = {}; // id -> objectURL
+
+// Utilidades para logging de acciones por usuario (view / download)
+function getCurrentUserName() {
+    try {
+        return localStorage.getItem('currentUserName') || '';
+    } catch (e) {
+        return '';
+    }
+}
+
+function logUserAction(action, docId, docName) {
+    try {
+        const logs = JSON.parse(localStorage.getItem('logs')) || [];
+        const isIute = (function(){ try { return localStorage.getItem('iutepalistaStatus') === 'true'; } catch(e){ return false; } })();
+        const entry = {
+            user: getCurrentUserName(),
+            action: action,
+            id: docId || null,
+            name: docName || null,
+            isIutepalista: isIute,
+            timestamp: new Date().toISOString()
+        };
+        logs.push(entry);
+        localStorage.setItem('logs', JSON.stringify(logs));
+    } catch (e) {
+        console.warn('No se pudo registrar la acción en logs', e);
+    }
+}
 
 // Nuevo: detectar si el acceso es como "admin" o "guest"
 const isAdmin = (function() {
@@ -342,6 +393,12 @@ contenedorCards.innerHTML = '';
         card.dataset.ano = item.año;
         card.dataset.tipo = item.tipo || 'trabajo';
         const carreraColor = item.carrera.toUpperCase()
+
+        // Nuevo: icono de tipo en esquina superior derecha
+        const tipoIcon = document.createElement('div');
+        tipoIcon.className = `tipo-icon tipo-${(item.tipo || 'trabajo').toString().toLowerCase()}`;
+        card.appendChild(tipoIcon);
+        
         const iconDiv = document.createElement('div');
         iconDiv.className = 'doc-icon';
         card.appendChild(iconDiv);
@@ -416,6 +473,8 @@ contenedorCards.addEventListener('click', (e) => {
         }
         // Derivar nombre de archivo
         const filename = (typeof url === 'string' && url.split('/').pop()) || (item && item.pdf) || 'document.pdf';
+        // Registrar acción de descarga asociada al usuario
+        try { logUserAction('download', id, (item && (item.nombre || item.pdf)) || filename); } catch (e) { /* noop */ }
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
@@ -438,8 +497,16 @@ contenedorCards.addEventListener('click', (e) => {
         const id = card.dataset.id;
         // abrir PDF: preferir objectURL en memoria si existe
         const url = inMemoryPdfMap[id] || card.dataset.pdfurl || card.dataset.pdfUrl;
-        if (url) window.open(url, '_blank');
-        else console.error('PDF no disponible para este documento.');
+        if (url) {
+            window.open(url, '_blank');
+            // Registrar vista del documento
+            try {
+                const item = trabajos.find(t => t.id === id) || {};
+                logUserAction('view', id, item.nombre || card.dataset.title || url);
+            } catch (e) { /* noop */ }
+        } else {
+            console.error('PDF no disponible para este documento.');
+        }
     }
 });
 
@@ -641,61 +708,274 @@ if (dateDropdown && monthYearMenu) {
 function openReportModal() {
     // Obtener logs desde localStorage (posibles formatos)
     const rawLogs = JSON.parse(localStorage.getItem('logs')) || [];
-    const usersMap = {}; // user -> Set of doc identifiers/names
+    const usuariosStore = (function(){ try { return JSON.parse(localStorage.getItem('usuarios')) || []; } catch(e) { return []; } })();
+    const usersMap = {}; // user -> { docs:Set, isIutepalista:boolean, actions:number }
     // Soporte para varios esquemas de registro
     rawLogs.forEach(entry => {
         if (!entry) return;
         // Si entry es string
         if (typeof entry === 'string') {
-            usersMap['Sin usuario'] = usersMap['Sin usuario'] || new Set();
-            usersMap['Sin usuario'].add(entry);
+            const u = '';
+            usersMap[u] = usersMap[u] || { docs: new Set(), isIutepalista: false, actions:0 };
+            usersMap[u].docs.add(entry);
+            usersMap[u].actions += 1;
             return;
         }
-        const user = entry.user || entry.username || entry.email || 'Sin usuario';
+        const user = entry.user || entry.username || entry.email || '';
+        // determinar si es iutepalista: preferir campo en entry, si no, buscar en usuariosStore
+        let isIute = false;
+        if (typeof entry.isIutepalista !== 'undefined') {
+            isIute = !!entry.isIutepalista;
+        } else {
+            const foundU = usuariosStore.find(u => (u.nombre && u.nombre === entry.user) || (u.email && u.email === entry.user) || (u.email && u.email === entry.username));
+            if (foundU) isIute = !!foundU.esIutepalista;
+        }
         // caso: entrada con array reviewed
         if (Array.isArray(entry.reviewed)) {
-            usersMap[user] = usersMap[user] || new Set();
-            entry.reviewed.forEach(d => usersMap[user].add(d));
+            usersMap[user] = usersMap[user] || { docs:new Set(), isIutepalista:isIute, actions:0 };
+            entry.reviewed.forEach(d => usersMap[user].docs.add(d));
+            usersMap[user].actions += entry.reviewed.length;
             return;
         }
         // caso: entrada individual con doc/document/docId/pdf/title
         const possibleDoc = entry.doc || entry.document || entry.docId || entry.pdf || entry.title || entry.file || entry.documentName;
         if (possibleDoc) {
-            usersMap[user] = usersMap[user] || new Set();
-            usersMap[user].add(possibleDoc);
+            usersMap[user] = usersMap[user] || { docs:new Set(), isIutepalista:isIute, actions:0 };
+            usersMap[user].docs.add(possibleDoc);
+            usersMap[user].actions += 1;
             return;
         }
         // caso: logs estilo { user, action: 'view', id: 't123' }
         if (entry.action && (entry.id || entry.itemId || entry.documentId)) {
             const docId = entry.id || entry.itemId || entry.documentId;
-            usersMap[user] = usersMap[user] || new Set();
-            usersMap[user].add(docId);
+            usersMap[user] = usersMap[user] || { docs:new Set(), isIutepalista:isIute, actions:0 };
+            usersMap[user].docs.add(docId);
+            usersMap[user].actions += 1;
             return;
         }
         // fallback: guardar la entrada completa como JSON string
-        usersMap[user] = usersMap[user] || new Set();
-        usersMap[user].add(JSON.stringify(entry));
+        usersMap[user] = usersMap[user] || { docs:new Set(), isIutepalista:isIute, actions:0 };
+        usersMap[user].docs.add(JSON.stringify(entry));
+        usersMap[user].actions += 1;
     });
 
     // Preparar mapa de id -> nombre de documento (si aplica)
     const idToName = {};
     trabajos.forEach(t => { if (t.id) idToName[t.id] = t.nombre || t.title || ''; });
 
-    // Renderizar contenido
-    if (Object.keys(usersMap).length === 0) {
-        reportContent.innerHTML = '<p>No hay registros de usuarios.</p>';
-    } else {
-        let html = '<div class="report-list">';
-        for (const [user, docSet] of Object.entries(usersMap)) {
-            html += `<div class="report-user"><strong>${user}</strong><ul>`;
-            Array.from(docSet).forEach(doc => {
-                // Si el doc coincide con un id conocido, mostrar nombre legible
-                const resolved = idToName[doc] || doc;
-                html += `<li>${resolved}</li>`;
-            });
-            html += '</ul></div>';
+    // Helper para mostrar etiquetas limpias de documentos (quita llaves y labels si vienen como JSON)
+    function formatDocLabel(raw) {
+        if (!raw && raw !== 0) return '';
+        // si es id conocido
+        if (idToName[raw]) return idToName[raw];
+        // si es objeto
+        if (typeof raw === 'object') {
+            if (raw.nombre || raw.Nombre || raw.title) {
+                const name = raw.nombre || raw.Nombre || raw.title || '';
+                const fecha = raw.Fecha || raw.fecha || raw.date || raw.timestamp || '';
+                return fecha ? `${name} — ${fecha}` : name;
+            }
+            return String(raw);
         }
-        html += '</div>';
+        // si es string, intentar parsear JSON
+        if (typeof raw === 'string') {
+            const s = raw.trim();
+            try {
+                if ((s.startsWith('{') && s.endsWith('}')) || s.startsWith('{"')) {
+                    const obj = JSON.parse(s);
+                    const name = obj.Nombre || obj.nombre || obj.name || obj.title || '';
+                    const fecha = obj.Fecha || obj.fecha || obj.date || obj.timestamp || '';
+                    if (name && fecha) return `${name} — ${fecha}`;
+                    if (name) return name;
+                    if (obj.doc || obj.document || obj.pdf) return obj.doc || obj.document || obj.pdf;
+                }
+            } catch (e) {
+                // no JSON, seguir
+            }
+            // limpiar llaves y etiquetas si existen en texto no JSON
+            let cleaned = s.replace(/[\{\}"]+/g,'');
+            cleaned = cleaned.replace(/Nombre:/gi,'').replace(/Fecha:/gi,'').replace(/name:/gi,'').replace(/fecha:/gi,'').trim();
+            cleaned = cleaned.replace(/,\s*/g,' — ');
+            return cleaned;
+        }
+        return String(raw);
+    }
+
+    // Calcular conteos por documento (para determinar los más revisados)
+    const counts = {}; // key (id or name) -> count
+    rawLogs.forEach(entry => {
+        if (!entry) return;
+        if (entry.id) {
+            const key = entry.id;
+            counts[key] = (counts[key] || 0) + 1;
+            return;
+        }
+        const nameKey = entry.name || entry.title || entry.pdf || entry.document || entry.file;
+        if (nameKey) {
+            counts[nameKey] = (counts[nameKey] || 0) + 1;
+            return;
+        }
+        if (typeof entry === 'string') {
+            counts[entry] = (counts[entry] || 0) + 1;
+            return;
+        }
+    });
+
+    // Construir array ordenado de documentos por conteo
+    const docCounts = Object.entries(counts).map(([k, v]) => ({ key: k, count: v }));
+    docCounts.sort((a, b) => b.count - a.count);
+
+    // Renderizar contenido con estilo más limpio
+    if (rawLogs.length === 0) {
+        reportContent.innerHTML = '<p style="padding:12px;color:#444;">No hay registros de actividad.</p>';
+    } else {
+        // Header con resumen
+        let html = `
+            <div style="font-family:Nunito,system-ui,Segoe UI,Roboto,Arial; color:#222;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h3 style="margin:0;font-size:18px">Informe de actividad</h3>
+                    <div style="font-size:13px;color:#666">Total registros: ${rawLogs.length}</div>
+                </div>
+                <div style="display:flex;gap:16px;align-items:flex-start;">
+                    <div style="flex:1;min-width:260px;">
+                        <h4 style="margin:6px 0 10px;color:#333;font-size:14px">Por usuario</h4>
+                        <div style="border-radius:8px;padding:10px;background:#fafafa;border:1px solid #eee;max-height:360px;overflow:auto;">
+        `;
+
+        // preparar conteo por usuario para ordenar y calcular fecha de ingreso
+        const userSummaries = {};
+        // helper: parsear fecha de un entry (timestamp ISO o Fecha d-m-yyyy)
+        function parseDateFromEntry(entry) {
+            if (!entry) return null;
+            if (entry.timestamp) {
+                const d = new Date(entry.timestamp);
+                if (!isNaN(d)) return d;
+            }
+            if (entry.Fecha) {
+                const parts = String(entry.Fecha).split('-').map(p => parseInt(p,10));
+                if (parts.length === 3) {
+                    const [day, month, year] = parts;
+                    const d = new Date(year, (month || 1) - 1, day || 1);
+                    if (!isNaN(d)) return d;
+                }
+            }
+            if (entry.date) {
+                const d = new Date(entry.date);
+                if (!isNaN(d)) return d;
+            }
+            return null;
+        }
+        function formatDate(d) {
+            if (!d) return '';
+            try {
+                const day = String(d.getDate()).padStart(2,'0');
+                const month = String(d.getMonth()+1).padStart(2,'0');
+                const year = d.getFullYear();
+                return `${day}-${month}-${year}`;
+            } catch (e) { return ''; }
+        }
+
+        for (const [u, data] of Object.entries(usersMap)) {
+            const displayName = u || ''; // empty string used for unknown names
+            const docsSet = data.docs || new Set();
+            const isIute = !!data.isIutepalista;
+            const totalActions = data.actions || 0;
+            userSummaries[displayName] = userSummaries[displayName] || { docs: new Set(), totalActions: 0, isIutepalista: isIute, firstLogin: null };
+            // sumar conteos y unir documentos
+            userSummaries[displayName].totalActions += totalActions;
+            userSummaries[displayName].isIutepalista = userSummaries[displayName].isIutepalista || isIute;
+            docsSet.forEach(d => userSummaries[displayName].docs.add(d));
+            // Buscar en rawLogs la primera fecha asociada a este usuario
+            let earliest = userSummaries[displayName].firstLogin;
+            rawLogs.forEach(entry => {
+                try {
+                    // detectar usuario en el entry (varios esquemas)
+                    const entryUser = entry.user || entry.username || entry.email || entry.Nombre || '';
+                    if ((entryUser || '') === u) {
+                        const d = parseDateFromEntry(entry);
+                        if (d && (!earliest || d < earliest)) earliest = d;
+                    }
+                    // algunos logs antiguos guardaban objeto con Nombre y Fecha
+                    if (!u && entry.Nombre) {
+                        // entrada sin user key but with Nombre -> considerarla para unknown
+                        const d2 = parseDateFromEntry(entry);
+                        if (d2 && (!earliest || d2 < earliest)) earliest = d2;
+                    }
+                } catch (err) { /* noop */ }
+            });
+            userSummaries[displayName].firstLogin = earliest; 
+        }
+
+        const userEntries = Object.entries(userSummaries).map(([k, v]) => ({ user:k, docs:Array.from(v.docs), total:v.totalActions, isIutepalista:v.isIutepalista, firstLogin: v.firstLogin }));
+        userEntries.sort((a,b) => b.total - a.total);
+
+        // Separar IUTEPALISTAS y No IUTEPALISTAS
+        const iuteUsers = userEntries.filter(u => u.isIutepalista);
+        const nonIuteUsers = userEntries.filter(u => !u.isIutepalista);
+
+        // Sección IUTEPALISTAS
+        html += `<div style="margin-bottom:8px;"><strong style="font-size:13px">IUTEPALISTAS</strong></div>`;
+        if (iuteUsers.length === 0) {
+            html += `<div style="color:#666;font-size:13px;margin-bottom:8px">No hay IUTEPALISTAS registrados en los logs.</div>`;
+        } else {
+            iuteUsers.forEach(u => {
+                html += `<div style="margin-bottom:10px;padding:8px;border-radius:6px;background:#fff;border:1px solid #eee;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="display:flex;align-items:center"><strong style="font-size:13px;color:#222">${u.user || 'Usuario desconocido'}</strong><span style="font-size:11px;color:#0b6; background:#eaffef;padding:4px 8px;border-radius:999px;margin-left:8px">IUTEPALISTA</span></div>
+                                <span style="font-size:12px;color:#666;background:#f0f4f8;border-radius:999px;padding:4px 8px">${u.total} acciones</span>
+                            </div>
+                            <div style="font-size:13px;color:#444">${u.docs.length} documento(s)</div>
+                            <div style="font-size:12px;color:#666;margin-top:6px">Ingreso: ${u.firstLogin ? formatDate(new Date(u.firstLogin)) : '—'}</div>
+                            <ul style="margin:6px 0 0 16px;padding:0;color:#444;">`;
+                u.docs.forEach(d => {
+                    const label = formatDocLabel(d);
+                    html += `<li style="margin:4px 0;">${label}</li>`;
+                });
+                html += `</ul></div>`;
+            });
+        }
+
+        // Sección No IUTEPALISTAS
+        html += `<div style="margin-top:12px;margin-bottom:8px;"><strong style="font-size:13px">No IUTEPALISTAS</strong></div>`;
+        if (nonIuteUsers.length === 0) {
+            html += `<div style="color:#666;font-size:13px;margin-bottom:8px">No hay registros de usuarios no IUTEPALISTAS.</div>`;
+        } else {
+            nonIuteUsers.forEach(u => {
+                html += `<div style="margin-bottom:10px;padding:8px;border-radius:6px;background:#fff;border:1px solid #eee;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="display:flex;align-items:center"><strong style="font-size:13px;color:#222">${u.user || 'Usuario desconocido'}</strong><span style="font-size:11px;color:#666;background:#f3f4f6;padding:4px 8px;border-radius:999px;margin-left:8px">No IUTEPALISTA</span></div>
+                                <span style="font-size:12px;color:#666;background:#f0f4f8;border-radius:999px;padding:4px 8px">${u.total} acciones</span>
+                            </div>
+                            <div style="font-size:13px;color:#444">${u.docs.length} documento(s)</div>
+                            <div style="font-size:12px;color:#666;margin-top:6px">Ingreso: ${u.firstLogin ? formatDate(new Date(u.firstLogin)) : '—'}</div>
+                            <ul style="margin:6px 0 0 16px;padding:0;color:#444;">`;
+                u.docs.forEach(d => {
+                    const label = formatDocLabel(d);
+                    html += `<li style="margin:4px 0;">${label}</li>`;
+                });
+                html += `</ul></div>`;
+            });
+        }
+
+        html += `</div></div>`;
+
+        // Columna derecha: top documentos
+        html += `<div style="width:320px;flex-shrink:0;">
+                    <h4 style="margin:6px 0 10px;color:#333;font-size:14px">Top documentos</h4>
+                    <div style="border-radius:8px;padding:10px;background:#fff;border:1px solid #eee;">
+                        <ol style="margin:0;padding-left:20px;color:#444">`;
+
+        const top = docCounts.slice(0, 8);
+        if (top.length === 0) html += `<li style="color:#888">Sin actividad sobre documentos</li>`;
+        top.forEach(d => {
+            const label = formatDocLabel(d.key);
+            html += `<li style="margin:6px 0;display:flex;justify-content:space-between;align-items:center;"><span>${label}</span><small style="color:#666">${d.count}</small></li>`;
+        });
+
+        html += `</ol></div></div>`;
+
+        html += `</div></div>`;
+
         reportContent.innerHTML = html;
     }
 
@@ -739,6 +1019,96 @@ if (reportCloseBtn) {
 if (reportModal) {
     reportModal.addEventListener('click', (e) => { if (e.target === reportModal) reportModal.style.display = 'none'; });
 }
+
+// --- Manejo de logout y cambio de contraseña ---
+const logoutBtn = document.getElementById('logoutBtn');
+const changePasswordBtn = document.getElementById('changePasswordBtn');
+const changePasswordModal = document.getElementById('changePasswordModal');
+const closeChangePassBtn = document.getElementById('closeChangePassBtn');
+const changePasswordForm = document.getElementById('changePasswordForm');
+const cancelChangePassBtn = document.getElementById('cancelChangePassBtn');
+
+function showHeaderButtons() {
+    // Mostrar logout para cualquier usuario logueado
+    const current = getCurrentUserName();
+    // Mostrar logout si hay usuario actual o si es admin (asegurar que admin siempre vea cerrar sesión)
+    if (current || isAdmin) {
+        if (logoutBtn) logoutBtn.style.display = '';
+    }
+    // Mostrar cambio de contraseña solo si es admin
+    if (isAdmin) {
+        if (changePasswordBtn) changePasswordBtn.style.display = '';
+    }
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        try {
+            localStorage.removeItem('currentUserName');
+            localStorage.removeItem('guest');
+            localStorage.removeItem('admin');
+            localStorage.removeItem('iutepalistaStatus');
+        } catch (e) { /* noop */ }
+        // Redirigir a inicio o login
+        window.location.href = 'Index.html';
+    });
+}
+
+if (changePasswordBtn) {
+    changePasswordBtn.addEventListener('click', () => {
+        // Prefill current admin username if available
+        try {
+            const storedAdmin = JSON.parse(localStorage.getItem('adminUser')) || null;
+            const fallbackUser = (function(){ try { return (typeof user !== 'undefined') ? user : null; } catch(e){ return null; } })();
+            const currentUsername = (storedAdmin && storedAdmin.username) ? storedAdmin.username : (fallbackUser && fallbackUser.username) ? fallbackUser.username : 'admin';
+            const currentDisplay = document.getElementById('currentAdminUserDisplay');
+            const newUserInput = document.getElementById('newAdminUser');
+            if (currentDisplay) currentDisplay.textContent = currentUsername;
+            if (newUserInput) newUserInput.value = currentUsername;
+            // clear password fields
+            const c = document.getElementById('currentAdminPass'); if (c) c.value = '';
+            const n = document.getElementById('newAdminPass'); if (n) n.value = '';
+            const cn = document.getElementById('confirmNewAdminPass'); if (cn) cn.value = '';
+        } catch (e) { /* noop */ }
+        if (changePasswordModal) changePasswordModal.style.display = 'flex';
+    });
+}
+
+if (closeChangePassBtn) closeChangePassBtn.addEventListener('click', () => { if (changePasswordModal) changePasswordModal.style.display = 'none'; });
+if (cancelChangePassBtn) cancelChangePassBtn.addEventListener('click', () => { if (changePasswordModal) changePasswordModal.style.display = 'none'; });
+
+if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const current = document.getElementById('currentAdminPass').value || '';
+        const newUser = (document.getElementById('newAdminUser') && document.getElementById('newAdminUser').value) ? document.getElementById('newAdminUser').value.trim() : '';
+        const neo = document.getElementById('newAdminPass').value || '';
+        const confirm = document.getElementById('confirmNewAdminPass').value || '';
+        if (!current) { alert('Ingrese la contraseña actual para validar los cambios.'); return; }
+        if (neo && neo !== confirm) { alert('La nueva contraseña y su confirmación no coinciden.'); return; }
+        // Validar contraseña actual contra la guardada (chequear localStorage adminUser o fallback a login.js 'user')
+        let storedAdmin = null;
+        try { storedAdmin = JSON.parse(localStorage.getItem('adminUser')); } catch (e) { storedAdmin = null; }
+        const fallbackUser = (function(){ try { return (typeof user !== 'undefined') ? user : null; } catch(e){ return null; } })();
+        const currentPass = (storedAdmin && storedAdmin.password) ? storedAdmin.password : (fallbackUser && fallbackUser.password) ? fallbackUser.password : '';
+        if (current !== currentPass) { alert('Contraseña actual incorrecta.'); return; }
+        // Prepare admin data: update username if provided, update password if provided
+        const finalUsername = newUser || (storedAdmin && storedAdmin.username) || (fallbackUser && fallbackUser.username) || 'admin';
+        const finalPassword = neo || (storedAdmin && storedAdmin.password) || (fallbackUser && fallbackUser.password) || '';
+        const adminData = { username: finalUsername, password: finalPassword };
+        try {
+            localStorage.setItem('adminUser', JSON.stringify(adminData));
+            alert('Datos de administrador actualizados.');
+            if (changePasswordModal) changePasswordModal.style.display = 'none';
+        } catch (err) {
+            console.warn('No se pudo guardar los datos del administrador', err);
+            alert('Error al guardar los datos del administrador.');
+        }
+    });
+}
+
+// Mostrar u ocultar botones al iniciar
+showHeaderButtons();
 
 // Render inicial
 renderCards();

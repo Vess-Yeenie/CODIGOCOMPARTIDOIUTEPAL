@@ -11,32 +11,40 @@
 
 
     <header class="header">
-        <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
-        <div class="search-bar">
-            <span class="search-icon">&#128269;</span>
-            <input type="text" placeholder="BUSQUEDA">
+        <div class="header-left">
+            <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
         </div>
-    <div class="type-filter" style="display:inline-block; margin-left:8px;" id="typeButtons">
-    <button class="type-btn type-btnHeader" data-type="trabajo">Trabajo</button>
-    <button class="type-btn type-btnHeader" data-type="presentacion">Presentación</button>
-    <button class="type-btn type-btnHeader" data-type="resumen">Hoja de resumen</button>
-
-    <button id="openLineasModalBtn" class="type-btnHeader special-btn">Líneas de Investigación</button>
-
-</div>
-        <h1 class="filterTitle">Filtrar por año:</h1>
-        <div class="date-dropdown" id="dateDropdown">
-            <span id="selectedDate"></span>
-            <span class="dropdown-icon">&#9660;</span>
-            <div id="monthYearMenu" style="display:none;">
-                <select id="yearSelect">
-                    <option value="todos">Todos</option>
-                    <!-- LAs opciones son generadas por JS -->
-                </select>
-                <button id="setYear">OK</button>
+        <div class="header-center">
+            <div class="search-bar">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" placeholder="BUSQUEDA">
+            </div>
+            <div class="type-filter" id="typeButtons">
+                <button class="type-btn type-btnHeader" data-type="trabajo">Trabajo<span class="type-btn-icon"></span></button>
+                <button class="type-btn type-btnHeader" data-type="presentacion">Presentación<span class="type-btn-icon"></span></button>
+                <button class="type-btn type-btnHeader" data-type="resumen">Hoja de resumen<span class="type-btn-icon"></span></button>
+                <button id="openLineasModalBtn" class="type-btnHeader special-btn">Líneas de Investigación</button>
             </div>
         </div>
-
+        <div class="header-right">
+            <div class="header-actions">
+                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" style="display:none">Cerrar sesión</button>
+                <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" style="display:none">Cambiar contraseña</button>
+            </div>
+            <h1 class="filterTitle">Filtrar por año:</h1>
+            <div class="date-dropdown" id="dateDropdown">
+                <span id="selectedDate"></span>
+                <span class="dropdown-icon">&#9660;</span>
+                <div id="monthYearMenu" style="display:none;">
+                    <select id="yearSelect">
+                        <option value="todos">Todos</option>
+                        <!-- LAs opciones son generadas por JS -->
+                    </select>
+                    <button id="setYear">OK</button>
+                </div>
+            </div>
+        </div>
+    </header>
     </header>
     <main class="main-content">
         <aside class="sidebar">
@@ -145,7 +153,7 @@
                 <select id="trabajoTipo" required>
                     <option value="">Seleccione</option>
                     <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option>
+                    <option value="presentacion">Presentación</option
                     <option value="resumen">Hoja de resumen</option>
                 </select>
                 <label>Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
@@ -163,6 +171,30 @@
             <div id="reportContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
                 <!-- Contenido generado por JS -->
             </div>
+        </div>
+        </div>
+    </div>
+    <!-- Modal para cambiar contraseña (solo admin) -->
+    <div id="changePasswordModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeChangePassBtn">&times;</span>
+            <h2>Cambiar contraseña (Administrador)</h2>
+            <form id="changePasswordForm">
+                <label>Usuario actual:</label>
+                <div id="currentAdminUserDisplay" style="margin-bottom:8px;color:#333;font-weight:600"></div>
+                <label>Nuevo usuario (opcional):</label>
+                <input type="text" id="newAdminUser" placeholder="Dejar vacío para no cambiar">
+                <label>Contraseña actual:</label>
+                <input type="password" id="currentAdminPass" required>
+                <label>Nueva contraseña (opcional):</label>
+                <input type="password" id="newAdminPass" placeholder="Dejar vacío para no cambiar">
+                <label>Confirmar nueva contraseña:</label>
+                <input type="password" id="confirmNewAdminPass" placeholder="Dejar vacío si no cambia">
+                <div style="margin-top:10px;display:flex;gap:8px;">
+                    <button type="submit">Actualizar</button>
+                    <button type="button" id="cancelChangePassBtn">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
     <!-- Modal de Lineas de Investigacion -->

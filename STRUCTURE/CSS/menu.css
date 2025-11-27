@@ -576,6 +576,10 @@ body {
     background: #08177b;
     transform: translateY(-1px);
 }
+/* Hover por tipo: mantener el color asociado cuando se pasa el cursor */
+.type-filter .type-btnHeader[data-type="trabajo"]:hover { background: #155fa0; color: #fff; transform: translateY(-1px); }
+.type-filter .type-btnHeader[data-type="presentacion"]:hover { background: #2e7d32; color: #fff; transform: translateY(-1px); }
+.type-filter .type-btnHeader[data-type="resumen"]:hover { background: #008fa3; color: #fff; transform: translateY(-1px); }
 .type-filter .type-btnHeader.selected {
     background: #2834bb;
     color: #fff;
@@ -797,6 +801,34 @@ body {
 .tipo-icon.tipo-resumen {
     background-image: url('../IMG/resumen.svg');
 }
+
+/* Colores por tipo: coincidir icono de tarjeta (tipo-icon) y botones de tipo en el header */
+.tipo-icon.tipo-trabajo { background-color: #1976d2; }
+.tipo-icon.tipo-presentacion { background-color: #4caf50; }
+.tipo-icon.tipo-resumen { background-color: #00bcd4; }
+
+/* Asegurar contraste para el icono circular */
+.tipo-icon { color: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.06); }
+
+/* Botones del header por tipo — estilos específicos que sobrescriben el fondo base */
+.type-btnHeader[data-type="trabajo"] { background: #1976d2; color: #fff; }
+.type-btnHeader[data-type="presentacion"] { background: #4caf50; color: #fff; }
+.type-btnHeader[data-type="resumen"] { background: #00bcd4; color: #fff; }
+
+/* Cuando están en estado selected, incrementar sombra/contraste */
+.type-btnHeader.selected[data-type="trabajo"] { box-shadow: 0 6px 14px rgba(25,118,210,0.18); }
+.type-btnHeader.selected[data-type="presentacion"] { box-shadow: 0 6px 14px rgba(76,175,80,0.18); }
+.type-btnHeader.selected[data-type="resumen"] { box-shadow: 0 6px 14px rgba(0,188,212,0.18); }
+
+/* Asegurar que el estado selected mantenga el color específico para botones dentro de .type-filter */
+.type-filter .type-btnHeader.selected[data-type="trabajo"] { background: #1976d2; color: #fff; border-color: #155fa0; }
+.type-filter .type-btnHeader.selected[data-type="presentacion"] { background: #4caf50; color: #fff; border-color: #2e7d32; }
+.type-filter .type-btnHeader.selected[data-type="resumen"] { background: #00bcd4; color: #fff; border-color: #008fa3; }
+
+/* Evitar que hover sobrescriba el background cuando está seleccionado */
+.type-filter .type-btnHeader.selected:hover[data-type="trabajo"] { background: #1976d2; transform: none; }
+.type-filter .type-btnHeader.selected:hover[data-type="presentacion"] { background: #4caf50; transform: none; }
+.type-filter .type-btnHeader.selected:hover[data-type="resumen"] { background: #00bcd4; transform: none; }
 
 /* Si necesitas iconos ligeramente más grandes para SVG con más detalle: */
 /* .tipo-icon { width: 38px; height: 38px; background-size: 70% 70%; } */

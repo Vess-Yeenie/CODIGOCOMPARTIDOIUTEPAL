@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     background: #ffffff;
     overflow: hidden;
-    
+     padding-bottom: 50px;
 }
 
 .header {
@@ -17,6 +17,14 @@ body {
     padding: 10px 30px;
 }
 
+.header-left{ display:flex; align-items:center; gap:12px; }
+.header-center{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; }
+.header-right{ display:flex; align-items:center; gap:12px; }
+
+.header-actions{ display:flex; gap:8px; align-items:center; margin-right:8px; }
+.action-btn{ background:#f0f0f0; border:none; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.9em; }
+.action-btn:hover{ background:#e0e0e0; }
+
 .logo {
     font-size: 1.5em;
     font-weight: bold;
@@ -24,7 +32,17 @@ body {
     border: 2px solid black;
     width: 70px;
     height: auto;
-    margin-right: 80px;
+    margin-right: 20px;
+}
+
+#btntrabajo{
+    background-color: purple;
+}
+#btnpresent{
+    background-color: rgb(146, 151, 104);
+}
+#btnresumen{
+    background-color: rgb(221, 148, 148);
 }
 
 .search-bar {
@@ -32,8 +50,8 @@ body {
     align-items: center;
     background: #1a237e;
     border-radius: 25px;
-    padding: 5px 15px;
-    width: 400px;
+    padding: 5px 12px;
+    width: 320px;
 }
 
 .search-icon {
@@ -112,7 +130,7 @@ body {
 .filterTitle{
 
     font-size: 1em;
-    padding-left: 500px;
+    padding-left: 20px;
     color: #e0e0e0;
 }
 
@@ -124,9 +142,10 @@ body {
 .main-content {
     display: flex;
     
-    height: calc(100vh - 60px); 
+   height: calc(100vh - 155px); /* 60px (header) + 60px (footer) = 120px */
+    
     overflow: auto;
-   
+    
 }
 
 .sidebar {
@@ -134,7 +153,7 @@ body {
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
     background: #1d2585; /* Azul igual que barra de búsqueda */
-    padding: 20px 0;
+    padding: 40px 0;
     width: 220px;
     display: flex;
     flex-direction: column;
@@ -179,9 +198,70 @@ body {
 }
 
 .sidebar button:hover{
-    background: #4d68e1;
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+
+
+#btn-inf:hover{
+    background-color: #00bcd4;
+}
+
+#btn-inf.selected{
+    background-color: #00bcd4;
+}
+
+#btn-inf{
+    border: #00bcd4 solid 2px;
+}
+
+#btn-prd:hover{
+    background-color: #ff9800;
+}
+
+#btn-prd.selected{
+    background-color: #ff9800;
+}
+
+#btn-prd{
+    border: #ff9800 solid 2px;
+}
+
+#btn-cont:hover{
+    background-color: #e91e63;
+}
+
+#btn-cont.selected{
+    background-color: #e91e63;
+}
+
+#btn-cont{
+    border: #e91e63 solid 2px;
+}
+
+#btn-adm:hover{
+    background-color:#2196f3 ;
+}
+
+#btn-adm.selected{
+    background-color:#2196f3 ;
+}
+
+#btn-adm{
+    border: #2196f3 solid 2px;
+}
+
+#btn-elec:hover{
+    background-color: #4caf50;
+}
+
+#btn-elec.selected{
+    background-color: #4caf50;
+}
+
+#btn-elec{
+    border: #4caf50 solid 2px;
 }
 
 .documents {
@@ -189,12 +269,18 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 100px;
     padding: 40px;
-    flex: 1;
-    align-content: start;
-    grid-auto-rows: 1fr;
-    align-items: stretch /* asegurar que todas las cards se alineen por la parte superior */
     
+    grid-auto-rows: auto; 
+    
+    /* Asegura que los elementos se alineen al inicio (arriba) */
+    align-content: start; 
+    align-items: start; 
+    
+    
+    flex: 1; /
 }
+
+/* STRUCTURE/CSS/menu.css */
 
 
 .doc-card {
@@ -202,19 +288,18 @@ body {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    margin-bottom:20px;
-    /* mantener una altura mínima pero permitir crecimiento según contenido */
-    min-height: 320px;
-    box-sizing: border-box;
-    justify-content: flex-start;
-    padding: 12px;
-    box-sizing: border-box;
-    /* ocupar toda la altura de la celda del grid para lograr simetría */
-    height: 100%;
-    width: 100%;
+    margin-bottom: 20px; /* Si esto causa espacio extra al final, puedes ajustarlo */
     
-    justify-content: flex-start;
+    
+    height: 100%; 
+
+    min-height: 320px; 
+    
+    box-sizing: border-box;
+    justify-content: flex-start; /* Alinea el contenido de la tarjeta arriba */
+    padding: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* agregado para posicionar elementos absolutos internos */
 }
 .doc-card:hover{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -236,19 +321,17 @@ body {
     box-sizing: border-box;
 }
 
-/* área de texto: ocupar espacio central y permitir scroll interno si es muy largo */
 .doc-info {
     text-align: center;
     font-size: 0.95em;
     color: #333;
     margin: 12px 0;
-    flex: 1 1 auto;            /* tomar el espacio intermedio */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: 1 1 auto; 
+    display: block; 
     padding: 8px;
-    overflow: auto;            /* evita que la tarjeta crezca descontrolada */
+    overflow: auto; 
     word-break: break-word;
+    max-height: 130px; 
 }
 
 /* acciones alineadas en fila y siempre al final de la tarjeta */
@@ -329,6 +412,77 @@ body {
     max-width: 90vw;
 }
 
+/* Estilos específicos y estéticos para el modal de cambio de contraseña */
+#changePasswordModal {
+    z-index: 2000; /* aseguramos que esté por encima de otros overlays */
+}
+#changePasswordModal .modal-content {
+    width: 420px;
+    max-width: 95%;
+    padding: 22px 20px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+    box-shadow: 0 12px 30px rgba(17,24,39,0.18);
+    color: #111827;
+}
+#changePasswordModal .close-modal {
+    right: 12px;
+    top: 10px;
+    font-size: 1.4em;
+    color: #6b7280;
+}
+#changePasswordModal label {
+    display: block;
+    font-weight: 600;
+    margin-top: 10px;
+    font-size: 0.92em;
+    color: #374151;
+}
+#changePasswordModal input[type="text"],
+#changePasswordModal input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-top: 6px;
+    box-sizing: border-box;
+    font-size: 0.95em;
+    background: #ffffff;
+}
+#changePasswordModal input::placeholder { color: #9ca3af; }
+#changePasswordModal form > div {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+#changePasswordModal button[type="submit"] {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #1f4ed8; /* azul agradable */
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+#changePasswordModal button[type="button"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: #f3f4f6;
+    color: #111827;
+    cursor: pointer;
+    font-weight: 600;
+}
+#changePasswordModal button[type="submit"]:hover { background: #1641b6; }
+#changePasswordModal button[type="button"]:hover { background: #e5e7eb; }
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+    #changePasswordModal .modal-content { width: 92%; padding: 16px; }
+    #changePasswordModal label { font-size: 0.88em; }
+}
+
 .close-modal {
     position: absolute;
     top: 10px; right: 15px;
@@ -387,43 +541,333 @@ body {
 .btn-icon{
   height: 20px;
 }
-.type-btn{
+.type-btnHeader{
     background: #1976d2;
     color: #fff;
     border: none;
-    padding: 8px 12px;
+    padding: 6px 8px;
     cursor: pointer;
-    border-radius: 20px;
-    margin-right: 8px;
-    font-size: 0.9em;
+    border-radius: 12px;
+    margin-right: 6px;
+    font-size: 0.85em;
+    white-space: nowrap;
 }
-.type-btn:hover{
+.type-btnHeader:hover{
     background: #0080ff;
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
     color: white;
 }
-.type-filter .type-btn {
-    background: #e0e0e0;
+.type-filter .type-btnHeader {
+    background: #2b66d2;
     color: #111;
     border: 1px solid #cfcfcf;
-    border-radius: 6px;
-    padding: 11px 15px;
-    margin-right: 25px;
+    border-radius: 8px;
+    padding: 7px 10px;
+    margin-right: 10px;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 /* .type-btn{
     
 } */
-.type-filter .type-btn:hover {
-    background: #d6d6d6;
+.type-filter .type-btnHeader:hover {
+    background: #08177b;
     transform: translateY(-1px);
 }
-.type-filter .type-btn.selected {
+/* Hover por tipo: mantener el color asociado cuando se pasa el cursor */
+.type-filter .type-btnHeader[data-type="trabajo"]:hover { background: #155fa0; color: #fff; transform: translateY(-1px); }
+.type-filter .type-btnHeader[data-type="presentacion"]:hover { background: #2e7d32; color: #fff; transform: translateY(-1px); }
+.type-filter .type-btnHeader[data-type="resumen"]:hover { background: #008fa3; color: #fff; transform: translateY(-1px); }
+.type-filter .type-btnHeader.selected {
     background: #2834bb;
     color: #fff;
     border-color: #1a237e;
     box-shadow: 0 2px 6px rgba(24,35,128,0.25);
 }
 
+
+.type-filter .special-btn {
+  
+    background: #4653e6; /* Verde o algún color neutro */
+    color: #fff;
+    border-color: #29329d3C;
+}
+.type-filter .special-btn:hover {
+    background: #3441cf;
+    transform: translateY(-1px);
+}
+/* Asegúrate de que los estilos base de .type-btn ya están definidos para el padding y la forma */
+.sidebar button {
+    background: #fff;
+    color: #000; 
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    margin: 8px 0;
+    width: 180px;
+   font-size: 0.8em;
+    cursor: pointer;
+    
+    /* ✅ CLAVE: Usar Flexbox para alinear contenido */
+    display: flex;
+    justify-content: space-between; /* Distribuye el espacio entre el texto y el icono */
+    align-items: center; /* Alineación vertical */
+    text-align: left; /* Aunque usemos flexbox, es bueno mantenerlo */
+}
+
+.sidebar button .btn-text {
+    /* Permitir que el texto ocupe el espacio */
+    flex-grow: 1;
+    text-align: left; 
+   
+}
+
+
+.btn-icon.right-icon {
+    /* ✅ SOLUCIÓN CLAVE: Forzar al span a respetar las propiedades width/height */
+    display: inline-block; 
+    
+    width: 20px;  /* Ya definido */
+    height: 20px; /* Ya definido */
+    margin-left: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; 
+}
+/* 🔌 SVGs específicos: DEBES AJUSTAR LAS RUTAS */
+.sidebar button [data-icon="informatica"] {
+    background-image: url('../IMG/computer.svg'); 
+    
+}
+
+.header-filter-ico{
+    width: 20px;
+    height: 20px;
+}
+
+#header-btn-text{
+    color: #ffffff;
+}
+
+.sidebar button [data-icon="produccion"] {
+    background-image: url('../IMG/factory.svg'); 
+     width: 35px; /* Tamaño del icono */
+    height: 35px;
+}
+
+.sidebar button [data-icon="electronica"] {
+    background-image: url('../IMG/circuit.svg'); 
+}
+
+.sidebar button [data-icon="contabilidad"] {
+    background-image: url('../IMG/calculator.svg'); 
+}
+
+.sidebar button [data-icon="adminis"] {
+    background-image: url('../IMG/chart.svg'); 
+ width: 40px; /* Tamaño del icono */
+    height: 40px;
+}
+/* STRUCTURE/CSS/menu.css */
+
+/* Título principal del documento */
+.doc-title {
+    text-align: center;
+    font-size: 1.0em; 
+   
+    color: #000000; /* Azul oscuro para destacar */
+    margin: 10px 0 5px 0;
+    padding: 8px 8px;
+    flex: 1 1 auto; /* Permite que el título ocupe el espacio central */
+    
+    overflow: auto;
+}
+
+/* Contenedor de las etiquetas (Carrera y Año) */
+.tag-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Espacio entre las etiquetas */
+    margin-bottom: 15px; /* Separación de los botones de acción */
+    flex: 0 0 auto; /* No se estira */
+}
+/* Estilo base para todas las etiquetas */
+.tag {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px; /* Forma de píldora */
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Estilo específico para el año */
+.ano-tag {
+    background-color: #757575; /* Gris fijo */
+}
+
+/* Estilo para la carrera (Colores distintivos) */
+
+.carrera-tag[data-carrera-color="INFORMATICA"] {
+    background-color: #00bcd4; /* Cian */
+}
+
+.carrera-tag[data-carrera-color="PRODUCCION"] {
+    background-color: #ff9800; /* Naranja */
+}
+
+.carrera-tag[data-carrera-color="ELECTRONICA"] {
+    background-color: #4caf50; /* Verde */
+}
+
+.carrera-tag[data-carrera-color="CONTABILIDAD"] {
+    background-color: #e91e63; /* Rosa/Fucsia */
+}
+
+.carrera-tag[data-carrera-color="ADMINISTRACION"] {
+    background-color: #2196f3; /* Azul Claro */
+}
+/* ================================================= */
+/* 3. ESTILOS DEL FOOTER */
+/* ================================================= */
+
+.main-footer {
+    /* Fija el footer en la parte inferior de la ventana (fixed position) */
+    position: fixed; 
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    
+    /* Usa los mismos colores azules que tu header */
+    background: #29329d; 
+    color: #ffffff;
+    
+    padding: 15px 30px;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+    display: flex;
+  justify-content: center;
+    align-items: center;
+    max-width: 1400px; /* O el ancho máximo que uses en el header */
+    margin: 0 auto;
+    font-size: 0.85em;
+}
+.footer-content p {
+    text-align: center;
+}
+
+/* Asegurar que la tarjeta permita posicionar el icono en su esquina */
+.doc-card {
+    position: relative; /* agregado para posicionar elementos absolutos internos */
+}
+
+/* Icono de tipo en la esquina superior derecha */
+.tipo-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    font-size: 18px;
+    line-height: 1;
+    z-index: 6;
+
+    /* Nuevo — usar background-image para controlar tamaño del SVG */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60% 60%; /* ajustar escala del icono dentro del círculo */
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Variantes por tipo usando background-image (imagen escalable) */
+.tipo-icon.tipo-trabajo {
+    background-image: url('../IMG/trabajo.svg');
+}
+.tipo-icon.tipo-presentacion {
+    background-image: url('../IMG/presentacion.svg');
+}
+.tipo-icon.tipo-resumen {
+    background-image: url('../IMG/resumen.svg');
+}
+
+/* Colores por tipo: coincidir icono de tarjeta (tipo-icon) y botones de tipo en el header */
+.tipo-icon.tipo-trabajo { background-color: #1976d2; }
+.tipo-icon.tipo-presentacion { background-color: #4caf50; }
+.tipo-icon.tipo-resumen { background-color: #00bcd4; }
+
+/* Asegurar contraste para el icono circular */
+.tipo-icon { color: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.06); }
+
+/* Botones del header por tipo — estilos específicos que sobrescriben el fondo base */
+.type-btnHeader[data-type="trabajo"] { background: #1976d2; color: #fff; }
+.type-btnHeader[data-type="presentacion"] { background: #4caf50; color: #fff; }
+.type-btnHeader[data-type="resumen"] { background: #00bcd4; color: #fff; }
+
+/* Cuando están en estado selected, incrementar sombra/contraste */
+.type-btnHeader.selected[data-type="trabajo"] { box-shadow: 0 6px 14px rgba(25,118,210,0.18); }
+.type-btnHeader.selected[data-type="presentacion"] { box-shadow: 0 6px 14px rgba(76,175,80,0.18); }
+.type-btnHeader.selected[data-type="resumen"] { box-shadow: 0 6px 14px rgba(0,188,212,0.18); }
+
+/* Asegurar que el estado selected mantenga el color específico para botones dentro de .type-filter */
+.type-filter .type-btnHeader.selected[data-type="trabajo"] { background: #1976d2; color: #fff; border-color: #155fa0; }
+.type-filter .type-btnHeader.selected[data-type="presentacion"] { background: #4caf50; color: #fff; border-color: #2e7d32; }
+.type-filter .type-btnHeader.selected[data-type="resumen"] { background: #00bcd4; color: #fff; border-color: #008fa3; }
+
+/* Evitar que hover sobrescriba el background cuando está seleccionado */
+.type-filter .type-btnHeader.selected:hover[data-type="trabajo"] { background: #1976d2; transform: none; }
+.type-filter .type-btnHeader.selected:hover[data-type="presentacion"] { background: #4caf50; transform: none; }
+.type-filter .type-btnHeader.selected:hover[data-type="resumen"] { background: #00bcd4; transform: none; }
+
+/* Si necesitas iconos ligeramente más grandes para SVG con más detalle: */
+/* .tipo-icon { width: 38px; height: 38px; background-size: 70% 70%; } */
+
+/* Icono dentro de los botones de tipo (lado derecho) */
+.type-btnHeader {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px; /* separación entre texto y icono */
+	padding-right: 12px; /* espacio para el icono si es necesario */
+}
+
+/* elemento que muestra el icono */
+.type-btn-icon {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	margin-left: 8px;
+	flex: 0 0 auto;
+}
+
+/* iconos por tipo (ajusta rutas si tus SVG tienen otros nombres) */
+.type-btnHeader[data-type="trabajo"] .type-btn-icon {
+	background-image: url('../IMG/trabajo.svg');
+}
+.type-btnHeader[data-type="presentacion"] .type-btn-icon {
+	background-image: url('../IMG/presentacion.svg');
+}
+.type-btnHeader[data-type="resumen"] .type-btn-icon {
+	background-image: url('../IMG/resumen.svg');
+}
+
+/* garantizar contraste cuando el botón está en estado .selected */
+.type-btnHeader.selected {
+	color: #fff;
+}
+.type-btnHeader.selected .type-btn-icon {
+	filter: brightness(0) invert(1);
+}

@@ -35,6 +35,16 @@ body {
     margin-right: 20px;
 }
 
+#btntrabajo{
+    background-color: purple;
+}
+#btnpresent{
+    background-color: rgb(146, 151, 104);
+}
+#btnresumen{
+    background-color: rgb(221, 148, 148);
+}
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -132,7 +142,7 @@ body {
 .main-content {
     display: flex;
     
-   height: calc(100vh - 150px); /* 60px (header) + 60px (footer) = 120px */
+   height: calc(100vh - 155px); /* 60px (header) + 60px (footer) = 120px */
     
     overflow: auto;
     
@@ -188,9 +198,70 @@ body {
 }
 
 .sidebar button:hover{
-    background: #4d68e1;
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+
+
+#btn-inf:hover{
+    background-color: #00bcd4;
+}
+
+#btn-inf.selected{
+    background-color: #00bcd4;
+}
+
+#btn-inf{
+    border: #00bcd4 solid 2px;
+}
+
+#btn-prd:hover{
+    background-color: #ff9800;
+}
+
+#btn-prd.selected{
+    background-color: #ff9800;
+}
+
+#btn-prd{
+    border: #ff9800 solid 2px;
+}
+
+#btn-cont:hover{
+    background-color: #e91e63;
+}
+
+#btn-cont.selected{
+    background-color: #e91e63;
+}
+
+#btn-cont{
+    border: #e91e63 solid 2px;
+}
+
+#btn-adm:hover{
+    background-color:#2196f3 ;
+}
+
+#btn-adm.selected{
+    background-color:#2196f3 ;
+}
+
+#btn-adm{
+    border: #2196f3 solid 2px;
+}
+
+#btn-elec:hover{
+    background-color: #4caf50;
+}
+
+#btn-elec.selected{
+    background-color: #4caf50;
+}
+
+#btn-elec{
+    border: #4caf50 solid 2px;
 }
 
 .documents {
@@ -488,7 +559,7 @@ body {
     color: white;
 }
 .type-filter .type-btnHeader {
-    background: #e0e0e0;
+    background: #2b66d2;
     color: #111;
     border: 1px solid #cfcfcf;
     border-radius: 8px;
@@ -502,7 +573,7 @@ body {
     
 } */
 .type-filter .type-btnHeader:hover {
-    background: #d6d6d6;
+    background: #08177b;
     transform: translateY(-1px);
 }
 .type-filter .type-btnHeader.selected {
@@ -532,7 +603,7 @@ body {
     padding: 10px 20px;
     margin: 8px 0;
     width: 180px;
-   font-size: 0.9em;
+   font-size: 0.8em;
     cursor: pointer;
     
     /* ✅ CLAVE: Usar Flexbox para alinear contenido */
@@ -546,6 +617,7 @@ body {
     /* Permitir que el texto ocupe el espacio */
     flex-grow: 1;
     text-align: left; 
+   
 }
 
 
@@ -563,6 +635,16 @@ body {
 /* 🔌 SVGs específicos: DEBES AJUSTAR LAS RUTAS */
 .sidebar button [data-icon="informatica"] {
     background-image: url('../IMG/computer.svg'); 
+    
+}
+
+.header-filter-ico{
+    width: 20px;
+    height: 20px;
+}
+
+#header-btn-text{
+    color: #ffffff;
 }
 
 .sidebar button [data-icon="produccion"] {

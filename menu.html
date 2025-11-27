@@ -24,6 +24,30 @@
                 <button class="type-btn type-btnHeader" data-type="presentacion">Presentación<span class="type-btn-icon"></span></button>
                 <button class="type-btn type-btnHeader" data-type="resumen">Hoja de resumen<span class="type-btn-icon"></span></button>
                 <button id="openLineasModalBtn" class="type-btnHeader special-btn">Líneas de Investigación</button>
+    <div class="type-filter" style="display:inline-block; margin-left:8px;" id="typeButtons">
+    <button class="type-btn type-btnHeader" data-type="trabajo" id="btntrabajo"><span id="header-btn-text">Trabajo</span>
+    <span><img class="header-filter-ico" src="STRUCTURE/IMG/TDGICONO.png" alt=""></span>
+    <button class="type-btn type-btnHeader" data-type="presentacion" id="btnpresent">
+        <span id="header-btn-text">Presentación</span>
+        <span><img class="header-filter-ico" id="presentacion" src="STRUCTURE/IMG/PRESENTICON.png" alt=""></span>
+    </button>
+    <button class="type-btn type-btnHeader" data-type="resumen" id="btnresumen"><span id="header-btn-text">Hojas de Resumen</span>
+    <span><img class="header-filter-ico" src="STRUCTURE/IMG/document-layout-right-svgrepo-com.svg" alt=""></span></button>
+
+    <button id="openLineasModalBtn" class="type-btnHeader special-btn"><span>Líneas de Investigación</span>
+    <span><img class="header-filter-ico" src="STRUCTURE/IMG/document-add-svgrepo-com.svg" alt=""></span></button>
+
+</div>
+        <h1 class="filterTitle">Filtrar por año:</h1>
+        <div class="date-dropdown" id="dateDropdown">
+            <span id="selectedDate"></span>
+            <span class="dropdown-icon">&#9660;</span>
+            <div id="monthYearMenu" style="display:none;">
+                <select id="yearSelect">
+                    <option value="todos">Todos</option>
+                    <!-- LAs opciones son generadas por JS -->
+                </select>
+                <button id="setYear">OK</button>
             </div>
         </div>
         <div class="header-right">
@@ -49,23 +73,23 @@
     <main class="main-content">
         <aside class="sidebar">
             <div class="sidebar-title">CARRERAS</div>
-            <button data-carrera="INFORMATICA">
+            <button data-carrera="INFORMATICA" id="btn-inf">
                 <span class="btn-text">INFORMÁTICA</span>
                 <span class="btn-icon right-icon" data-icon="informatica"></span>
             </button>
-            <button data-carrera="PRODUCCION">
+            <button data-carrera="PRODUCCION" id="btn-prd">
                 <span class="btn-text">PRODUCCIÓN INDUSTRIAL</span>
                 <span class="btn-icon right-icon" data-icon="produccion"></span>
             </button>
-            <button data-carrera="ELECTRONICA">
+            <button data-carrera="ELECTRONICA" id="btn-elec">
                 <span class="btn-text">ELECTRÓNICA</span>
                 <span class="btn-icon right-icon" data-icon="electronica"></span>
             </button>
-            <button data-carrera="CONTABILIDAD">
+            <button data-carrera="CONTABILIDAD" id="btn-cont">
                 <span class="btn-text">CONTABILIDAD</span>
                 <span class="btn-icon right-icon" data-icon="contabilidad"></span>
             </button>
-            <button data-carrera="ADMINISTRACION">
+            <button data-carrera="ADMINISTRACION" id="btn-adm">
                 <span class="btn-text">ADMINISTRACIÓN DE EMPRESAS</span>
                 <span class="btn-icon right-icon" data-icon="adminis"></span>
             </button>

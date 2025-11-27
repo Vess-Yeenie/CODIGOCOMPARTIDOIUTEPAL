@@ -90,6 +90,7 @@ body {
     width: 70%; 
     max-width: 350px;
     transition: background-color 0.3s ease;
+    position: relative; /* necesario para posicionar el tooltip */
     
 }
 
@@ -103,13 +104,69 @@ body {
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-.time-display {
+/* Tooltips para botones */
+.btn:not([data-tooltip])::after,
+.btn:not([data-tooltip])::before { display: none; }
+
+/* burbuja */
+.btn::after{
+    content: attr(data-tooltip);
     position: absolute;
-    bottom: 30px; /* Ligeramente más arriba */
-    right: 30px; /* Ligeramente más a la izquierda */
-    font-size: 1.4em; /* Ligeramente más grande */
-    font-weight: bold;
-    color: white;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    bottom: calc(100% + 10px); /* aparece encima del botón */
+    background: rgba(0,0,0,0.82);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease, transform 140ms ease;
+    z-index: 40;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.35);
+}
+
+/* pequeña flecha */
+.btn::before{
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 4px);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid rgba(0,0,0,0.82);
+    opacity: 0;
+    transition: opacity 140ms ease, transform 140ms ease;
+    z-index: 41;
+    pointer-events: none;
+}
+
+/* mostrar en hover / focus (accesible también con teclado si se enfoca) */
+.btn:hover::after,
+.btn:focus::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.btn:hover::before,
+.btn:focus::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Ajustes para pantallas pequeñas: tooltips encima con mayor ancho si es necesario */
+@media (max-width: 420px) {
+    .btn::after{
+        left: 50%;
+        transform: translateX(-50%) translateY(6px);
+        bottom: calc(100% + 8px);
+        font-size: 0.82rem;
+        max-width: 80vw;
+        white-space: normal;
+        padding: 8px 10px;
+    }
 }
 
 /* Responsive adjustments */

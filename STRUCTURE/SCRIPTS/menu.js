@@ -199,6 +199,46 @@ const defaultTrabajos = [
         tipo: "resumen",
         pdf: "STRUCTURE/PDFs/evaluacion_del_sistema_de_ensacado_para_la_minimizacion_de_riesgos_laborales_de_la_empresa_ferro_ca.pdf"
     },
+    {
+        id: "t26",
+        nombre: "PLAN DE CAPACITACIÓN PARA LA OPTIMIZACIÓN DEL DESEMPEÑÓ LABORAL DEL PERSONAL ADMINISTRATIVO EN LA DIRECCIÓN DE RECURSOS HUMANOS EN EL I.V.S.S DE PUERTO – ESTADO CARABOBO 2024.",
+        año: 2024,
+        carrera: "ADMINISTRACION",
+        tipo: "presentacion",
+        pdf: "STRUCTURE/PDFs/iutepal Dayerlin Mijares.mp4"
+    },
+    {
+        id: "t27",
+        nombre: "Estrategias Motivacionales para la Optimización de los Procesos Administrativos en la Coordinación de Tesorería Adscrita a la División de Gestión Administrativa Bolivariana de puertos (Bolipuertos S.A)",
+        año: 2023,
+        carrera: "ADMINISTRACION",
+        tipo: "presentacion",
+        pdf: "STRUCTURE/PDFs/deapositiva yoangel LISTA 08-08-2023.mp4"
+    },
+    {
+        id: "t28",
+        nombre: "ESTRATEGIAS PARA LA OPTIMIZACIÓN DE LA GESTIÓN CONTABLE EN BOLIVARIANA DE PUERTO (BOLIPUERTO), PUERTO CABELLO, ESTADO CARABOBO",
+        año: 2023,
+        carrera: "ADMINISTRACION",
+        tipo: "presentacion",
+        pdf: "STRUCTURE/PDFs/adriana Arcila diapositiva, FINAL 08-08-2023-.mp4"
+    },
+    {
+        id: "t29",
+        nombre: "ESTRATEGIAS ADMINISTRATIVAS PARA FORTALECER EL MANEJO EFICIENTE DE LOS RECURSOS DEL INSTITUTO MUNICIPAL DEL DEPORTE PARA PUERTO CABELLO (IMDEPUERTO), ESTADO CARABOBO",
+        año: 2025,
+        carrera: "ADMINISTRACION",
+        tipo: "presentacion",
+        pdf: "STRUCTURE/PDFs/Presentación Maria CerradaY Genesis Nuñlez.mp4"
+    },
+    {
+        id: "t30",
+        nombre: "ESTRATEGIAS ADMINISTRATIVAS PARA OPTIMIZAR EL CLIMA ORGANIZACIONAL EN LA EMPRESA AGENTE ADUANAL FRONTERA VENCOL C.A. PUERTO CABELLO ESTADO CARABOBO",
+        año: 2025,
+        carrera: "ADMINISTRACION",
+        tipo: "presentacion",
+        pdf: "STRUCTURE/PDFs/DIAPOSITIVAS FABIANA MARQUEZ 05 de agosto (1).mp4"
+    },
 ];
 
 let trabajos = []; // quedará inicializado por loadTrabajos()
@@ -303,6 +343,10 @@ const addTrabajoModal = document.getElementById('addTrabajoModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const addTrabajoForm = document.getElementById('addTrabajoForm');
 const editingIdInput = document.getElementById('editingId');
+// Referencias para control de archivos y tipo
+const trabajoTipoSelect = document.getElementById('trabajoTipo');
+const trabajoPdfInput = document.getElementById('trabajoPdf');
+const fileLabel = document.getElementById('fileLabel');
 // Referencias del nuevo reporte
 const elaborarReporteBtn = document.getElementById('elaborarReporteBtn');
 const reportModal = document.getElementById('reportModal');
@@ -448,6 +492,43 @@ function saveToStorage() {
     localStorage.setItem('trabajosDeGrado', JSON.stringify(trabajos));
 }
 
+// Helpers para validar tipo de archivo
+function isVideoFile(file) {
+    if (!file) return false;
+    try {
+        if (file.type && file.type.startsWith('video/')) return true;
+        const name = file.name || '';
+        return /\.(mp4|webm|mov|ogg|mkv)$/i.test(name);
+    } catch(e){ return false; }
+}
+function isPdfFile(file) {
+    if (!file) return false;
+    try {
+        if (file.type && file.type === 'application/pdf') return true;
+        const name = file.name || '';
+        return /\.pdf$/i.test(name);
+    } catch(e){ return false; }
+}
+
+// Actualizar el atributo 'accept' y el texto del label según el tipo seleccionado
+function updateFileInputAccept(tipo) {
+    if (!trabajoPdfInput || !fileLabel) return;
+    if (tipo === 'presentacion') {
+        trabajoPdfInput.accept = 'video/*';
+        fileLabel.textContent = 'Archivo de video (si desea cambiarlo, suba uno nuevo):';
+    } else {
+        trabajoPdfInput.accept = 'application/pdf';
+        fileLabel.textContent = 'Archivo PDF (si desea cambiarlo, suba uno nuevo):';
+    }
+}
+
+// Si el select de tipo cambia dentro del modal, actualizar el accept
+if (typeof trabajoTipoSelect !== 'undefined' && trabajoTipoSelect) {
+    trabajoTipoSelect.addEventListener('change', (e) => {
+        updateFileInputAccept(e.target.value);
+    });
+}
+
 // --- Manejo de clicks delegados en sección de documentos ---
 contenedorCards.addEventListener('click', (e) => {
     const btnEdit = e.target.closest('.edit-btn');
@@ -514,6 +595,8 @@ contenedorCards.addEventListener('click', (e) => {
 addTrabajoBtn.addEventListener('click', () => {
     editingIdInput.value = '';
     addTrabajoForm.reset();
+    // asegurar que el input de archivo acepte PDFs por defecto al crear
+    try { updateFileInputAccept(''); } catch(e) {}
     if (currentPdfInfo) {
         currentPdfInfo.textContent = '';
         currentPdfInfo.style.display = 'none';
@@ -530,6 +613,8 @@ function openEditModal(id) {
     document.getElementById('trabajoCarrera').value = item.carrera || '';
     document.getElementById('trabajoAno').value = item.año || '';
     document.getElementById('trabajoTipo').value = item.tipo || '';
+    // ajustar el input de archivo según el tipo del item (video para presentacion)
+    try { updateFileInputAccept(item.tipo); } catch(e) {}
     if (currentPdfInfo) {
         currentPdfInfo.style.display = 'block';
         currentPdfInfo.textContent = item.pdf ? `Archivo actual: ${item.pdf} (sube uno para reemplazar)` : (inMemoryPdfMap[id] ? 'Archivo cargado en sesión (se reemplazará si subes uno nuevo)' : 'Sin archivo');
@@ -559,6 +644,15 @@ addTrabajoForm.addEventListener('submit', function(e) {
     const editingId = editingIdInput.value;
 
     if (!nombre || !carrera || !ano || !tipo) return;
+
+    // Validación del tipo de archivo según el tipo de documento
+    if (pdfFile) {
+        if (tipo === 'presentacion') {
+            if (!isVideoFile(pdfFile)) { alert('Para presentaciones, sube un archivo de video (mp4, webm, mov, etc.).'); return; }
+        } else {
+            if (!isPdfFile(pdfFile)) { alert('Para trabajos o resúmenes, sube un archivo PDF.'); return; }
+        }
+    }
 
     if (editingId) {
         // editar existente
@@ -1009,6 +1103,17 @@ window.addEventListener('click', (event) => {
         lineasPdfViewer.src = ''; 
     }
 });
+// --- About modal handlers ---
+const aboutBtn = document.getElementById('aboutBtn');
+const aboutModal = document.getElementById('aboutModal');
+const closeAboutBtn = document.getElementById('closeAboutBtn');
+if (aboutBtn && aboutModal) {
+    aboutBtn.addEventListener('click', () => { aboutModal.style.display = 'flex'; });
+}
+if (closeAboutBtn) closeAboutBtn.addEventListener('click', () => { if (aboutModal) aboutModal.style.display = 'none'; });
+if (aboutModal) {
+    aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
+}
 // Listeners para abrir/cerrar reporte
 if (elaborarReporteBtn) {
     elaborarReporteBtn.addEventListener('click', openReportModal);

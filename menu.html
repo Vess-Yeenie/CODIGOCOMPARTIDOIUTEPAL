@@ -12,7 +12,7 @@
 
     <header class="header">
         <div class="header-left">
-            <a id="homeLogo" href="Index.html"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></a>
+            <span id="homeLogo"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></span>
         </div>
         <div class="header-center">
             <div class="search-bar">
@@ -153,10 +153,10 @@
                 <select id="trabajoTipo" required>
                     <option value="">Seleccione</option>
                     <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option
+                    <option value="presentacion">Presentación</option>
                     <option value="resumen">Hoja de resumen</option>
                 </select>
-                <label>Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
+                <label id="fileLabel">Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
                 <input type="file" id="trabajoPdf" accept="application/pdf">
                 <button type="submit">Guardar</button>
             </form>
@@ -208,11 +208,23 @@
     <footer class="main-footer">
         <div class="footer-content">
             <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
+            <button id="aboutBtn" class="action-btn" title="Acerca de">Acerca de</button>
           
         </div>
     </footer>
 
+    <!-- Modal Acerca de -->
+    <div id="aboutModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAboutBtn">&times;</span>
+            <h2>Acerca de</h2>
+            <div style="line-height:1.45;color:#333;margin-top:8px;">
+                <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
+                <p style="margin-top:8px;">Sistema para visualizar, administrar y reportar trabajos de grado, presentaciones y hojas de resumen. Permite filtrar por carrera y año, registrar acciones de visualización/descarga y generar reportes por usuario.</p>
+                <p style="margin-top:10px;font-weight:700;">Creadores: Elias Curiel y Neomar Vasquez</p>
+            </div>
+        </div>
+    </div>
+
     <script src="STRUCTURE/SCRIPTS/menu.js"></script>
-
-
 </html>

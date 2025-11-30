@@ -27,10 +27,6 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="header-actions">
-                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" style="display:none">Cerrar sesión</button>
-                <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" style="display:none">Cambiar contraseña</button>
-            </div>
             <h1 class="filterTitle">Filtrar por año:</h1>
             <div class="date-dropdown" id="dateDropdown">
                 <span id="selectedDate"></span>
@@ -42,6 +38,15 @@
                     </select>
                     <button id="setYear">OK</button>
                 </div>
+            </div>
+            <div class="header-actions">
+                <!-- Icon-only buttons: el title asegura el tooltip al hacer hover -->
+                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" aria-label="Cerrar sesión" style="display:none">
+                    <img src="STRUCTURE/IMG/logout.svg" alt="" class="action-icon">
+                </button>
+                <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" aria-label="Cambiar contraseña" style="display:none">
+                    <img src="STRUCTURE/IMG/password.svg" alt="" class="action-icon">
+                </button>
             </div>
         </div>
     </header>
@@ -153,12 +158,7 @@
                 <select id="trabajoTipo" required>
                     <option value="">Seleccione</option>
                     <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option>
-                    <option value="resumen">Hoja de resumen</option>
-                </select>
-                <label id="fileLabel">Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
-                <input type="file" id="trabajoPdf" accept="application/pdf">
-                <button type="submit">Guardar</button>
+                    <option value="presentacion">Presentación</option
             </form>
         </div>
     </div>
@@ -208,8 +208,12 @@
     <footer class="main-footer">
         <div class="footer-content">
             <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
-            <button id="aboutBtn" class="action-btn" title="Acerca de">Acerca de</button>
-          
+            <!-- reemplazado: botón con texto -> botón icon-only -->
+            <div class="footer-about-container">
+                <button id="aboutBtn" class="action-btn" title="Acerca de" aria-label="Acerca de">
+                    <img src="STRUCTURE/IMG/about.svg" alt="" class="action-icon">
+                </button>
+            </div>
         </div>
     </footer>
 

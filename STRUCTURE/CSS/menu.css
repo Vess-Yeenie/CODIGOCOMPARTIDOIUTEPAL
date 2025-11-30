@@ -22,8 +22,40 @@ body {
 .header-right{ display:flex; align-items:center; gap:12px; }
 
 .header-actions{ display:flex; gap:8px; align-items:center; margin-right:8px; }
-.action-btn{ background:#f0f0f0; border:none; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.9em; }
-.action-btn:hover{ background:#e0e0e0; }
+.action-btn{ 
+    /* reemplaza padding amplio por tamaño fijo para icono */
+    padding: 6px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background:#f0f0f0;
+    border: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+.action-btn:hover{
+    background:#e0e0e0;
+    outline: none;
+    transform: translateY(-1px);
+    transition: background-color 0.12s ease, transform 0.12s ease;
+}
+
+/* icono dentro del botón */
+.action-icon{
+    width: 20px;
+    height: 20px;
+    display: block;
+    object-fit: contain;
+    pointer-events: none; /* asegurar que el click afecte el botón, no la imagen */
+    filter: none;
+}
+
+/* Si necesitas invertir iconos SVG blancos sobre fondo oscuro, usa este selector (opcional):
+.header .action-btn .action-icon { filter: invert(1) brightness(2); }
+*/
 
 .logo {
     font-size: 1.5em;
@@ -80,6 +112,7 @@ body {
     font-size: 1em;
     position: relative;
     cursor: pointer;
+    margin-right: 12px; /* separa el filtro de los botones de acción */
 }
 
 .date-dropdown #monthYearMenu {
@@ -130,7 +163,7 @@ body {
 .filterTitle{
 
     font-size: 1em;
-    padding-left: 20px;
+    padding-left: 8px; /* menos espacio ahora que el filtro está antes de los botones */
     color: #e0e0e0;
 }
 
@@ -152,7 +185,7 @@ body {
     position: sticky;
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
-    background: #1d2585; /* Azul igual que barra de búsqueda */
+    background: #918f8f; /* Gris claro para el fondo de la sidebar */
     padding: 40px 0;
     width: 220px;
     display: flex;
@@ -161,8 +194,8 @@ body {
 }
 
 .sidebar-title {
-    background: #2834bb; /* Azul más oscuro */
-    color: #fff;
+    background: #b0b3b8; /* Gris medio para diferenciar del fondo */
+    color: #222;
     font-weight: bold;
     padding: 10px 30px;
     border-radius: 10px;
@@ -173,7 +206,7 @@ body {
 }
 
 .sidebar-title:hover{
-    background: #3a48e5;
+    background: #c7c9cc; /* Un gris un poco más claro al hacer hover */
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
@@ -742,24 +775,97 @@ body {
     width: 100%;
     
     /* Usa los mismos colores azules que tu header */
-    background: #29329d; 
+    background: #1774c0; 
     color: #ffffff;
     
     padding: 15px 30px;
     z-index: 100; /* Asegura que esté por encima de otros elementos */
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .footer-content {
     display: flex;
-  justify-content: center;
+    justify-content: center;
     align-items: center;
-    max-width: 1400px; /* O el ancho máximo que uses en el header */
+    max-width: 1400px;
     margin: 0 auto;
     font-size: 0.85em;
+    flex: 1 1 auto;
+    /* Permite que el contenido ocupe el espacio y el about-btn se vaya a la derecha */
+    position: relative;
 }
+
 .footer-content p {
     text-align: center;
+    margin: 0;
+    flex: 1 1 auto;
+}
+
+/* Nuevo: contenedor para el botón about (si está presente en el HTML) */
+.footer-about-container {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-left: 12px;
+}
+
+/* Botón About (icon-only) — usa el id real en el HTML: #aboutBtn */
+#aboutBtn {
+    /* usar estilos compactos de action-btn pero añadir diseño propio */
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px;              /* compacto para icon-only */
+    width: 44px;              /* cuadrado para icono */
+    height: 44px;
+    font-size: 0.95em;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(25,118,210,0.12);
+    cursor: pointer;
+    margin-left: 12px;
+    transition: background 0.18s,  box-shadow 0.12s;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* usar la clase action-icon para el SVG interno (ya definida arriba) */
+/* contraste y animación al hover/focus */
+#aboutBtn:hover,
+#aboutBtn:focus {
+    background: #1a52a5;
+    box-shadow: 0 6px 18px rgba(25,118,210,0.16);
+}
+
+/* responsive: si no hay .footer-about-container en móvil, se adapta igualmente */
+@media (max-width: 600px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: stretch;
+        position: static;
+    }
+    .footer-about-container {
+        position: static;
+        transform: none;
+        justify-content: flex-end;
+        margin-top: 10px;
+        padding-left: 0;
+    }
+    #aboutBtn {
+        width: 48px;
+        height: 48px;
+        margin-left: 0;
+        align-self: center;
+    }
 }
 
 /* Asegurar que la tarjeta permita posicionar el icono en su esquina */
@@ -870,4 +976,100 @@ body {
 }
 .type-btnHeader.selected .type-btn-icon {
 	filter: brightness(0) invert(1);
+}
+
+/* --------------- CAMBIO: botones ovalados/píldora para consistencia --------------- */
+/* Aplica a botones nativos, inputs tipo botón/submit y a los controles de la UI que usan clases de botón */
+button,
+input[type="button"],
+input[type="submit"],
+.action-btn,
+.doc-btn,
+.sidebar button,
+.type-btnHeader,
+.date-dropdown button,
+#addTrabajoBtn,
+#changePasswordModal button,
+#addTrabajoForm button {
+	/* radio grande para forma ovalada/píldora */
+	border-radius: 999px !important;
+
+	/* padding coherente para que el botón sea alargado y mantenga el texto centrado */
+	padding-left: 16px !important;
+	padding-right: 16px !important;
+
+	/* altura mínima y centrado de contenido */
+	min-height: 36px;
+	height: auto;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box;
+}
+
+/* Ajustes específicos para botones que antes eran ancho completo (ej. submit dentro de forms).
+   Si quieres que algunos botones sigan ocupando todo el ancho, mantén width:100% explícito en su selector. */
+#changePasswordModal button[type="submit"],
+#addTrabajoForm button[type="submit"] {
+	/* conservar ancho completo si estaba previsto */
+	width: 100%;
+	border-radius: 999px !important;
+}
+
+/* Mantener el aspecto visual de .type-btnHeader (colores y sombras) pero con borde ovalado */
+.type-filter .type-btnHeader,
+.type-btnHeader {
+	border-radius: 999px !important;
+}
+
+/* Asegurar que los iconos dentro de los botones no se deformen */
+.btn-icon,
+.action-icon,
+.type-btn-icon {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+}
+
+/* Reemplazo: restaurar tamaños correctos para los iconos y evitar deformaciones */
+.btn-icon {
+	/* iconos dentro de botones (<img>) */
+	flex: 0 0 auto;
+	width: 18px !important;
+	height: 18px !important;
+	display: inline-block;
+	object-fit: contain;
+}
+
+.action-icon {
+	/* iconos de los botones de la cabecera (logout, password, etc.) */
+	flex: 0 0 auto;
+	width: 20px !important;
+	height: 20px !important;
+	display: inline-block;
+	object-fit: contain;
+}
+
+/* iconos que usan background-image dentro de botones tipo (spans) */
+.type-btn-icon {
+	flex: 0 0 auto;
+	width: 18px !important;
+	height: 18px !important;
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain !important;
+}
+
+/* Asegurar que los iconos de la barra lateral con data-icon mantengan su background-size y aparición.
+   No fijamos width/height aquí para no pisar las excepciones (35/40px) ya definidas más arriba. */
+.sidebar button [data-icon="informatica"],
+.sidebar button [data-icon="produccion"],
+.sidebar button [data-icon="electronica"],
+.sidebar button [data-icon="contabilidad"],
+.sidebar button [data-icon="adminis"] {
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
 }

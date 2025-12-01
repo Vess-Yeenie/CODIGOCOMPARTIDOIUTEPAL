@@ -50,7 +50,6 @@
             </div>
         </div>
     </header>
-    </header>
     <main class="main-content">
         <aside class="sidebar">
             <div class="sidebar-title">CARRERAS</div>
@@ -157,9 +156,20 @@
                 <label>Tipo de documento:</label>
                 <select id="trabajoTipo" required>
                     <option value="">Seleccione</option>
+                    <option value="resumen">Hoja de resumen</option>
                     <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option
-            </form>
+                    <option value="presentacion">Presentación</option>
+                </select>
+
+                <label id="fileLabel">Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
+                <input type="file" id="trabajoPdf" accept="application/pdf">
+                <div id="currentPdfInfo" style="display:none;margin-top:8px;color:#333;font-size:0.95em;"></div>
+
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                    <button type="submit">Guardar</button>
+                    <button type="button" id="cancelAddTrabajoBtn">Cancelar</button>
+                </div>
+                </form>
         </div>
     </div>
 
@@ -171,7 +181,6 @@
             <div id="reportContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
                 <!-- Contenido generado por JS -->
             </div>
-        </div>
         </div>
     </div>
     <!-- Modal para cambiar contraseña (solo admin) -->

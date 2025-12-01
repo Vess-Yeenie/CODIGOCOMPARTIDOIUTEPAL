@@ -175,7 +175,7 @@ body {
 .main-content {
     display: flex;
     
-   height: calc(100vh - 155px); /* 60px (header) + 60px (footer) = 120px */
+   height: calc(100vh - 128px); /* 60px (header) + 60px (footer) = 120px */
     
     overflow: auto;
     

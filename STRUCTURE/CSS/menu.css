@@ -1001,7 +1001,7 @@ input[type="submit"],
 	/* altura mínima y centrado de contenido */
 	min-height: 36px;
 	height: auto;
-	display: inline-flex !important;
+	display: inline-flex;
 	align-items: center !important;
 	justify-content: center !important;
 	box-sizing: border-box;

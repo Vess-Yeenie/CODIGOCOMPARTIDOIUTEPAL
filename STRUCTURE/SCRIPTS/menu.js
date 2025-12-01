@@ -312,6 +312,7 @@ const isGuest = (function() {
     try {
         // si es admin, no considerar guest
         if (isAdmin) return false;
+        
         return localStorage.getItem('guest') === 'true' || (document.referrer && document.referrer.includes('login-guest.html'));
     } catch (e) {
         return false;
@@ -384,11 +385,12 @@ function renderCards() {
     
     // 🟢 RESTRICCIÓN DE TIPO (Actualizada)
     let typeRestriction;
-
+        
     if (isAdmin) {
         // Excepción ADMIN: ve todos los tipos
         typeRestriction = true;
     } else if (isIutepalista) {
+        
         // IUTEPALISTA: solo ve 'resumen'
         typeRestriction = item.tipo === 'resumen';
     } else {
@@ -413,9 +415,11 @@ if (typeButtonsContainer) {
             // ADMIN: Muestra todos los botones
             btn.style.display = '';
         } else if (isIutepalista) {
+            
             // IUTEPALISTA: Muestra solo 'resumen'
             btn.style.display = (type === 'resumen') ? '' : 'none';
         } else {
+            
             // VISITANTE/NO IUTEPALISTA: Muestra 'trabajo' y 'presentacion'
             btn.style.display = (type === 'trabajo' || type === 'presentacion') ? '' : 'none';
         }

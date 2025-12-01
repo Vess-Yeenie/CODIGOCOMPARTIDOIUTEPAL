@@ -627,6 +627,14 @@ closeModalBtn.addEventListener('click', () => {
     addTrabajoModal.style.display = 'none';
 });
 
+// Cancelar en el formulario de añadir trabajo (botón añadido en el HTML)
+const cancelAddTrabajoBtn = document.getElementById('cancelAddTrabajoBtn');
+if (cancelAddTrabajoBtn) {
+    cancelAddTrabajoBtn.addEventListener('click', () => {
+        if (addTrabajoModal) addTrabajoModal.style.display = 'none';
+    });
+}
+
 // Evitar cerrar al clickear contenido
 addTrabajoModal.addEventListener('click', (e) => {
     if (e.target === addTrabajoModal) addTrabajoModal.style.display = 'none';

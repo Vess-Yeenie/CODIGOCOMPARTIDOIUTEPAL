@@ -20,10 +20,19 @@
                 <input type="text" placeholder="BUSQUEDA">
             </div>
             <div class="type-filter" id="typeButtons">
-                <button class="type-btn type-btnHeader" data-type="trabajo">Trabajo<span class="type-btn-icon"></span></button>
-                <button class="type-btn type-btnHeader" data-type="presentacion">Presentación<span class="type-btn-icon"></span></button>
-                <button class="type-btn type-btnHeader" data-type="resumen">Hoja de resumen<span class="type-btn-icon"></span></button>
-                <button id="openLineasModalBtn" class="type-btnHeader special-btn">Líneas de Investigación</button>
+                <button class="type-btn type-btnHeader" data-type="trabajo" title="Trabajo" aria-label="Trabajo">
+                    <span class="type-btn-icon"></span>
+                </button>
+                <button class="type-btn type-btnHeader" data-type="presentacion" title="Presentación" aria-label="Presentación">
+                    <span class="type-btn-icon"></span>
+                </button>
+                <button class="type-btn type-btnHeader" data-type="resumen" title="Hoja de resumen" aria-label="Hoja de resumen">
+                    <span class="type-btn-icon"></span>
+                </button>
+                <button id="openLineasModalBtn" class="type-btnHeader special-btn" title="Líneas de Investigación" aria-label="Líneas de Investigación">
+                    <!-- icono genérico para líneas de investigación -->
+                    <span class="type-btn-icon" style="background-image:url('STRUCTURE/IMG/document-layout-right-svgrepo-com.svg');"></span>
+                </button>
             </div>
         </div>
         <div class="header-right">
@@ -52,29 +61,32 @@
     </header>
     <main class="main-content">
         <aside class="sidebar">
-            <div class="sidebar-title">CARRERAS</div>
-            <button data-carrera="INFORMATICA" id="btn-inf">
-                <span class="btn-text">INFORMÁTICA</span>
-                <span class="btn-icon right-icon" data-icon="informatica"></span>
+            <div class="sidebar-title" title="Mostrar todos los trabajos">CARRERAS</div>
+            <!-- botones de carrera con iconos, el title sirve como tooltip -->
+            <div class="carrera-buttons">
+                <button id="btn-inf" class="carrera-btn" data-carrera="INFORMATICA" title="Informática">
+                    <img src="STRUCTURE/IMG/INFORMATICA.png" alt="Informatica">
+                </button>
+                <button id="btn-prd" class="carrera-btn" data-carrera="PRODUCCION" title="Producción industrial">
+                    <img src="STRUCTURE/IMG/PRODUCCION.png" alt="Producción">
+                </button>
+                <button id="btn-elec" class="carrera-btn" data-carrera="ELECTRONICA" title="Electrónica">
+                    <img src="STRUCTURE/IMG/ELECTRONICA.png" alt="Electrónica">
+                </button>
+                <button id="btn-cont" class="carrera-btn" data-carrera="CONTABILIDAD" title="Contabilidad">
+                    <img src="STRUCTURE/IMG/CONTABILIDAD.png" alt="Contabilidad">
+                </button>
+                <button id="btn-adm" class="carrera-btn" data-carrera="ADMINISTRACION" title="Administración de empresas">
+                    <img src="STRUCTURE/IMG/ADMINISTRACION.png" alt="Administración">
+                </button>
+            </div>
+            <!-- botones de acción iconográficos -->
+            <button id="addTrabajoBtn" class="sidebar-icon-btn" title="Añadir trabajo">
+                <img src="STRUCTURE/IMG/document-add-svgrepo-com.svg" alt="+">
             </button>
-            <button data-carrera="PRODUCCION" id="btn-prd">
-                <span class="btn-text">PRODUCCIÓN INDUSTRIAL</span>
-                <span class="btn-icon right-icon" data-icon="produccion"></span>
+            <button id="elaborarReporteBtn" class="sidebar-icon-btn" title="Generar reporte">
+                <img src="STRUCTURE/IMG/report-svgrepo-com.svg" alt="Reporte">
             </button>
-            <button data-carrera="ELECTRONICA" id="btn-elec">
-                <span class="btn-text">ELECTRÓNICA</span>
-                <span class="btn-icon right-icon" data-icon="electronica"></span>
-            </button>
-            <button data-carrera="CONTABILIDAD" id="btn-cont">
-                <span class="btn-text">CONTABILIDAD</span>
-                <span class="btn-icon right-icon" data-icon="contabilidad"></span>
-            </button>
-            <button data-carrera="ADMINISTRACION" id="btn-adm">
-                <span class="btn-text">ADMINISTRACIÓN DE EMPRESAS</span>
-                <span class="btn-icon right-icon" data-icon="adminis"></span>
-            </button>
-            <button id="addTrabajoBtn">Añadir trabajo</button>
-            <button id="elaborarReporteBtn">Elaborar Reporte</button>
         </aside>
         <section class="documents">
             <!-- <div class="doc-card" data-carrera="INFORMATICA" data-ano="2023" data-tipo="presentacion">

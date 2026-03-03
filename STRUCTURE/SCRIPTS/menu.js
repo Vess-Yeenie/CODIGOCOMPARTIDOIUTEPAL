@@ -371,6 +371,16 @@ let searchText = '';
 
 // --- Renderizado de tarjetas desde arreglo ---
 function renderCards() {
+    // pintar estado de selección de carrera en los botones
+    const carreraButtonsLocal = document.querySelectorAll('.carrera-btn');
+    carreraButtonsLocal.forEach(b => {
+        if (selectedCarrera && b.dataset.carrera === selectedCarrera) {
+            b.classList.add('selected');
+        } else {
+            b.classList.remove('selected');
+        }
+    });
+
     contenedorCards.innerHTML = '';
     const now = new Date();
     // aplicar filtros sobre array antes de crear DOM
@@ -759,27 +769,32 @@ setYear.addEventListener('click', function() {
     renderCards();
 });
 
-// sidebar carrera filter
-const sidebarButtons = document.querySelectorAll('.sidebar button');
-sidebarButtons.forEach(btn => {
+// sidebar carrera filter: ahora usamos botones con iconos
+const carreraButtons = document.querySelectorAll('.carrera-btn');
+carreraButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (btn.id === 'addTrabajoBtn') return; // botón modal
-        const isSelected = btn.classList.contains('selected');
-        sidebarButtons.forEach(b => b.classList.remove('selected'));
-        if (isSelected) {
+        // si se vuelve a pulsar el mismo botón se desactiva
+        if (btn.classList.contains('selected')) {
             selectedCarrera = null;
+            btn.classList.remove('selected');
         } else {
+            selectedCarrera = btn.dataset.carrera || null;
+            // deseleccionar todos y marcar este
+            carreraButtons.forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            selectedCarrera = btn.getAttribute('data-carrera');
         }
         renderCards();
     });
 });
-document.querySelector('.sidebar-title').addEventListener('click', () => {
-    selectedCarrera = null;
-    sidebarButtons.forEach(b => b.classList.remove('selected'));
-    renderCards();
-});
+
+const sidebarTitle = document.querySelector('.sidebar-title');
+if (sidebarTitle) {
+    sidebarTitle.addEventListener('click', () => {
+        selectedCarrera = null;
+        carreraButtons.forEach(b => b.classList.remove('selected'));
+        renderCards();
+    });
+}
 
 // Inicializar selects de año si es necesario (mantener min/max)
 (function initYearSelect() {

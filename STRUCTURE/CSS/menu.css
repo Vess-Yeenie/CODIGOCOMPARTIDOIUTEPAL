@@ -84,6 +84,7 @@ body {
     border-radius: 25px;
     padding: 5px 12px;
     width: 320px;
+    flex-shrink: 2;
 }
 
 .search-icon {
@@ -186,39 +187,77 @@ body {
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
     background: #918f8f; /* Gris claro para el fondo de la sidebar */
-    padding: 40px 0;
-    width: 220px;
+    padding: 5px 0; /* mínimo padding */
+    width: 120px; /* ancho reducido al mínimo */
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.sidebar-title {
-    background: #b0b3b8; /* Gris medio para diferenciar del fondo */
-    color: #222;
-    font-weight: bold;
-    padding: 10px 30px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-   
-    font-size: 1.1em;
+
+
+/* reutiliza los estilos de color ya definidos en los identificadores */
+#btn-inf.selected { color: #00bcd4; }
+#btn-prd.selected { color: #ff9800; }
+#btn-cont.selected { color: #e91e63; }
+#btn-adm.selected { color: #2196f3; }
+#btn-elec.selected { color: #4caf50; }
+
+/* boton pequeño icono para acciones en la sidebar */
+.sidebar-icon-btn {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    padding: 2px;
+    margin-top: 2px;
+    width: 24px; /* icono aún más pequeño */
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.sidebar-icon-btn img {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+}
+.sidebar-icon-btn:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
 }
 
+.sidebar-title {
+    background: #b0b3b8;
+    color: #222;
+    font-weight: bold;
+    /* Reducimos el padding lateral de 30px a 5px */
+    padding: 8px 5px; 
+    border-radius: 10px;
+    margin-bottom: 15px;
+    /* Reducimos la fuente para que quepa en una sola línea */
+    font-size: 0.85em; 
+    cursor: pointer;
+    /* Aseguramos que el texto esté centrado y no se pase del ancho */
+    width: 90%;
+    text-align: center;
+    box-sizing: border-box;
+}
 .sidebar-title:hover{
     background: #c7c9cc; /* Un gris un poco más claro al hacer hover */
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-.sidebar button {
+.sidebar button:not(.sidebar-icon-btn) {
     background: #fff;
     color: #000; 
     border: none;
     border-radius: 25px;
     padding: 10px 20px;
     margin: 8px 0;
-    width: 180px;
+    width: 60px;
     font-size: 1em;
     cursor: pointer;
     text-align: left;
@@ -235,67 +274,70 @@ body {
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-
-
-#btn-inf:hover{
-    background-color: #00bcd4;
+/* contenedor para los botones de carrera */
+.carrera-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* mínimo espacio */
+    margin: 2px 0;
+    flex-wrap: wrap; /* permitir ajuste si hay problema de altura */
+    justify-content: center;
 }
 
-#btn-inf.selected{
-    background-color: #00bcd4;
+/* botones con íconos para filtrar por carrera */
+.carrera-btn {
+    /* círculo blanco grande para el icono */
+    background: #fff;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    padding: 6px; /* espacio interno para el icono */
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.carrera-btn img {
+    display: block;
+    width: 80px; /* icono más grande y visible */
+    height: 80px;
+    /* object-fit: contain; */
+    pointer-events: none;
+}
+.carrera-btn:hover {
+    transform: scale(1.1);
+}
+.carrera-btn.selected {
+    /* en selección, usar color actual para borde y sombra */
+    border-color: currentColor;
+    box-shadow: 0 0 0 2px currentColor, 0 1px 3px rgba(0,0,0,0.15);
 }
 
-#btn-inf{
-    border: #00bcd4 solid 2px;
+
+/* career hover/selected adjustments when no background is used */
+#btn-inf:hover img,
+#btn-prd:hover img,
+#btn-cont:hover img,
+#btn-adm:hover img,
+#btn-elec:hover img {
+    transform: scale(1.1);
 }
 
-#btn-prd:hover{
-    background-color: #ff9800;
+#btn-inf { color: #00bcd4; }
+#btn-prd { color: #ff9800; }
+#btn-cont { color: #e91e63; }
+#btn-adm { color: #2196f3; }
+#btn-elec { color: #4caf50; }
+
+/* borders used only for debugging; remove if not needed */
+#btn-inf, #btn-prd, #btn-cont, #btn-adm, #btn-elec {
+    border: none;
 }
 
-#btn-prd.selected{
-    background-color: #ff9800;
-}
-
-#btn-prd{
-    border: #ff9800 solid 2px;
-}
-
-#btn-cont:hover{
-    background-color: #e91e63;
-}
-
-#btn-cont.selected{
-    background-color: #e91e63;
-}
-
-#btn-cont{
-    border: #e91e63 solid 2px;
-}
-
-#btn-adm:hover{
-    background-color:#2196f3 ;
-}
-
-#btn-adm.selected{
-    background-color:#2196f3 ;
-}
-
-#btn-adm{
-    border: #2196f3 solid 2px;
-}
-
-#btn-elec:hover{
-    background-color: #4caf50;
-}
-
-#btn-elec.selected{
-    background-color: #4caf50;
-}
-
-#btn-elec{
-    border: #4caf50 solid 2px;
-}
+/* selected color already handled by color property above */
 
 .documents {
     display: grid;
@@ -576,14 +618,22 @@ body {
 }
 .type-btnHeader{
     background: #1976d2;
-    color: #fff;
+    color: transparent; /* hide any text */
     border: none;
-    padding: 6px 8px;
+    /* icon-only square */
+    width: 40px;
+    height: 40px;
+    padding: 0;
     cursor: pointer;
-    border-radius: 12px;
+    border-radius: 50%;
     margin-right: 6px;
-    font-size: 0.85em;
-    white-space: nowrap;
+    font-size: 0 !important; /* hide stray text nodes */
+    line-height: 0;
+    white-space: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 .type-btnHeader:hover{
     background: #0080ff;
@@ -593,10 +643,16 @@ body {
 }
 .type-filter .type-btnHeader {
     background: #2b66d2;
-    color: #111;
+    color: transparent;
     border: 1px solid #cfcfcf;
     border-radius: 8px;
-    padding: 7px 10px;
+    /* icon-only dimensions match base */
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 0 !important;
+    line-height: 0;
+    overflow: hidden;
     margin-right: 10px;
     cursor: pointer;
     font-size: 0.9rem;
@@ -622,10 +678,20 @@ body {
 
 
 .type-filter .special-btn {
-  
+    /* mantener tamaño y forma iguales a los icon-only buttons */
     background: #4653e6; /* Verde o algún color neutro */
-    color: #fff;
+    color: transparent;    /* ocultar texto, se mostrará en title */
     border-color: #29329d3C;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 0 !important;
+    line-height: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 .type-filter .special-btn:hover {
     background: #3441cf;
@@ -639,7 +705,7 @@ body {
     border-radius: 25px;
     padding: 10px 20px;
     margin: 8px 0;
-    width: 180px;
+    width: 90px;
    font-size: 0.8em;
     cursor: pointer;
     
@@ -704,6 +770,46 @@ body {
     height: 40px;
 }
 /* STRUCTURE/CSS/menu.css */
+
+/* Forzar que los iconos se muestren en blanco */
+
+.type-btn-icon {
+    /* Convierte iconos a blanco manteniendo contraste */
+    filter: grayscale(1) brightness(0) invert(1);
+}
+
+/* Si quieres que los iconos seleccionados usen una ligera variación, puedes ajustar aquí */
+
+
+
+/* Estilos para el select de carreras en la sidebar */
+.carrera-select {
+    width: 180px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    color: #111;
+    font-size: 0.9em;
+    margin: 8px 0 12px 0;
+    box-sizing: border-box;
+    -webkit-appearance: none; /* eliminar apariencia nativa */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #666 50%), linear-gradient(135deg, #666 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+.carrera-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33,118,243,0.12);
+    border-color: #1976d2;
+}
+
+/* Opciones ligeramente espaciadas */
+.carrera-select option { padding: 8px; }
 
 /* Título principal del documento */
 .doc-title {
@@ -947,15 +1053,15 @@ body {
 	padding-right: 12px; /* espacio para el icono si es necesario */
 }
 
-/* elemento que muestra el icono */
+/* elemento que muestra el icono (ajustado para botones circulares) */
 .type-btn-icon {
 	display: inline-block;
-	width: 18px;
-	height: 18px;
+	width: 24px; /* icono más grande */
+	height: 24px;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: contain;
-	margin-left: 8px;
+	/* no margin, no gap necesario en botón icon-only */
 	flex: 0 0 auto;
 }
 
@@ -977,10 +1083,13 @@ body {
 .type-btnHeader.selected .type-btn-icon {
 	filter: brightness(0) invert(1);
 }
+.type-filter{
+    width: 50%;
+}
 
 /* --------------- CAMBIO: botones ovalados/píldora para consistencia --------------- */
 /* Aplica a botones nativos, inputs tipo botón/submit y a los controles de la UI que usan clases de botón */
-button,
+
 input[type="button"],
 input[type="submit"],
 .action-btn,
@@ -995,12 +1104,12 @@ input[type="submit"],
 	border-radius: 999px !important;
 
 	/* padding coherente para que el botón sea alargado y mantenga el texto centrado */
-	padding-left: 16px !important;
-	padding-right: 16px !important;
+	padding-left: 9px !important;
+	padding-right: 9px !important;
 
 	/* altura mínima y centrado de contenido */
 	min-height: 36px;
-	height: auto;
+	/* height: auto; */
 	display: inline-flex;
 	align-items: center !important;
 	justify-content: center !important;

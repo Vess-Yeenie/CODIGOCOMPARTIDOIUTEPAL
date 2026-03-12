@@ -18,7 +18,7 @@
     }
     
    
-    form && form.addEventListener('submit', function(e){
+    form && form.addEventListener('submit', async function(e){
         e.preventDefault();
         
         const password = (inputPass && inputPass.value || '').trim();
@@ -29,48 +29,49 @@
             return;
         }
 
-        const usuarios = getUsuarios();
-        let found = null;
-
-        
-        found = usuarios.find(u => (u.email || '').toLowerCase() === userIdentifier);
-       
-
-        if (!found) {
-            alert('Usuario no encontrado. Regístrese primero.');
-            return;
-        }
-        if (found.password !== password) {
-            alert('Contraseña incorrecta.');
-            return;
-        }
-        // 🟢 Nuevo: Detección y uso del estado IUTEPALISTA
-    if (found.esIutepalista) {
-  
-    localStorage.setItem('iutepalistaStatus', 'true');
-    } else {
-   
-    localStorage.setItem('iutepalistaStatus', 'false');
-    }
-        // Login exitoso: Marcar sesión y registrar log
+        // Hacer request al server para login
         try {
-            actualLog.Nombre = found.nombre;
-            // Corregido el error de sintaxis de la fecha y el mes
-            actualLog.Fecha = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`; 
-            
-            // Añadir el log y guardar
-            logs.push(actualLog);
-            localStorage.setItem("logs", JSON.stringify(logs));
-            
-            // Guardar usuario actual para asociar futuras acciones (vistas/descargas)
-            try { localStorage.setItem('currentUserName', found.nombre); } catch (e) { /* noop */ }
+            const response = await fetch('http://localhost:3000/login-guest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userIdentifier, password })
+            });
+            const data = await response.json();
+            if (!data.success) {
+                alert('Usuario no encontrado o contraseña incorrecta.');
+                return;
+            }
+            const found = data.user;
+
+            // 🟢 Nuevo: Detección y uso del estado IUTEPALISTA
+            if (found.esIutepalista) {
+                localStorage.setItem('iutepalistaStatus', 'true');
+            } else {
+                localStorage.setItem('iutepalistaStatus', 'false');
+            }
+
+            // Registrar log en DB
+            const fecha = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
+            await fetch('http://localhost:3000/log-access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_id: found.id, fecha })
+            });
+
+            // Guardar usuario actual para asociar futuras acciones
+            try { 
+                localStorage.setItem('currentUserName', found.nombre);
+                localStorage.setItem('currentUserId', found.id);
+            } catch (e) { /* noop */ }
 
             // Marcar usuario como invitado
             localStorage.setItem('guest', 'true');
             localStorage.removeItem('admin');
             localStorage.removeItem('adminUser');
-        } catch (err) {
-            console.warn('No se pudo guardar en localStorage', err);
+        } catch (error) {
+            console.error('Error en login:', error);
+            alert('Error en el servidor.');
+            return;
         }
         
         window.location.href = 'menu.html';

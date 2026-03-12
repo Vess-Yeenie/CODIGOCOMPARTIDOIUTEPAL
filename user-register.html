@@ -53,18 +53,7 @@
    
     const inputIutepalista = document.getElementById('iutepalGuest'); 
 
-    function getUsuarios() {
-        try {
-            return JSON.parse(localStorage.getItem('usuarios')) || [];
-        } catch (e) {
-            return [];
-        }
-    }
-    function saveUsuarios(arr) {
-        localStorage.setItem('usuarios', JSON.stringify(arr));
-    }
-
-    form.addEventListener('submit', function(e){
+    form.addEventListener('submit', async function(e){
         e.preventDefault();
         
         const nombre = (inputNombre && inputNombre.value || '').trim();
@@ -92,26 +81,24 @@
             return;
         }
 
-        const usuarios = getUsuarios();
-        // evitar duplicados por email
-        if (usuarios.find(u => u.email === email)) {
-            alert('Ya existe un usuario con ese correo.');
-            return;
+        // Hacer request al server para registrar
+        try {
+            const response = await fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, apellido, email, password, esIutepalista })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert('Usuario registrado exitosamente.');
+                window.location.href = 'index.html';
+            } else {
+                alert('Error al registrar: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error en registro:', error);
+            alert('Error en el servidor.');
         }
-
-        const nuevo = {
-            nombre: nombre,
-            apellido: apellido,
-            password: password,
-            email: email,
-            esIutepalista: esIutepalista,
-            fechaRegistro: new Date().toISOString()
-        };
-        
-        usuarios.push(nuevo);
-        saveUsuarios(usuarios);
-        alert(`Registro exitoso. Ahora puede iniciar sesión.`);
-        window.location.href = 'login-guest.html';
     });
 })();
     </script>

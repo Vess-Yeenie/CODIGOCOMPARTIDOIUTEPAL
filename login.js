@@ -1,4 +1,4 @@
-const validarUsuario  = (e) => {
+const validarUsuario  = async (e) => {
     e.preventDefault();
 
     const username = $inputUser.value.trim();
@@ -9,16 +9,29 @@ const validarUsuario  = (e) => {
         return;
     }
 
-    if (username === user.username && password === user.password) {
+    // Hacer request al server para login admin
+    try {
+        const response = await fetch('http://localhost:3000/login-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (!data.success) {
+            alert("Usuario o contraseña incorrectos.");
+            return;
+        }
         // Marcar como admin y guardar usuario actual para reportes
         try {
             localStorage.setItem('admin', 'true');
-            localStorage.setItem('currentUserName', username);
+            localStorage.setItem('currentUserName', data.user.nombre);
+            localStorage.setItem('currentUserId', data.user.id);
             localStorage.removeItem('guest');
         } catch (e) { /* noop */ }
         window.location.href = "menu.html";
-    } else {
-        alert("Usuario o contraseña incorrectos.");
+    } catch (error) {
+        console.error('Error en login:', error);
+        alert('Error en el servidor.');
     }
 }
 

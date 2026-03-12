@@ -1002,6 +1002,15 @@ body {
     background-size: 60% 60%; /* ajustar escala del icono dentro del círculo */
     border: 1px solid rgba(0,0,0,0.06);
 }
+.tipo-icon.tipo-video {
+    background-color: #e74c3c; /* Rojo para videos */
+    background-image: url('../IMG/video-icon.svg'); /* Asegúrate de tener este SVG */
+}
+
+/* Si quieres que la miniatura cambie cuando es video */
+.doc-card[data-tipo="video"] .doc-icon {
+    background-image: url('../IMG/VIDEO_PLAY.png'); /* Un icono de "Play" en lugar del PDF */
+}
 
 /* Variantes por tipo usando background-image (imagen escalable) */
 .tipo-icon.tipo-trabajo {

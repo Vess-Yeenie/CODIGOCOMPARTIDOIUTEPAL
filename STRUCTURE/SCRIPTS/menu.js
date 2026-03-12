@@ -144,22 +144,25 @@ function renderCards() {
     if (!selectedCarrera) items.sort((a, b) => b.ano - a.ano);
 
     items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'doc-card';
-        card.innerHTML = `
-            <div class="tipo-icon tipo-${(item.tipo || 'trabajo').toLowerCase()}"></div>
-            <div class="doc-icon"></div>
-            <div class="doc-title" title="${item.nombre}">${item.nombre}</div>
-            <div class="tag-container">
-                <span class="tag carrera-tag">${item.carrera}</span>
-                <span class="tag ano-tag">${item.ano}</span>
-            </div>
-            <div class="card-actions">
-                ${!isGuest ? `<button class="edit-btn doc-btn" onclick="openEditModal(event, '${item.id}')"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>` : ''}
-                <button class="download-btn doc-btn" onclick="downloadItem(event, '${item.id}')"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
-                ${!isGuest ? `<button class="delete-btn doc-btn" onclick="deleteItem(event, '${item.id}')"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>` : ''}
-            </div>
-        `;
+       const card = document.createElement('div');
+card.className = 'doc-card';
+
+card.innerHTML = `
+    <div class="tipo-icon tipo-${(item.tipo || 'trabajo').toLowerCase()}"></div>
+    <div class="doc-icon"></div>
+    <div class="doc-title" title="${item.nombre}">${item.nombre}</div>
+    <div class="tag-container">
+        <span class="tag carrera-tag" data-carrera-color="${item.carrera.toUpperCase()}">
+            ${item.carrera}
+        </span>
+        <span class="tag ano-tag">${item.ano}</span>
+    </div>
+    <div class="card-actions">
+        ${!isGuest ? `<button class="edit-btn doc-btn" onclick="openEditModal(event, '${item.id}')"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>` : ''}
+        <button class="download-btn doc-btn" onclick="downloadItem(event, '${item.id}')"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
+        ${!isGuest ? `<button class="delete-btn doc-btn" onclick="deleteItem(event, '${item.id}')"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>` : ''}
+    </div>
+`;
         card.onclick = () => {
             const url = item.pdf || item.pdf_url;
             if (url) { window.open(url, '_blank'); logUserAction('view', item.id, item.nombre); }
@@ -297,64 +300,88 @@ if (closeLineasModalBtn) {
 }
 
 // --- MANEJO DEL FORMULARIO DE AÑADIR TRABAJO ---
-if (addTrabajoForm) {
-    addTrabajoForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+// Referencias a elementos
 
-        // 1. Obtener el archivo PDF
-        const file = trabajoPdfInput.files[0];
-        let urlFinal = "";
+const uploadStatus = document.getElementById('uploadStatus');
 
-        try {
-            // Si hay un archivo nuevo, lo subimos a Cloudinary
-            if (file) {
-                urlFinal = await uploadFile(file);
-            } else if (editingIdInput.value) {
-                // Si estamos editando y no hay archivo nuevo, mantenemos el anterior
-                const item = trabajos.find(t => t.id === editingIdInput.value);
-                urlFinal = item.pdf_url;
-            }
+addTrabajoForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // 1. Verificación de seguridad para el input de archivo
+    if (!trabajoPdfInput) {
+        alert("Error crítico: No se encontró el campo de archivo en el HTML.");
+        return;
+    }
 
-            if (!urlFinal) {
-                alert("Por favor, selecciona un archivo PDF.");
-                return;
-            }
+    const file = trabajoPdfInput.files[0];
+    const isEditing = editingIdInput.value !== "";
+    let urlFinal = "";
 
-            // 2. Preparar los datos (IMPORTANTE: usamos 'ano' para la DB)
-            const trabajoData = {
-    id: editingIdInput.value, // Este es el ID que MySQL necesita para el WHERE
-    nombre: document.getElementById('trabajoNombre').value,
-    carrera: document.getElementById('trabajoCarrera').value,
-    ano: document.getElementById('trabajoAno').value, 
-    tipo: document.getElementById('trabajoTipo').value,
-    pdf_url: urlFinal
-};
+    // Solo requerimos archivo si no estamos editando o si se seleccionó uno nuevo
+    if (!file && !isEditing) {
+        alert("Por favor, selecciona un archivo (PDF o Video).");
+        return;
+    }
 
-            // 3. Enviar al servidor
-            const endpoint = trabajoData.id ? '/updateTrabajo' : '/addTrabajo';
-            const response = await fetch(`http://localhost:3000${endpoint}`, {
+    try {
+        uploadStatus.textContent = "Subiendo archivo a la nube...";
+        
+        // 2. Si hay un archivo nuevo, subirlo a Cloudinary
+        if (file) {
+            const formData = new FormData();
+            formData.append('documento', file);
+
+            const uploadRes = await fetch('http://localhost:3000/upload', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(trabajoData)
+                body: formData
             });
 
-            if (response.ok) {
-                alert(trabajoData.id ? 'Trabajo actualizado' : 'Trabajo añadido con éxito');
-                addTrabajoModal.style.display = 'none';
-                addTrabajoForm.reset();
-                
-                // 4. RECARGAR LOS DATOS AUTOMÁTICAMENTE
-                await loadTrabajos(); 
-                renderCards();
-            } else {
-                alert('Error al guardar en el servidor');
-            }
-
-        } catch (error) {
-            console.error("Error completo:", error);
-            alert("Error: " + error.message);
+            if (!uploadRes.ok) throw new Error("Fallo en la subida");
+            const uploadData = await uploadRes.json();
+            urlFinal = uploadData.url;
         }
-    });
+
+        // 3. Preparar datos para el servidor (MySQL)
+        const trabajoData = {
+            id: isEditing ? editingIdInput.value : null,
+            nombre: document.getElementById('trabajoNombre').value,
+            carrera: document.getElementById('trabajoCarrera').value,
+            ano: document.getElementById('trabajoAno').value,
+            // Si el archivo es video, forzamos el tipo 'video'
+            tipo: (file && file.type.startsWith('video/')) ? 'video' : document.getElementById('trabajoTipo').value,
+            pdf_url: urlFinal
+        };
+
+        const endpoint = isEditing ? '/updateTrabajo' : '/addTrabajo';
+        
+        const response = await fetch(`http://localhost:3000${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(trabajoData)
+        });
+
+        if (response.ok) {
+            alert(isEditing ? "¡Actualizado con éxito!" : "¡Guardado con éxito!");
+            closeModal();
+            loadTrabajos(); // Recarga las tarjetas
+        } else {
+            throw new Error("Error al guardar en la base de datos");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Hubo un error: " + error.message);
+    } finally {
+        uploadStatus.textContent = "";
+    }
+});
+
+// Función para cerrar modal y limpiar datos
+function closeModal() {
+    document.getElementById('addTrabajoModal').style.display = 'none';
+    addTrabajoForm.reset();
+    editingIdInput.value = "";
+    document.getElementById('modalTitle').textContent = "Añadir Nuevo Trabajo";
 }
 // Búsqueda y Filtros
 if (searchInput) {

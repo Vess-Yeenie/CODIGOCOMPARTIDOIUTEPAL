@@ -29,21 +29,32 @@ async function loadTrabajos() {
 
 // --- Funciones de Utilidad ---
 
-async function uploadFile(file) {
+async function uploadFile() {
+    const fileInput = document.getElementById('fileInput');
+    const carreraInput = document.getElementById('carreraInput'); // Asegúrate de tener este ID en tu HTML
+    const anoInput = document.getElementById('anoInput');         // Asegúrate de tener este ID en tu HTML
+    
+    if (!fileInput.files[0]) return alert("Selecciona un archivo");
+
     const formData = new FormData();
-    formData.append('documento', file);
-    formData.append('usuario_id', localStorage.getItem('currentUserId') || 1);
+    formData.append('documento', fileInput.files[0]);
+    
+    // IMPORTANTE: Enviar estos campos para que el servidor no reciba 'undefined'
+    formData.append('carrera', carreraInput ? carreraInput.value : 'INFORMATICA'); 
+    formData.append('ano', anoInput ? anoInput.value : new Date().getFullYear());
 
-    const response = await fetch('http://localhost:3000/upload', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        return data.url;
-    } else {
-        throw new Error('Error al subir archivo');
+    try {
+        const res = await fetch('http://localhost:3000/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.url) {
+            alert("Subido con éxito");
+            location.reload(); 
+        }
+    } catch (err) {
+        console.error("Error al subir:", err);
     }
 }
 
@@ -152,7 +163,7 @@ card.innerHTML = `
     <div class="doc-icon"></div>
     <div class="doc-title" title="${item.nombre}">${item.nombre}</div>
     <div class="tag-container">
-        <span class="tag carrera-tag" data-carrera-color="${item.carrera.toUpperCase()}">
+        <span class="tag carrera-tag" data-carrera-color="${(item.carrera ? item.carrera.toUpperCase() : 'SIN CARRERA')}">
             ${item.carrera}
         </span>
         <span class="tag ano-tag">${item.ano}</span>
@@ -466,9 +477,27 @@ if (logoutBtn) {
 }
 
 function showHeaderButtons() {
-    if (logoutBtn) logoutBtn.style.display = (getCurrentUserName() || isAdmin) ? '' : 'none';
-    const changePasswordBtn = document.getElementById('changePasswordBtn');
-    if (changePasswordBtn) changePasswordBtn.style.display = isAdmin ? '' : 'none';
+    const userId = localStorage.getItem('currentUserId');
+    const userRole = localStorage.getItem('userRole');
+
+    // Seleccionamos los botones por sus IDs (asegúrate que existan en el HTML)
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changePassBtn = document.getElementById('changePassBtn');
+    const adminPanelBtn = document.getElementById('adminPanelBtn'); // Si tienes uno de admin
+
+    if (userId) {
+        if (logoutBtn) logoutBtn.style.display = 'block';
+        if (changePassBtn) changePassBtn.style.display = 'block';
+        
+        // Mostrar panel de admin solo si el rol es 'admin'
+        if (adminPanelBtn) {
+            adminPanelBtn.style.display = (userRole === 'admin') ? 'block' : 'none';
+        }
+    } else {
+        // Si no hay sesión, los ocultamos
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (changePassBtn) changePassBtn.style.display = 'none';
+    }
 }
 
 // Función para borrar corregida

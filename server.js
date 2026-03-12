@@ -61,19 +61,30 @@ app.post('/upload', upload.single('documento'), async (req, res) => {
 });
 
     const esVideo = req.file.mimetype.startsWith('video');
-        const tipoFinal = esVideo ? 'video' : 'trabajo';
+    const tipoFinal = esVideo ? 'video' : 'trabajo';
 
-        const connection = await mysql.createConnection(dbConfig);
-        // Asegúrate de que tu tabla 'trabajos' reciba el tipo 'video'
-        await connection.execute(
-            'INSERT INTO trabajos (id, nombre, carrera, ano, tipo, pdf_url) VALUES (?, ?, ?, ?, ?, ?)',
-            ['t' + Date.now(), req.file.originalname, req.body.carrera, req.body.ano, tipoFinal, result.secure_url]
-        );
-        await connection.end();
+    // VALIDACIÓN Y VALORES POR DEFECTO
+    const carrera = req.body.carrera || 'SIN CARRERA'; 
+    const ano = req.body.ano || new Date().getFullYear(); // Si no viene año, usa el actual
 
-        res.json({ message: 'Subido exitosamente', url: result.secure_url });
+    const connection = await mysql.createConnection(dbConfig);
+    
+   await connection.execute(
+    'INSERT INTO trabajos (id, nombre, carrera, ano, tipo, pdf_url) VALUES (?, ?, ?, ?, ?, ?)',
+    [
+        't' + Date.now(), 
+        req.file.originalname, 
+        req.body.carrera || null, // Si no viene, envía NULL
+        req.body.ano || null,     // Si no viene, envía NULL
+        tipoFinal, 
+        result.secure_url
+    ]
+);
+    await connection.end();
+
+    res.json({ message: 'Subido exitosamente', url: result.secure_url });
   } catch (error) {
-    console.error(error);
+    console.error("Error detallado:", error);
     res.status(500).json({ error: 'Error al subir el documento' });
   }
 });

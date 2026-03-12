@@ -81,11 +81,11 @@
                 </button>
             </div>
             <!-- botones de acción iconográficos -->
-            <button id="addTrabajoBtn" class="sidebar-icon-btn" title="Añadir trabajo">
-                <img src="STRUCTURE/IMG/document-add-svgrepo-com.svg" alt="+">
-            </button>
             <button id="elaborarReporteBtn" class="sidebar-icon-btn" title="Generar reporte">
                 <img src="STRUCTURE/IMG/report-svgrepo-com.svg" alt="Reporte">
+            </button>
+            <button id="addTrabajoBtn" class="sidebar-icon-btn" title="Añadir trabajo">
+                <img src="STRUCTURE/IMG/document-add-svgrepo-com.svg" alt="+">
             </button>
         </aside>
         <section class="documents">
@@ -147,43 +147,45 @@
     </main>
     <!-- Modal para añadir trabajo -->
     <div id="addTrabajoModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="closeModalBtn">&times;</span>
-            <h2>Añadir trabajo</h2>
-            <form id="addTrabajoForm">
-                <input type="hidden" id="editingId" value="">
-                <label>Nombre del trabajo:</label>
-                <input type="text" id="trabajoNombre" required>
-                <label>Carrera:</label>
-                <select id="trabajoCarrera" required>
-                    <option value="">Seleccione</option>
-                    <option value="INFORMATICA">INFORMÁTICA</option>
-                    <option value="PRODUCCION">PRODUCCIÓN INDUSTRIAL</option>
-                    <option value="ELECTRONICA">ELECTRÓNICA</option>
-                    <option value="CONTABILIDAD">CONTABILIDAD</option>
-                    <option value="ADMINISTRACION">ADMINISTRACIÓN DE EMPRESAS</option>
-                </select>
-                <label>Año:</label>
-                <input type="number" id="trabajoAno" min="2000" max="2025" required>
-                <label>Tipo de documento:</label>
-                <select id="trabajoTipo" required>
-                    <option value="">Seleccione</option>
-                    <option value="resumen">Hoja de resumen</option>
-                    <option value="trabajo">Trabajo de grado</option>
-                    <option value="presentacion">Presentación</option>
-                </select>
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Añadir Nuevo Trabajo</h2>
+        
+        <form id="addTrabajoForm">
+            <input type="hidden" id="editingId">
 
-                <label id="fileLabel">Archivo PDF (si desea cambiarlo, suba uno nuevo):</label>
-                <input type="file" id="trabajoPdf" accept="application/pdf">
-                <div id="currentPdfInfo" style="display:none;margin-top:8px;color:#333;font-size:0.95em;"></div>
+            <label for="trabajoNombre">Nombre del Proyecto:</label>
+            <input type="text" id="trabajoNombre" required placeholder="Ej: Sistema de Inventario">
 
-                <div style="margin-top:12px;display:flex;gap:8px;">
-                    <button type="submit">Guardar</button>
-                    <button type="button" id="cancelAddTrabajoBtn">Cancelar</button>
-                </div>
-                </form>
-        </div>
+            <label for="trabajoCarrera">Carrera:</label>
+            <select id="trabajoCarrera" required>
+                <option value="INFORMATICA">INFORMATICA</option>
+                <option value="ADMINISTRACION">ADMINISTRACION</option>
+                <option value="PRODUCCION">PRODUCCION</option>
+                <option value="ELECTRONICA">ELECTRONICA</option>
+                <option value="CONTABILIDAD">CONTABILIDAD</option>
+            </select>
+
+            <label for="trabajoAno">Año:</label>
+            <input type="number" id="trabajoAno" required min="2000" max="2026">
+
+            <label for="trabajoTipo">Tipo de Documento:</label>
+            <select id="trabajoTipo" required>
+                <option value="trabajo">Trabajo de Grado</option>
+                <option value="presentacion">Presentación</option>
+                <option value="resumen">Resumen</option>
+               
+            </select>
+
+            <label for="trabajoPdf">Archivo (PDF o Video):</label>
+            <input type="file" id="trabajoPdf" accept=".pdf, .mp4, .mov, .avi">
+            
+            <p id="uploadStatus" style="font-size: 0.8em; color: #666;"></p>
+
+            <button type="submit" id="saveBtn">Guardar Trabajo</button>
+        </form>
     </div>
+</div>
 
     <!-- Nuevo: Modal para mostrar el reporte de accesos/revisiones -->
     <div id="reportModal" class="modal" style="display:none;">

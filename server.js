@@ -46,29 +46,32 @@ app.post('/upload', upload.single('documento'), async (req, res) => {
 
     // Subir a Cloudinary
     const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-  { 
-    resource_type: 'auto', // Detecta si es 'image', 'video' o 'raw'
-    chunk_size: 6000000,   // Permite archivos más grandes (6MB por trozo)
-    access_mode: 'public'  // Asegura acceso sin 401
-  },
-  (error, result) => {
-    if (error) reject(error);
-    else resolve(result);
-  }
-);
-      stream.end(req.file.buffer);
-    });
-
-    // Conectar a MySQL y guardar metadatos
-    const connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute(
-      'INSERT INTO documentos (nombre, url, public_id, usuario_id) VALUES (?, ?, ?, ?)',
-      [req.file.originalname, result.secure_url, result.public_id, req.body.usuario_id || 1] // Ajusta según tu lógica
+    const stream = cloudinary.uploader.upload_stream(
+        { 
+            resource_type: 'auto',
+            chunk_size: 6000000, // 6MB por fragmento (esto ayuda a conexiones inestables)
+            folder: 'trabajos_iutepal' 
+        },
+        (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+        }
     );
-    await connection.end();
+    stream.end(req.file.buffer);
+});
 
-    res.json({ message: 'Documento subido exitosamente', url: result.secure_url });
+    const esVideo = req.file.mimetype.startsWith('video');
+        const tipoFinal = esVideo ? 'video' : 'trabajo';
+
+        const connection = await mysql.createConnection(dbConfig);
+        // Asegúrate de que tu tabla 'trabajos' reciba el tipo 'video'
+        await connection.execute(
+            'INSERT INTO trabajos (id, nombre, carrera, ano, tipo, pdf_url) VALUES (?, ?, ?, ?, ?, ?)',
+            ['t' + Date.now(), req.file.originalname, req.body.carrera, req.body.ano, tipoFinal, result.secure_url]
+        );
+        await connection.end();
+
+        res.json({ message: 'Subido exitosamente', url: result.secure_url });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al subir el documento' });

@@ -186,7 +186,7 @@ body {
     position: sticky;
     top: 0px; /* Ajusta según la altura de la barra de búsqueda/header */
     z-index: 99;
-    background: #918f8f; /* Gris claro para el fondo de la sidebar */
+    background: #2f0a73; /* Gris claro para el fondo de la sidebar */
     padding: 5px 0; /* mínimo padding */
     width: 120px; /* ancho reducido al mínimo */
     display: flex;
@@ -881,7 +881,7 @@ body {
     width: 100%;
     
     /* Usa los mismos colores azules que tu header */
-    background: #1774c0; 
+    background: #061a7d; 
     color: #ffffff;
     
     padding: 15px 30px;
@@ -925,7 +925,7 @@ body {
 /* Botón About (icon-only) — usa el id real en el HTML: #aboutBtn */
 #aboutBtn {
     /* usar estilos compactos de action-btn pero añadir diseño propio */
-    background: #1976d2;
+    background: #ccd74f;
     color: #fff;
     border: none;
     border-radius: 999px;

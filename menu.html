@@ -50,11 +50,11 @@
             </div>
             <div class="header-actions">
                 <!-- Icon-only buttons: el title asegura el tooltip al hacer hover -->
-                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" aria-label="Cerrar sesión" style="display:none">
-                    <img src="STRUCTURE/IMG/logout.svg" alt="" class="action-icon">
-                </button>
                 <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" aria-label="Cambiar contraseña" style="display:none">
                     <img src="STRUCTURE/IMG/password.svg" alt="" class="action-icon">
+                </button>
+                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" aria-label="Cerrar sesión" style="display:none">
+                    <img src="STRUCTURE/IMG/logout.svg" alt="" class="action-icon">
                 </button>
             </div>
         </div>
@@ -181,6 +181,9 @@
             <input type="file" id="trabajoPdf" accept=".pdf, .mp4, .mov, .avi">
             
             <p id="uploadStatus" style="font-size: 0.8em; color: #666;"></p>
+            <div class="progress-bar" id="uploadProgress">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
 
             <button type="submit" id="saveBtn">Guardar Trabajo</button>
         </form>
@@ -230,7 +233,7 @@
     </div>
     <footer class="main-footer">
         <div class="footer-content">
-            <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
+            <p>&copy; 2026 IUTEPAL. Todos los derechos reservados.</p>
             <!-- reemplazado: botón con texto -> botón icon-only -->
             <div class="footer-about-container">
                 <button id="aboutBtn" class="action-btn" title="Acerca de" aria-label="Acerca de">
@@ -246,7 +249,7 @@
             <span class="close-modal" id="closeAboutBtn">&times;</span>
             <h2>Acerca de</h2>
             <div style="line-height:1.45;color:#333;margin-top:8px;">
-                <p>&copy; 2025 IUTEPAL. Todos los derechos reservados.</p>
+                <p>&copy; 2026 IUTEPAL. Todos los derechos reservados.</p>
                 <p style="margin-top:8px;">Sistema para visualizar, administrar y reportar trabajos de grado, presentaciones y hojas de resumen. Permite filtrar por carrera y año, registrar acciones de visualización/descarga y generar reportes por usuario.</p>
                 <p style="margin-top:10px;font-weight:700;">Creadores: Elias Curiel y Neomar Vasquez</p>
             </div>

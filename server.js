@@ -213,8 +213,15 @@ app.post('/register', async (req, res) => {
 app.post('/login-admin', async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    // Check for default admin
+    if (username === 'admin' && password === '123') {
+      res.json({ success: true, user: { id: 0, nombre: 'Admin', email: 'admin' } });
+      return;
+    }
+
     const connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute('SELECT * FROM usuarios WHERE email = ? AND password = ? AND role = "admin"', [username, password]);
+    const [rows] = await connection.execute('SELECT * FROM usuario WHERE email = ? AND password = ?', [username, password]);
     await connection.end();
     if (rows.length > 0) {
       res.json({ success: true, user: rows[0] });

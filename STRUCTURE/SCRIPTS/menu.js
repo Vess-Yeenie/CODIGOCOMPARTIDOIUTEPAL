@@ -111,6 +111,9 @@ const openLineasModalBtn = document.getElementById('openLineasModalBtn');
 const lineasModal = document.getElementById('lineasModal');
 const closeLineasModalBtn = document.getElementById('closeLineasModalBtn');
 const lineasPdfViewer = document.getElementById('lineasPdfViewer');
+const aboutBtn = document.getElementById('aboutBtn');
+const aboutModal = document.getElementById('aboutModal');
+const closeAboutBtn = document.getElementById('closeAboutBtn');
 const typeButtonsContainer = document.getElementById('typeButtons');
 const typeButtons = typeButtonsContainer ? Array.from(typeButtonsContainer.querySelectorAll('.type-btn')) : [];
 
@@ -154,9 +157,10 @@ function renderCards() {
     // CAMBIO: Ordenar por item.ano
     if (!selectedCarrera) items.sort((a, b) => b.ano - a.ano);
 
-    items.forEach(item => {
+    items.forEach((item, index) => {
        const card = document.createElement('div');
 card.className = 'doc-card';
+card.style.animationDelay = `${index * 0.1}s`; // Retraso escalonado
 
 card.innerHTML = `
     <div class="tipo-icon tipo-${(item.tipo || 'trabajo').toLowerCase()}"></div>
@@ -180,6 +184,20 @@ card.innerHTML = `
         };
         contenedorCards.appendChild(card);
     });
+
+    // Mostrar mensaje cuando no hay resultados
+    if (items.length === 0) {
+        const noResultsMessage = document.createElement('div');
+        noResultsMessage.className = 'no-results-message';
+        noResultsMessage.innerHTML = `
+            <div class="no-results-content">
+                <div class="no-results-icon">🔍</div>
+                <h3>Ningún elemento coincide</h3>
+                <p>Intenta ajustar tus filtros de búsqueda o selecciona diferentes criterios.</p>
+            </div>
+        `;
+        contenedorCards.appendChild(noResultsMessage);
+    }
 
     if (addTrabajoBtn) addTrabajoBtn.style.display = isGuest ? 'none' : '';
     if (elaborarReporteBtn) elaborarReporteBtn.style.display = isGuest ? 'none' : '';
@@ -299,6 +317,25 @@ if (reportCloseBtn) reportCloseBtn.addEventListener('click', () => reportModal.s
 
 if (openLineasModalBtn) {
     openLineasModalBtn.addEventListener('click', () => {
+        // Quitar todos los filtros
+        selectedCarrera = null;
+        selectedAno = 'todos';
+        selectedTipo = 'todos';
+
+        // Actualizar la interfaz
+        document.querySelectorAll('.carrera-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        typeButtons.forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        if (yearSelect) yearSelect.value = 'todos';
+        if (selectedDate) selectedDate.textContent = 'Todos';
+
+        // Renderizar cards sin filtros
+        renderCards();
+
+        // Abrir el modal de líneas
         lineasPdfViewer.src = LINEAS_PDF_PATH;
         lineasModal.style.display = 'flex';
     });
@@ -309,6 +346,9 @@ if (closeLineasModalBtn) {
         lineasPdfViewer.src = '';
     });
 }
+
+if (aboutBtn) aboutBtn.addEventListener('click', () => aboutModal.style.display = 'flex');
+if (closeAboutBtn) closeAboutBtn.addEventListener('click', () => aboutModal.style.display = 'none');
 
 // --- MANEJO DEL FORMULARIO DE AÑADIR TRABAJO ---
 // Referencias a elementos
@@ -342,14 +382,39 @@ addTrabajoForm.addEventListener('submit', async (e) => {
             const formData = new FormData();
             formData.append('documento', file);
 
-            const uploadRes = await fetch('http://localhost:3000/upload', {
-                method: 'POST',
-                body: formData
-            });
+            // Mostrar barra de progreso
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
 
-            if (!uploadRes.ok) throw new Error("Fallo en la subida");
-            const uploadData = await uploadRes.json();
-            urlFinal = uploadData.url;
+            urlFinal = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percentComplete + '%';
+                        uploadStatus.textContent = `Subiendo... ${Math.round(percentComplete)}%`;
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        const data = JSON.parse(xhr.responseText);
+                        resolve(data.url);
+                    } else {
+                        reject(new Error('Fallo en la subida'));
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Error de red'));
+                });
+
+                xhr.open('POST', 'http://localhost:3000/upload');
+                xhr.send(formData);
+            });
         }
 
         // 3. Preparar datos para el servidor (MySQL)
@@ -374,7 +439,8 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             alert(isEditing ? "¡Actualizado con éxito!" : "¡Guardado con éxito!");
             closeModal();
-            loadTrabajos(); // Recarga las tarjetas
+            await loadTrabajos(); // Recarga las tarjetas
+            renderCards(); // Actualiza la UI
         } else {
             throw new Error("Error al guardar en la base de datos");
         }
@@ -384,6 +450,8 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         alert("Hubo un error: " + error.message);
     } finally {
         uploadStatus.textContent = "";
+        const progressBar = document.getElementById('uploadProgress');
+        progressBar.style.display = 'none';
     }
 });
 
@@ -400,6 +468,8 @@ if (searchInput) {
         searchText = e.target.value.toLowerCase();
         renderCards();
     });
+} else {
+    console.log('Search input not found');
 }
 
 document.querySelectorAll('.carrera-btn').forEach(btn => {
@@ -411,8 +481,19 @@ document.querySelectorAll('.carrera-btn').forEach(btn => {
 
 typeButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-        selectedTipo = (selectedTipo === btn.dataset.type) ? 'todos' : btn.dataset.type;
-        typeButtons.forEach(b => b.classList.toggle('selected', b.dataset.type === selectedTipo));
+        // Si el botón ya está seleccionado, quitar el filtro (volver a 'todos')
+        if (selectedTipo === btn.dataset.type) {
+            selectedTipo = 'todos';
+        } else {
+            selectedTipo = btn.dataset.type;
+        }
+        console.log('Type button clicked:', btn.dataset.type, 'new selectedTipo:', selectedTipo);
+
+        typeButtons.forEach(b => {
+            const shouldBeSelected = b.dataset.type === selectedTipo;
+            b.classList.toggle('selected', shouldBeSelected);
+            console.log('Button', b.dataset.type, 'selected:', shouldBeSelected);
+        });
         renderCards();
     });
 });
@@ -478,20 +559,20 @@ if (logoutBtn) {
 
 function showHeaderButtons() {
     const userId = localStorage.getItem('currentUserId');
-    const userRole = localStorage.getItem('userRole');
+    const isAdmin = localStorage.getItem('admin') === 'true';
 
     // Seleccionamos los botones por sus IDs (asegúrate que existan en el HTML)
     const logoutBtn = document.getElementById('logoutBtn');
-    const changePassBtn = document.getElementById('changePassBtn');
+    const changePassBtn = document.getElementById('changePasswordBtn');
     const adminPanelBtn = document.getElementById('adminPanelBtn'); // Si tienes uno de admin
 
     if (userId) {
         if (logoutBtn) logoutBtn.style.display = 'block';
         if (changePassBtn) changePassBtn.style.display = 'block';
         
-        // Mostrar panel de admin solo si el rol es 'admin'
+        // Mostrar panel de admin solo si es admin
         if (adminPanelBtn) {
-            adminPanelBtn.style.display = (userRole === 'admin') ? 'block' : 'none';
+            adminPanelBtn.style.display = isAdmin ? 'block' : 'none';
         }
     } else {
         // Si no hay sesión, los ocultamos
@@ -553,6 +634,7 @@ function openEditModal(event, id) {
 const changePasswordModal = document.getElementById('changePasswordModal');
 const changePasswordBtn = document.getElementById('changePasswordBtn');
 const closeChangePassBtn = document.getElementById('closeChangePassBtn');
+const cancelChangePassBtn = document.getElementById('cancelChangePassBtn');
 const savePasswordBtn = document.getElementById('savePasswordBtn');
 
 // Abrir modal
@@ -565,6 +647,12 @@ if (changePasswordBtn) {
 // Cerrar modal
 if (closeChangePassBtn) {
     closeChangePassBtn.addEventListener('click', () => {
+        changePasswordModal.style.display = 'none';
+    });
+}
+
+if (cancelChangePassBtn) {
+    cancelChangePassBtn.addEventListener('click', () => {
         changePasswordModal.style.display = 'none';
     });
 }

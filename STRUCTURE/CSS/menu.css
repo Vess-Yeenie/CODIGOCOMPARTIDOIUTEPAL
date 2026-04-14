@@ -366,9 +366,10 @@ body {
 #btn-cont { color: #e91e63; }
 #btn-adm { color: #2196f3; }
 #btn-elec { color: #4caf50; }
+#btn-pre { color: #ff69b4; }
 
 /* borders used only for debugging; remove if not needed */
-#btn-inf, #btn-prd, #btn-cont, #btn-adm, #btn-elec {
+#btn-inf, #btn-prd, #btn-cont, #btn-adm, #btn-elec, #btn-pre {
     border: none;
 }
 
@@ -906,6 +907,10 @@ body {
 
 .carrera-tag[data-carrera-color="ADMINISTRACION"] {
     background-color: #2196f3; /* Azul Claro */
+}
+
+.carrera-tag[data-carrera-color="PREESCOLAR"] {
+    background-color: #ff69b4; /* Rosa Preescolar */
 }
 /* ================================================= */
 /* 3. ESTILOS DEL FOOTER */

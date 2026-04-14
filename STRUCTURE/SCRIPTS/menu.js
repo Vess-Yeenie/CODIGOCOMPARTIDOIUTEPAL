@@ -124,11 +124,15 @@ let selectedAno = 'todos';
 let selectedTipo = 'todos';
 let searchText = '';
 
+function normalizeCarrera(value) {
+    return String(value || '').trim().toUpperCase();
+}
+
 // --- Renderizado ---
 function renderCards() {
     const carreraButtonsLocal = document.querySelectorAll('.carrera-btn');
     carreraButtonsLocal.forEach(b => {
-        b.classList.toggle('selected', selectedCarrera && b.dataset.carrera === selectedCarrera);
+        b.classList.toggle('selected', selectedCarrera && normalizeCarrera(b.dataset.carrera) === selectedCarrera);
     });
 
     typeButtons.forEach(btn => {
@@ -139,7 +143,7 @@ function renderCards() {
     });
 
     let items = trabajos.filter(item => {
-        const carreraMatch = selectedCarrera ? item.carrera.toUpperCase() === selectedCarrera : true;
+        const carreraMatch = selectedCarrera ? normalizeCarrera(item.carrera) === selectedCarrera : true;
         // CAMBIO: Usamos item.ano (con n)
         const anoMatch = (selectedAno === 'todos') ? true : String(item.ano) === String(selectedAno);
         const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || item.carrera.toLowerCase().includes(searchText) : true;
@@ -474,7 +478,8 @@ if (searchInput) {
 
 document.querySelectorAll('.carrera-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        selectedCarrera = (selectedCarrera === btn.dataset.carrera) ? null : btn.dataset.carrera;
+        const carreraValue = normalizeCarrera(btn.dataset.carrera);
+        selectedCarrera = (selectedCarrera === carreraValue) ? null : carreraValue;
         renderCards();
     });
 });

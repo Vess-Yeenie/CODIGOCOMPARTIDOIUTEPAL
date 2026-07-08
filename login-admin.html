@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="STRUCTURE/CSS/theme.css">
     <link rel="stylesheet" href="STRUCTURE/CSS/login.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +15,8 @@
 </head>
 
 <body>
-    <main class="login">
-        <div class="login__container">
+    <main class="login fade-in">
+        <div class="login__container fade-in fade-in-delay-1">
             <h1 class="login__title">Inicia Sesión</h1>
             <form class="form">
                 <label for="user" class="form__label">Nombre de usuario:</label>
@@ -23,8 +24,8 @@
                 <label for="password" class="form__label">Contraseña:</label>
                 <input type="password" class="form__input" id="password" >
                 <div class="form__buttons">
-                    <button type="button" class="form__button" onclick="window.location.href='index.html'">Cancelar</button>
-                    <button type="submit" class="form__button" id="send">Aceptar</button>
+                    <button type="button" class="form__button form__button--secondary lift-hover" onclick="window.location.href='index.html'">Cancelar</button>
+                    <button type="submit" class="form__button form__button--primary lift-hover" id="send">Aceptar</button>
                 </div>
             </form>
         </div>

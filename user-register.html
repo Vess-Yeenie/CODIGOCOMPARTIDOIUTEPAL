@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Registrarse - IUTEPAL</title>
+    <link rel="stylesheet" href="STRUCTURE/CSS/theme.css">
     <link rel="stylesheet" href="STRUCTURE/CSS/login.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
@@ -14,57 +15,57 @@
 </head>
 
 <body>
-    <main class="login">
-        <div class="login__container">
+    <main class="login login--register fade-in">
+        <div class="login__container fade-in fade-in-delay-1">
             <h1 class="login__title">Registrarse</h1>
             <form class="form">
                 <label for="user" class="form__label">Nombre:</label>
                 <input type="text" class="form__input" id="user">
-                <label for="user" class="form__label">Apellido</label>
-                <input type="text" class="form__input">
-                <label for="password" class="form__label">Contraseña:</label>
+
+                <label for="apellido" class="form__label">Apellido:</label>
+                <input type="text" class="form__input" id="apellido">
+
+                <label for="passwordGuest" class="form__label">Contraseña:</label>
                 <input type="password" class="form__input" id="passwordGuest">
-                <label for="password" class="form__label">Confirmar Contraseña</label>
+
+                <label for="confirm" class="form__label">Confirmar Contraseña:</label>
                 <input type="password" class="form__input" id="confirm">
-                <label for="email" class="form__label">Correo Electrónico:</label>
+
+                <label for="emailGuest" class="form__label">Correo Electrónico:</label>
                 <input type="email" class="form__input" id="emailGuest">
-                <label for="checkbox" class="form__label">IUTEPALISTA:</label>
-                <input type="checkbox" class="form__input" id="iutepalGuest">
+
+                <div class="form__checkbox-row">
+                    <input type="checkbox" class="form__checkbox" id="iutepalGuest">
+                    <label for="iutepalGuest" class="form__label form__checkbox-label">IUTEPALISTA</label>
+                </div>
 
                 <div class="form__buttons">
-                    <button type="button" class="form__button" onclick="window.location.href='index.html'">Cancelar</button>
-                    <button type="submit" class="form__button" id="send">Aceptar</button>
+                    <button type="button" class="form__button form__button--secondary lift-hover" onclick="window.location.href='index.html'">Cancelar</button>
+                    <button type="submit" class="form__button form__button--primary lift-hover" id="send">Aceptar</button>
                 </div>
             </form>
         </div>
     </main>
-    <!-- <script src="login-guest.js"></script> -->
     <script>
    (function(){
     const form = document.querySelector('.form');
-    // Selectores ya corregidos de la conversación anterior:
     const inputNombre = document.getElementById('user');
-    const inputApellido = document.querySelector('input[type="text"]:nth-of-type(2)');
-    const inputPassword = document.getElementById('passwordGuest'); // Corregido ID
-    const inputConfirm = document.querySelector('#confirm'); // Corregido selector
+    const inputApellido = document.getElementById('apellido');
+    const inputPassword = document.getElementById('passwordGuest');
+    const inputConfirm = document.getElementById('confirm');
     const inputEmail = document.getElementById('emailGuest');
-    
-   
-    const inputIutepalista = document.getElementById('iutepalGuest'); 
+    const inputIutepalista = document.getElementById('iutepalGuest');
 
     form.addEventListener('submit', async function(e){
         e.preventDefault();
-        
+
         const nombre = (inputNombre && inputNombre.value || '').trim();
         const apellido = (inputApellido && inputApellido.value || '').trim();
         const password = (inputPassword && inputPassword.value || '').trim();
         const confirm = (inputConfirm && inputConfirm.value || '').trim();
         const email = (inputEmail && inputEmail.value || '').trim().toLowerCase();
-        
-     
         const esIutepalista = inputIutepalista ? inputIutepalista.checked : false;
 
-        // Aquí no validamos el checkbox porque no es un campo obligatorio para el registro.
         if (!nombre || !apellido || !password || !confirm || !email) {
             alert('Complete todos los campos obligatorios.');
             return;
@@ -73,14 +74,12 @@
             alert('Las contraseñas no coinciden.');
             return;
         }
-        // validación básica de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             alert('Ingrese un correo válido.');
             return;
         }
 
-        // Hacer request al server para registrar
         try {
             const response = await fetch('http://localhost:3000/register', {
                 method: 'POST',

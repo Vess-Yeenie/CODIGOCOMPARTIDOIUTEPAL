@@ -1,15 +1,16 @@
 :root {
     --mainFont: "Nunito", sans-serif;
-    --mainColor: rgb(207, 243, 255)
 }
 
 body {
     font-family: var(--mainFont);
-    background-color: var(--mainColor);
-    background-image: url("../IMG/iutepal_fondo.jpg");
+    background-color: var(--iutepal-blue);
+    background-image: linear-gradient(rgba(4, 34, 78, 0.82), rgba(4, 34, 78, 0.88)),
+                      url("../IMG/iutepal_fondo.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 20% 30%;
+    min-height: 100vh;
 }
 
 .login {
@@ -17,21 +18,31 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
 
+.login--register {
+    margin-top: 4%;
+    margin-bottom: 4%;
+    padding: 16px 0;
 }
 
 .login__container {
-    background-color: rgb(255, 255, 255);
+    background-color: var(--iutepal-blue);
     width: 35%;
+    min-width: 320px;
     text-align: center;
-    
-    padding: 15px;
-    box-shadow: 5px 5px 9px rgb(0, 0, 0);
+    padding: 28px 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lift);
+    border: 2px solid rgba(253, 213, 52, 0.25);
+    color: var(--text-on-blue);
 }
 
 .login__title {
-    margin-bottom: 10px;
-
+    margin-bottom: 16px;
+    color: var(--iutepal-yellow);
+    font-weight: 800;
+    letter-spacing: 0.02em;
 }
 
 .form {
@@ -45,53 +56,102 @@ body {
 .form__label {
     margin-top: 2px;
     font-weight: 700;
+    color: var(--text-on-blue);
 }
 
 .form__input {
-    border: gray 2px solid;
+    border: 2px solid rgba(255, 255, 255, 0.25);
     border-radius: 8px;
     margin-top: -2px;
-    padding: 10px 8px;
-    transition: outline .2s ease-in-out;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-on-yellow);
+    transition: var(--transition-smooth);
 }
 
 .form__input:focus {
-    border: none;
-    outline: rgb(24, 73, 136) 2px solid;
+    border-color: var(--iutepal-yellow);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(253, 213, 52, 0.25);
+}
+
+.form__checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.form__checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--iutepal-yellow);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.form__checkbox-label {
+    margin-top: 0;
+    cursor: pointer;
+    user-select: none;
 }
 
 .form__buttons {
-    margin-top: 6px;
+    margin-top: 12px;
     display: flex;
     justify-content: space-between;
+    gap: 12px;
 }
 
 .form__button {
     text-decoration: none;
     font-weight: 700;
-    color: black;
-    padding: 7px 3px;
-    background-color: rgb(20, 84, 203);
-    color: white;
+    padding: 10px 16px;
     border: none;
-    border-radius: 2px;
-    width: 20%;
-    transition: all .2s ease;
+    border-radius: 8px;
+    width: 45%;
+    cursor: pointer;
+    transition: var(--transition-smooth);
 }
 
-.form__button:hover {
-    background-color: rgb(4, 42, 110);
-    color: white;
-
+.form__button--primary {
+    background-color: var(--iutepal-yellow);
+    color: var(--text-on-yellow);
+    box-shadow: var(--shadow-soft);
 }
 
-.form__button>a {
+.form__button--primary:hover {
+    background-color: var(--iutepal-yellow-hover);
+    color: var(--text-on-yellow);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+}
+
+.form__button--secondary {
+    background-color: transparent;
+    color: var(--text-on-blue);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.form__button--secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--iutepal-yellow);
+    color: var(--iutepal-yellow);
+    transform: translateY(-3px);
+}
+
+.form__button > a {
     text-decoration: none;
-    color: white
-
+    color: inherit;
 }
 
-.login-desc{
-
+.login-desc {
     text-align: justify;
+}
+
+@media (max-width: 768px) {
+    .login__container {
+        width: 90%;
+        margin: 0 16px;
+    }
 }

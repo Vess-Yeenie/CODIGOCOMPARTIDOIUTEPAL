@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión / Registrarse - IUTEPAL</title>
+    <link rel="stylesheet" href="STRUCTURE/CSS/theme.css">
+    <link rel="stylesheet" href="STRUCTURE/CSS/login.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <main class="login fade-in">
+        <div class="login__container fade-in fade-in-delay-1">
+            <!-- Sección de Inicio de Sesión -->
+            <div id="login-section">
+                <h1 class="login__title">Iniciar Sesión</h1>
+                <form class="form" id="login-form">
+                    <label for="identifier" class="form__label">Identificador (Usuario o Correo):</label>
+                    <input type="text" class="form__input" id="identifier" placeholder="Usuario o correo@ejemplo.com"
+                        required>
+
+                    <label for="password" class="form__label">Contraseña:</label>
+                    <input type="password" class="form__input" id="password" placeholder="Ingrese su contraseña"
+                        required>
+
+                    <div class="form__buttons">
+                        <button type="button" class="form__button form__button--secondary lift-hover"
+                            onclick="window.location.href='index.html'">Cancelar</button>
+                        <button type="submit" class="form__button form__button--primary lift-hover"
+                            id="send-login">Aceptar</button>
+                    </div>
+
+                    <p class="toggle-text" style="text-align: center; margin-top: 20px; font-size: 0.95em;">
+                        ¿No tienes cuenta? <a href="#register"
+                            style="color: var(--iutepal-yellow); font-weight: bold; text-decoration: none;">Regístrate
+                            aquí</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Sección de Registro -->
+            <div id="register-section" style="display: none;">
+                <h1 class="login__title">Registrarse</h1>
+                <form class="form" id="register-form">
+                    <label for="user" class="form__label">Nombre:</label>
+                    <input type="text" class="form__input" id="user" placeholder="Ingrese su nombre" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras y espacios">
+                    <span class="error-message">Solo se permiten letras y espacios.</span>
+
+                    <label for="apellido" class="form__label">Apellido:</label>
+                    <input type="text" class="form__input" id="apellido" placeholder="Ingrese su apellido" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras y espacios">
+                    <span class="error-message">Solo se permiten letras y espacios.</span>
+
+                    <label for="passwordGuest" class="form__label">Contraseña:</label>
+                    <input type="password" class="form__input" id="passwordGuest" placeholder="Ingrese su contraseña"
+                        required minlength="3">
+                    <span class="error-message">La contraseña debe tener al menos 3 caracteres.</span>
+
+                    <label for="confirm" class="form__label">Confirmar Contraseña:</label>
+                    <input type="password" class="form__input" id="confirm" placeholder="Confirme su contraseña"
+                        required minlength="3">
+                    <span class="error-message">Las contraseñas no coinciden o son muy cortas.</span>
+
+                    <label for="emailGuest" class="form__label">Correo Electrónico:</label>
+                    <input type="email" class="form__input" id="emailGuest" placeholder="correo@ejemplo.com" required>
+                    <span class="error-message">Ingrese un correo electrónico válido (ej. usuario@dominio.com).</span>
+
+                    <div class="form__checkbox-row">
+                        <input type="checkbox" class="form__checkbox" id="iutepalGuest">
+                        <label for="iutepalGuest" class="form__label form__checkbox-label tooltip-label" data-tooltip="¿Eres estudiante del IUTEPAL?">IUTEPALISTA</label>
+                    </div>
+
+                    <div class="form__buttons">
+                        <button type="button" class="form__button form__button--secondary lift-hover"
+                            onclick="window.location.href='index.html'">Cancelar</button>
+                        <button type="submit" class="form__button form__button--primary lift-hover"
+                            id="send-register">Aceptar</button>
+                    </div>
+
+                    <p class="toggle-text" style="text-align: center; margin-top: 20px; font-size: 0.95em;">
+                        ¿Ya tienes cuenta? <a href="#login"
+                            style="color: var(--iutepal-yellow); font-weight: bold; text-decoration: none;">Inicia
+                            Sesión</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="login.js"></script>
+</body>
+
+</html>

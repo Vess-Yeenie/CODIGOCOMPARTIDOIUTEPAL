@@ -16,25 +16,16 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 
-const personalBtn = document.querySelector(".btn-personal");
+const loginBtn = document.querySelector(".btn-login");
 
-personalBtn.addEventListener("click", (e)=>{
-
+loginBtn.addEventListener("click", (e)=>{
     e.preventDefault();
-    window.location.href = "login-admin.html"
-})
-const guestBtn = document.querySelector(".btn-guest");
-
-guestBtn.addEventListener("click", (e)=>{
-
-    e.preventDefault();
-    window.location.href = "login-guest.html"
+    window.location.href = "login.html#login"
 })
 
 const registerBtn = document.querySelector(".btn-register");
 
 registerBtn.addEventListener("click", (e)=>{
-
     e.preventDefault();
-    window.location.href = "user-register.html"
+    window.location.href = "login.html#register"
 })

@@ -155,3 +155,77 @@ body {
         margin: 0 16px;
     }
 }
+
+/* Tooltip personalizado para el label IUTEPALISTA */
+.tooltip-label {
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip-label::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    bottom: calc(100% + 10px);
+    background: var(--iutepal-blue-dark);
+    color: var(--text-on-blue);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 40;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(253, 213, 52, 0.2);
+}
+
+.tooltip-label::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 4px);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--iutepal-blue-dark);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 41;
+    pointer-events: none;
+}
+
+.tooltip-label:hover::after,
+.tooltip-label:focus::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-label:hover::before,
+.tooltip-label:focus::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Estilos para inputs inválidos y mensajes de error */
+.form__input:not(:placeholder-shown):invalid {
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.25) !important;
+}
+
+.error-message {
+    display: none;
+    color: #ff4d4d;
+    font-size: 0.85em;
+    margin-top: -6px;
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.form__input:not(:placeholder-shown):invalid + .error-message {
+    display: block;
+}
+
+

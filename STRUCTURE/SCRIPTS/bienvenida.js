@@ -17,15 +17,17 @@ updateTime();
 setInterval(updateTime, 1000);
 
 const loginBtn = document.querySelector(".btn-login");
-
-loginBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
-    window.location.href = "login.html#login"
-})
+if (loginBtn) {
+    loginBtn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        window.location.href = "login.html#login"
+    })
+}
 
 const registerBtn = document.querySelector(".btn-register");
-
-registerBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
-    window.location.href = "login.html#register"
-})
+if (registerBtn) {
+    registerBtn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        window.location.href = "login.html#register"
+    })
+}

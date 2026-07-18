@@ -18,16 +18,30 @@
         </div>
         <div class="right-panel fade-in fade-in-delay-2">
             <h1 class="welcome-text">Bienvenido</h1>
-            <h2 class="login-text">¿Que deseas hacer?</h2>
+            <h2 class="login-text" style="margin-bottom: 20px;">Iniciar Sesión</h2>
 
-            <button class="btn btn-login lift-hover fade-in fade-in-delay-3"
-                data-tooltip="Iniciar sesión para acceder al sistema">Iniciar Sesión</button>
-            <button class="btn btn-register lift-hover fade-in fade-in-delay-4"
-                data-tooltip="Crear una cuenta nueva para ingresar al sistema">Registrarse</button>
+            <!-- Formulario de Login directo -->
+            <form class="form" id="login-form">
+                <label for="identifier" class="form__label">Identificador (Usuario o Correo):</label>
+                <input type="text" class="form__input" id="identifier" placeholder="Usuario o correo@ejemplo.com" required>
+
+                <label for="password" class="form__label">Contraseña:</label>
+                <input type="password" class="form__input" id="password" placeholder="Ingrese su contraseña" required style="margin-bottom: 10px;">
+
+                <div class="form__buttons">
+                    <button type="submit" class="form__button form__button--primary lift-hover" id="send-login">Aceptar</button>
+                </div>
+
+                <p class="toggle-text" style="color: var(--text-on-blue);">
+                    ¿No tienes cuenta? <a href="registro.html" style="color: var(--iutepal-yellow); font-weight: bold; text-decoration: none;">Regístrate aquí</a>
+                </p>
+            </form>
             <div class="time-display" id="time-display">HORA:</div>
         </div>
     </div>
+    <script src="STRUCTURE/SCRIPTS/custom-alert.js"></script>
     <script src="STRUCTURE/SCRIPTS/bienvenida.js"></script>
+    <script src="login.js"></script>
 </body>
 
 </html>

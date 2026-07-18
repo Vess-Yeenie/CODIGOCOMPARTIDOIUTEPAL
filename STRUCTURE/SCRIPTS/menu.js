@@ -50,7 +50,7 @@ async function uploadFile() {
         });
         const data = await res.json();
         if (data.url) {
-            alert("Subido con éxito");
+            await alert("Subido con éxito");
             location.reload(); 
         }
     } catch (err) {

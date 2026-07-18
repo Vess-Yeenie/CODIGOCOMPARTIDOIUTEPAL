@@ -311,7 +311,7 @@ app.get('/report', async (req, res) => {
     const [rows] = await connection.execute(`
       SELECT u.nombre, u.esIutepalista, l.fecha, l.action, t.nombre as doc_name
       FROM logs l 
-      JOIN usuario u ON l.usuario_id = u.id   -- <--- ANTES DECÍA "usuarios"
+      LEFT JOIN usuario u ON l.usuario_id = u.id
       LEFT JOIN trabajos t ON l.doc_id = t.id
       ORDER BY l.fecha DESC
     `);

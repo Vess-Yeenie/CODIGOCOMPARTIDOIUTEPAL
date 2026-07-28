@@ -60,28 +60,6 @@ app.post('/upload', upload.single('documento'), async (req, res) => {
     stream.end(req.file.buffer);
 });
 
-    const esVideo = req.file.mimetype.startsWith('video');
-    const tipoFinal = esVideo ? 'video' : 'trabajo';
-
-    // VALIDACIÓN Y VALORES POR DEFECTO
-    const carrera = req.body.carrera || 'SIN CARRERA'; 
-    const ano = req.body.ano || new Date().getFullYear(); // Si no viene año, usa el actual
-
-    const connection = await mysql.createConnection(dbConfig);
-    
-   await connection.execute(
-    'INSERT INTO trabajos (id, nombre, carrera, ano, tipo, pdf_url) VALUES (?, ?, ?, ?, ?, ?)',
-    [
-        't' + Date.now(), 
-        req.file.originalname, 
-        req.body.carrera || null, // Si no viene, envía NULL
-        req.body.ano || null,     // Si no viene, envía NULL
-        tipoFinal, 
-        result.secure_url
-    ]
-);
-    await connection.end();
-
     res.json({ message: 'Subido exitosamente', url: result.secure_url });
   } catch (error) {
     console.error("Error detallado:", error);
@@ -138,10 +116,19 @@ app.post('/updateTrabajo', async (req, res) => {
         // 1. CREAR LA CONEXIÓN (Igual que en tus otras rutas)
         const connection = await mysql.createConnection(dbConfig);
 
-        const sql = "UPDATE trabajos SET nombre = ?, carrera = ?, ano = ?, tipo = ?, pdf_url = ? WHERE id = ?";
+        let sql = "UPDATE trabajos SET nombre = ?, carrera = ?, ano = ?, tipo = ?";
+        const params = [nombre, carrera, ano, tipo];
+
+        if (pdf_url !== undefined && pdf_url !== null && pdf_url !== "") {
+            sql += ", pdf_url = ?";
+            params.push(pdf_url);
+        }
+
+        sql += " WHERE id = ?";
+        params.push(id);
         
         // 2. EJECUTAR
-        await connection.execute(sql, [nombre, carrera, ano, tipo, pdf_url, id]);
+        await connection.execute(sql, params);
 
         // 3. CERRAR LA CONEXIÓN
         await connection.end();

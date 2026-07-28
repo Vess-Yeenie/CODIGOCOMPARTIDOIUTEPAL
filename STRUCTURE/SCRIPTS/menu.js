@@ -146,7 +146,9 @@ function renderCards() {
         const carreraMatch = selectedCarrera ? normalizeCarrera(item.carrera) === selectedCarrera : true;
         // CAMBIO: Usamos item.ano (con n)
         const anoMatch = (selectedAno === 'todos') ? true : String(item.ano) === String(selectedAno);
-        const searchMatch = searchText ? item.nombre.toLowerCase().includes(searchText) || item.carrera.toLowerCase().includes(searchText) : true;
+        const searchMatch = searchText ? 
+            ((item.nombre && item.nombre.toLowerCase().includes(searchText)) || 
+             (item.carrera && item.carrera.toLowerCase().includes(searchText))) : true;
         
         let typeRestriction;
         if (isAdmin) typeRestriction = true;
@@ -428,7 +430,7 @@ addTrabajoForm.addEventListener('submit', async (e) => {
             carrera: document.getElementById('trabajoCarrera').value,
             ano: document.getElementById('trabajoAno').value,
             // Si el archivo es video, forzamos el tipo 'video'
-            tipo: (file && file.type.startsWith('video/')) ? 'video' : document.getElementById('trabajoTipo').value,
+            tipo: (file && file.type && file.type.startsWith('video/')) ? 'video' : document.getElementById('trabajoTipo').value,
             pdf_url: urlFinal
         };
 
@@ -443,6 +445,18 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             alert(isEditing ? "¡Actualizado con éxito!" : "¡Guardado con éxito!");
             closeModal();
+            // Restablecer filtros si es un nuevo trabajo para asegurar que aparezca
+            if (!isEditing) {
+                selectedCarrera = null;
+                selectedAno = 'todos';
+                selectedTipo = 'todos';
+                searchText = '';
+                if (searchInput) searchInput.value = '';
+                if (yearSelect) yearSelect.value = 'todos';
+                if (selectedDate) selectedDate.textContent = 'Todos';
+                document.querySelectorAll('.carrera-btn').forEach(btn => btn.classList.remove('selected'));
+                typeButtons.forEach(btn => btn.classList.remove('selected'));
+            }
             await loadTrabajos(); // Recarga las tarjetas
             renderCards(); // Actualiza la UI
         } else {

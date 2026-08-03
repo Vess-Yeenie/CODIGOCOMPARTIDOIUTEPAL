@@ -1,9 +1,14 @@
 {
   "short_name": "IUTEPAL",
-  "name": "Repositorio de Documentos IUTEPAL",
+  "name": "Trabajos de Grado IUTEPAL",
   "icons": [
     {
-      "src": "STRUCTURE/IMG/iutepal_logo.png",
+      "src": "STRUCTURE/IMG/iutepal.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "STRUCTURE/IMG/iutepal.png",
       "type": "image/png",
       "sizes": "512x512"
     }

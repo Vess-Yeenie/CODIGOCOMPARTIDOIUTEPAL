@@ -27,7 +27,7 @@ if (loginForm) {
         if (isEmail) {
             // Flujo de Estudiante (Guest)
             try {
-                const response = await fetch('http://localhost:3000/login-guest', {
+                const response = await fetch('/login-guest', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: identifier.toLowerCase(), password })
@@ -49,7 +49,7 @@ if (loginForm) {
                 // Registrar log en DB
                 const now = new Date();
                 const fecha = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
-                await fetch('http://localhost:3000/log-access', {
+                await fetch('/log-access', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario_id: found.id, fecha })
@@ -72,7 +72,7 @@ if (loginForm) {
         } else {
             // Flujo de Administrador (Admin)
             try {
-                const response = await fetch('http://localhost:3000/login-admin', {
+                const response = await fetch('/login-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: identifier, password })

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido - IUTEPAL</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="STRUCTURE/CSS/theme.css">
     <link rel="stylesheet" href="STRUCTURE/CSS/bienvenida.css">
 </head>
@@ -42,6 +43,15 @@
     <script src="STRUCTURE/SCRIPTS/custom-alert.js"></script>
     <script src="STRUCTURE/SCRIPTS/bienvenida.js"></script>
     <script src="login.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                    .catch(err => console.error('Error al registrar Service Worker:', err));
+            });
+        }
+    </script>
 </body>
 
 </html>

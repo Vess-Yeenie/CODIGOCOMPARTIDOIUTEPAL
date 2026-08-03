@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Habilitar CORS
 app.use(cors());
@@ -18,13 +18,13 @@ cloudinary.config({
   api_secret: 'iE-fwTkWZPpvsLdBdmWTtTke8Fo' // Reemplaza con tu API secret
 });
 
-// Configurar conexión a MySQL (XAMPP)
-const dbConfig = {
-  host: 'localhost',
-  port: 3306, // Puerto por defecto de XAMPP
-  user: 'root', // Usuario por defecto
-  password: '', // Password vacía por defecto en XAMPP
-  database: 'document_upload' // Nombre de la BD
+// Configurar conexión a MySQL (Soporta Clever Cloud en producción y XAMPP localmente)
+const dbConfig = process.env.MYSQL_ADDON_URI || {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'document_upload'
 };
 
 // Middleware

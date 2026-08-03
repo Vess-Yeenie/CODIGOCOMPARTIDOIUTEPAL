@@ -6,7 +6,7 @@ let trabajos = []; // Se inicializa vía loadTrabajos()
 
 async function loadTrabajos() {
     try {
-        const response = await fetch('http://localhost:3000/trabajos');
+        const response = await fetch('/trabajos');
         if (response.ok) {
             trabajos = await response.json();
         } else {
@@ -44,7 +44,7 @@ async function uploadFile() {
     formData.append('ano', anoInput ? anoInput.value : new Date().getFullYear());
 
     try {
-        const res = await fetch('http://localhost:3000/upload', {
+        const res = await fetch('/upload', {
             method: 'POST',
             body: formData
         });
@@ -67,7 +67,7 @@ function logUserAction(action, docId, docName) {
         const usuario_id = localStorage.getItem('currentUserId');
         if (!usuario_id) return;
         const fecha = new Date().toISOString();
-        fetch('http://localhost:3000/log-action', {
+        fetch('/log-action', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuario_id, action, doc_id: docId, fecha })
@@ -212,7 +212,7 @@ card.innerHTML = `
 // --- Reporte (FUNCIÓN CORREGIDA) ---
 async function openReportModal() {
     try {
-        const response = await fetch('http://localhost:3000/report');
+        const response = await fetch('/report');
         const rawLogs = await response.json(); 
 
         // Verificamos que sea una lista para evitar el error .forEach
@@ -418,7 +418,7 @@ addTrabajoForm.addEventListener('submit', async (e) => {
                     reject(new Error('Error de red'));
                 });
 
-                xhr.open('POST', 'http://localhost:3000/upload');
+                xhr.open('POST', '/upload');
                 xhr.send(formData);
             });
         }
@@ -436,7 +436,7 @@ addTrabajoForm.addEventListener('submit', async (e) => {
 
         const endpoint = isEditing ? '/updateTrabajo' : '/addTrabajo';
         
-        const response = await fetch(`http://localhost:3000${endpoint}`, {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(trabajoData)
@@ -606,7 +606,7 @@ async function deleteItem(event, id) {
     if (!confirm('¿Estás seguro de que deseas eliminar este trabajo?')) return;
 
     try {
-        const response = await fetch(`http://localhost:3000/deleteTrabajo/${id}`, { method: 'DELETE' });
+        const response = await fetch(`/deleteTrabajo/${id}`, { method: 'DELETE' });
         if (response.ok) {
             await loadTrabajos();
             renderCards();
@@ -694,7 +694,7 @@ if (savePasswordBtn) {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/change-password', {
+            const response = await fetch('/change-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

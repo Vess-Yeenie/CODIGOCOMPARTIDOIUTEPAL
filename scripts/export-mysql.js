@@ -26,25 +26,66 @@ async function exportToMySQL() {
   console.log('='.repeat(65));
 
   const outputPath = path.join(__dirname, '..', 'database_mysql_cloudinary.sql');
+  const cleverPath = path.join(__dirname, '..', 'database_clevercloud.sql');
 
-  // 1. Obtener registros de cada tabla
-  const [usuarios] = await db.execute('SELECT * FROM usuario ORDER BY id ASC');
-  const [trabajos] = await db.execute('SELECT * FROM trabajos ORDER BY ano DESC, nombre ASC');
-  const [logs] = await db.execute('SELECT * FROM logs ORDER BY id ASC');
+  // 1. Obtener registros de cada tabla (con fallback a SQLite local si MySQL remoto no responde)
+  let usuarios = [];
+  let trabajos = [];
+  let logs = [];
+  let fuente = db.type.toUpperCase();
+
+  const forzarSqlite = process.argv.includes('--sqlite') || process.argv.includes('--from=sqlite');
+
+  if (forzarSqlite) {
+    fuente = 'SQLITE LOCAL';
+    const { DatabaseSync } = require('node:sqlite');
+    const sqlitePath = path.resolve(__dirname, '..', process.env.SQLITE_DB_PATH || './data/database.sqlite');
+    const sqlite = new DatabaseSync(sqlitePath);
+    usuarios = sqlite.prepare('SELECT * FROM usuario ORDER BY id ASC').all();
+    trabajos = sqlite.prepare('SELECT * FROM trabajos ORDER BY ano DESC, nombre ASC').all();
+    logs = sqlite.prepare('SELECT * FROM logs ORDER BY id ASC').all();
+    sqlite.close();
+  } else {
+    try {
+      [usuarios] = await db.execute('SELECT * FROM usuario ORDER BY id ASC');
+      [trabajos] = await db.execute('SELECT * FROM trabajos ORDER BY ano DESC, nombre ASC');
+      [logs] = await db.execute('SELECT * FROM logs ORDER BY id ASC');
+    } catch (errDb) {
+      console.warn(`[Aviso] No se pudo conectar a ${fuente} (${errDb.message}).`);
+      console.warn('  -> Usando automáticamente base de datos SQLite local como respaldo...');
+      fuente = 'SQLITE LOCAL (RESPALDO)';
+      const { DatabaseSync } = require('node:sqlite');
+      const sqlitePath = path.resolve(__dirname, '..', process.env.SQLITE_DB_PATH || './data/database.sqlite');
+      const sqlite = new DatabaseSync(sqlitePath);
+      usuarios = sqlite.prepare('SELECT * FROM usuario ORDER BY id ASC').all();
+      trabajos = sqlite.prepare('SELECT * FROM trabajos ORDER BY ano DESC, nombre ASC').all();
+      logs = sqlite.prepare('SELECT * FROM logs ORDER BY id ASC').all();
+      sqlite.close();
+    }
+  }
+
+  console.log(`  -> Fuente de datos: ${fuente}`);
 
   let sql = `-- ======================================================================\n`;
-  sql += `-- BASE DE DATOS INSTITUCIONAL IUTEPAL (MYSQL / MARIADB)\n`;
+  sql += `-- BASE DE DATOS INSTITUCIONAL IUTEPAL (MYSQL / MARIADB / CLEVER CLOUD)\n`;
   sql += `-- Exportado automáticamente: ${new Date().toISOString()}\n`;
   sql += `-- Total Usuarios : ${usuarios.length}\n`;
   sql += `-- Total Trabajos : ${trabajos.length} (Con URLs activas en Cloudinary)\n`;
   sql += `-- Total Logs     : ${logs.length}\n`;
+  sql += `-- Compatible con : Clever Cloud, Railway, phpMyAdmin, MySQL Local\n`;
   sql += `-- ======================================================================\n\n`;
 
+  // Modos de compatibilidad esenciales
+  // NO_AUTO_VALUE_ON_ZERO: Permite preservar el id = 0 para el usuario 'Admin' sin colisionar con id = 1
+  sql += `SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";\n`;
+  sql += `SET AUTOCOMMIT = 0;\n`;
+  sql += `START TRANSACTION;\n`;
+  sql += `SET time_zone = "+00:00";\n`;
   sql += `SET NAMES utf8mb4;\n`;
   sql += `SET FOREIGN_KEY_CHECKS = 0;\n\n`;
 
-  sql += `CREATE DATABASE IF NOT EXISTS \`document_upload\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n`;
-  sql += `USE \`document_upload\`;\n\n`;
+  // NOTA: Para servicios en la nube (Clever Cloud, Railway, etc.), el usuario no tiene permisos
+  // de superadministrador para crear bases de datos globales. No se agregan sentencias CREATE DATABASE ni USE.
 
   // 2. Tabla usuario
   sql += `-- ----------------------------------------------------------------------\n`;
@@ -111,18 +152,23 @@ async function exportToMySQL() {
 
   if (logs.length > 0) {
     sql += `INSERT INTO \`logs\` (\`id\`, \`usuario_id\`, \`action\`, \`doc_id\`, \`fecha\`) VALUES\n`;
-    const logLines = logs.map(l => 
-      `  (${l.id}, ${l.usuario_id}, ${escapeSqlString(l.action)}, ${escapeSqlString(l.doc_id)}, ${escapeSqlString(l.fecha)})`
-    );
+    const logLines = logs.map(l => {
+      const docIdVal = (l.doc_id && String(l.doc_id).trim() !== '' && l.doc_id !== 'null') ? escapeSqlString(l.doc_id) : 'NULL';
+      return `  (${l.id}, ${l.usuario_id}, ${escapeSqlString(l.action)}, ${docIdVal}, ${escapeSqlString(l.fecha)})`;
+    });
     sql += logLines.join(',\n') + ';\n\n';
   }
 
+  sql += `COMMIT;\n`;
   sql += `SET FOREIGN_KEY_CHECKS = 1;\n`;
 
+  // Guardar en database_mysql_cloudinary.sql y en database_clevercloud.sql
   fs.writeFileSync(outputPath, sql, 'utf8');
+  fs.writeFileSync(cleverPath, sql, 'utf8');
 
-  console.log(`[Éxito] Archivo generado exitosamente en:`);
+  console.log(`[Éxito] Archivos SQL generados exitosamente en:`);
   console.log(`  -> ${outputPath}`);
+  console.log(`  -> ${cleverPath}`);
   console.log(`  -> Tamaño: ${(fs.statSync(outputPath).size / 1024).toFixed(1)} KB`);
   console.log('='.repeat(65) + '\n');
 

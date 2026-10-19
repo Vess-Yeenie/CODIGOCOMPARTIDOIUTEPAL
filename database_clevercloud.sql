@@ -1,16 +1,18 @@
 -- ======================================================================
--- BASE DE DATOS INSTITUCIONAL IUTEPAL (MYSQL / MARIADB)
--- Exportado automáticamente: 2026-10-19T14:45:28.010Z
+-- BASE DE DATOS INSTITUCIONAL IUTEPAL (MYSQL / MARIADB / CLEVER CLOUD)
+-- Exportado automáticamente: 2026-10-19T17:04:41.586Z
 -- Total Usuarios : 5
 -- Total Trabajos : 25 (Con URLs activas en Cloudinary)
--- Total Logs     : 17
+-- Total Logs     : 31
+-- Compatible con : Clever Cloud, Railway, phpMyAdmin, MySQL Local
 -- ======================================================================
 
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
-CREATE DATABASE IF NOT EXISTS `document_upload` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `document_upload`;
 
 -- ----------------------------------------------------------------------
 -- Estructura y Datos de la tabla 'usuario'
@@ -107,6 +109,21 @@ INSERT INTO `logs` (`id`, `usuario_id`, `action`, `doc_id`, `fecha`) VALUES
   (18, 4, 'view', 't1773284517249', '2026-07-16T02:37:27.124Z'),
   (19, 4, '', NULL, '16-7-2026'),
   (20, 0, 'view', 't1773284088340', '2026-10-18T02:23:24.575Z'),
-  (21, 0, 'view', NULL, '2026-10-18T02:23:54.722Z');
+  (21, 0, 'view', NULL, '2026-10-18T02:23:54.722Z'),
+  (22, 0, 'view', 't1773284088340', '2026-10-19T15:09:49.440Z'),
+  (23, 0, 'view', 't1773284273206', '2026-10-19T15:09:56.363Z'),
+  (24, 0, 'view', 't1773284309522', '2026-10-19T15:09:58.530Z'),
+  (25, 0, 'view', 't1773284398298', '2026-10-19T15:10:00.421Z'),
+  (26, 0, 'view', 't1773284437724', '2026-10-19T15:10:03.091Z'),
+  (27, 0, 'view', 't1773284088340', '2026-10-19T15:14:41.951Z'),
+  (28, 0, 'view', 't1773284721639', '2026-10-19T15:14:44.869Z'),
+  (29, 0, 'view', 't1773284903066', '2026-10-19T15:14:47.987Z'),
+  (30, 0, 'view', 't1773284088340', '2026-10-19T15:15:39.362Z'),
+  (31, 0, 'view', 't1773284273206', '2026-10-19T15:15:47.842Z'),
+  (32, 0, 'view', 't1773284309522', '2026-10-19T15:15:50.854Z'),
+  (33, 0, 'view', 't1773284398298', '2026-10-19T15:15:53.354Z'),
+  (34, 0, 'view', 't1773284088340', '2026-10-19T15:16:28.675Z'),
+  (35, 0, 'view', 't1773284273206', '2026-10-19T15:16:35.449Z');
 
+COMMIT;
 SET FOREIGN_KEY_CHECKS = 1;

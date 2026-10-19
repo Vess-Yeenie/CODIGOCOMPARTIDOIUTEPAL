@@ -1,9 +1,32 @@
 /**
- * ARCHIVO: menu.js - REESTRUCTURADO Y CORREGIDO
+ * @file menu.js
+ * @description Controlador principal de la vista de catálogo y panel de administración (`menu.html`).
+ * Gestiona:
+ * - Carga asíncrona y reactiva del catálogo de Trabajos Especiales de Grado (TEG), Hojas de Resumen y Presentaciones.
+ * - Restricciones de acceso y visibilidad por roles (Administrador, Estudiante Iutepalista, Visitante).
+ * - Motor de filtrado multicriterio en memoria (por carrera, año de publicación, tipo de documento y búsqueda en texto).
+ * - Renderizado dinámico de tarjetas (`doc-card`) con animaciones escalonadas y badges institucionales.
+ * - Subida de documentos con barra de progreso en tiempo real (`XMLHttpRequest` + `upload.progress`).
+ * - Acciones de auditoría (registro de visualizaciones y descargas en tiempo real vía `/log-action`).
+ * - Gestión de modales: Creación/Edición de Trabajos, Visualizador de Líneas de Investigación, Reporte de Auditoría y Cambio de Contraseña.
+ * 
+ * @module Client/Menu
+ * @author IUTEPAL - División de Sistemas
+ * @version 1.0.0
  */
 
+/**
+ * Catálogo en memoria de todos los trabajos recuperados de la base de datos.
+ * @type {Array<Object>}
+ */
 let trabajos = []; // Se inicializa vía loadTrabajos()
 
+/**
+ * Consulta la API `/trabajos` y almacena la lista de documentos en memoria.
+ * En caso de fallo de red, inicializa la colección como un array vacío.
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadTrabajos() {
     try {
         const response = await fetch('/trabajos');
@@ -19,7 +42,7 @@ async function loadTrabajos() {
     }
 }
 
-// Inicialización
+// Inicialización automática al cargar el script
 (async () => {
     await loadTrabajos();
     initYearSelect();
@@ -29,17 +52,21 @@ async function loadTrabajos() {
 
 // --- Funciones de Utilidad ---
 
+/**
+ * Función de utilidad auxiliar para la subida simple de archivos mediante FormData.
+ * @async
+ */
 async function uploadFile() {
     const fileInput = document.getElementById('fileInput');
-    const carreraInput = document.getElementById('carreraInput'); // Asegúrate de tener este ID en tu HTML
-    const anoInput = document.getElementById('anoInput');         // Asegúrate de tener este ID en tu HTML
+    const carreraInput = document.getElementById('carreraInput');
+    const anoInput = document.getElementById('anoInput');
     
     if (!fileInput.files[0]) return alert("Selecciona un archivo");
 
     const formData = new FormData();
     formData.append('documento', fileInput.files[0]);
     
-    // IMPORTANTE: Enviar estos campos para que el servidor no reciba 'undefined'
+    // Asignar valores por defecto para evitar campos 'undefined' en el backend
     formData.append('carrera', carreraInput ? carreraInput.value : 'INFORMATICA'); 
     formData.append('ano', anoInput ? anoInput.value : new Date().getFullYear());
 
@@ -58,10 +85,20 @@ async function uploadFile() {
     }
 }
 
+/**
+ * Obtiene el nombre del usuario autenticado almacenado en `localStorage`.
+ * @returns {string} Nombre del usuario o cadena vacía si no existe.
+ */
 function getCurrentUserName() {
     try { return localStorage.getItem('currentUserName') || ''; } catch (e) { return ''; }
 }
 
+/**
+ * Despacha un evento de trazabilidad a la bitácora de auditoría en el backend (`/log-action`).
+ * @param {'view'|'download'} action - Tipo de acción ejecutada por el usuario.
+ * @param {string} docId - Identificador único del trabajo consultado o descargado.
+ * @param {string} docName - Título o nombre descriptivo del documento.
+ */
 function logUserAction(action, docId, docName) {
     try {
         const usuario_id = localStorage.getItem('currentUserId');
@@ -75,13 +112,21 @@ function logUserAction(action, docId, docName) {
     } catch (e) { console.warn('No se pudo registrar la acción', e); }
 }
 
-// Estados de usuario
+// =========================================================================
+// BANDERAS DE IDENTIFICACIÓN Y ESTADOS DE SESIÓN (LOCALSTORAGE)
+// =========================================================================
+
+/** @type {boolean} Indica si el usuario actual posee rol de Administrador */
 const isAdmin = (function() {
     try { return localStorage.getItem('admin') === 'true'; } catch (e) { return false; }
 })();
+
+/** @type {boolean} Indica si el usuario tiene perfil de visitante o invitado sin privilegios de edición */
 const isGuest = (function() {
     try { return !isAdmin && localStorage.getItem('guest') === 'true'; } catch (e) { return false; }
 })();
+
+/** @type {boolean} Indica si el estudiante autenticado pertenece a la institución IUTEPAL */
 const isIutepalista = (function() {
     try { return localStorage.getItem('iutepalistaStatus') === 'true'; } catch (e) { return false; }
 })();
@@ -124,11 +169,28 @@ let selectedAno = 'todos';
 let selectedTipo = 'todos';
 let searchText = '';
 
+/**
+ * Normaliza la denominación de una carrera para comparaciones estrictas sin distinción de mayúsculas/minúsculas.
+ * @param {string} value - Nombre de la especialidad o carrera.
+ * @returns {string} Texto normalizado en mayúsculas y sin espacios residuales.
+ */
 function normalizeCarrera(value) {
     return String(value || '').trim().toUpperCase();
 }
 
-// --- Renderizado ---
+/**
+ * Renderiza el catálogo de tarjetas documentales en el contenedor principal `#documents`.
+ * Algoritmo:
+ * 1. Sincroniza la clase visual `.selected` en los botones de carreras y tipos.
+ * 2. Aplica reglas de visibilidad por rol:
+ *    - Administrador: Acceso a todos los tipos (trabajos, presentaciones, resúmenes).
+ *    - Estudiante IUTEPALISTA: Acceso exclusivo a Hojas de Resumen.
+ *    - Visitante/General: Acceso a Trabajos Especiales de Grado completos y Presentaciones.
+ * 3. Evalúa filtros combinados en memoria: carrera, año de grado, tipo de trabajo y texto de búsqueda.
+ * 4. Ordena descendentemente por año cuando no hay carrera seleccionada.
+ * 5. Genera nodos DOM con delegación de eventos para visualización, edición y descarga.
+ * 6. Muestra un estado vacío (`.no-results-message`) si ninguna coincidencia es encontrada.
+ */
 function renderCards() {
     const carreraButtonsLocal = document.querySelectorAll('.carrera-btn');
     carreraButtonsLocal.forEach(b => {
@@ -144,7 +206,6 @@ function renderCards() {
 
     let items = trabajos.filter(item => {
         const carreraMatch = selectedCarrera ? normalizeCarrera(item.carrera) === selectedCarrera : true;
-        // CAMBIO: Usamos item.ano (con n)
         const anoMatch = (selectedAno === 'todos') ? true : String(item.ano) === String(selectedAno);
         const searchMatch = searchText ? 
             ((item.nombre && item.nombre.toLowerCase().includes(searchText)) || 
@@ -160,38 +221,42 @@ function renderCards() {
     });
 
     contenedorCards.innerHTML = '';
-    // CAMBIO: Ordenar por item.ano
+    // Ordenar cronológicamente descendente
     if (!selectedCarrera) items.sort((a, b) => b.ano - a.ano);
 
     items.forEach((item, index) => {
-       const card = document.createElement('div');
-card.className = 'doc-card';
-card.style.animationDelay = `${index * 0.1}s`; // Retraso escalonado
+        const card = document.createElement('div');
+        card.className = 'doc-card';
+        card.style.animationDelay = `${index * 0.1}s`; // Efecto de entrada escalonada
 
-card.innerHTML = `
-    <div class="tipo-icon tipo-${(item.tipo || 'trabajo').toLowerCase()}"></div>
-    <div class="doc-icon"></div>
-    <div class="doc-title" title="${item.nombre}">${item.nombre}</div>
-    <div class="tag-container">
-        <span class="tag carrera-tag" data-carrera-color="${(item.carrera ? item.carrera.toUpperCase() : 'SIN CARRERA')}">
-            ${item.carrera}
-        </span>
-        <span class="tag ano-tag">${item.ano}</span>
-    </div>
-    <div class="card-actions">
-        ${!isGuest ? `<button class="edit-btn doc-btn" onclick="openEditModal(event, '${item.id}')"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>` : ''}
-        <button class="download-btn doc-btn" onclick="downloadItem(event, '${item.id}')"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
-        ${!isGuest ? `<button class="delete-btn doc-btn" onclick="deleteItem(event, '${item.id}')"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>` : ''}
-    </div>
-`;
+        card.innerHTML = `
+            <div class="tipo-icon tipo-${(item.tipo || 'trabajo').toLowerCase()}"></div>
+            <div class="doc-icon"></div>
+            <div class="doc-title" title="${item.nombre}">${item.nombre}</div>
+            <div class="tag-container">
+                <span class="tag carrera-tag" data-carrera-color="${(item.carrera ? item.carrera.toUpperCase() : 'SIN CARRERA')}">
+                    ${item.carrera}
+                </span>
+                <span class="tag ano-tag">${item.ano}</span>
+            </div>
+            <div class="card-actions">
+                ${!isGuest ? `<button class="edit-btn doc-btn" onclick="openEditModal(event, '${item.id}')"><img src="STRUCTURE/IMG/edit.svg" class="btn-icon"></button>` : ''}
+                <button class="download-btn doc-btn" onclick="downloadItem(event, '${item.id}')"><img src="STRUCTURE/IMG/download.svg" class="btn-icon"></button>
+                ${!isGuest ? `<button class="delete-btn doc-btn" onclick="deleteItem(event, '${item.id}')"><img src="STRUCTURE/IMG/trash.svg" class="btn-icon"></button>` : ''}
+            </div>
+        `;
+        // Al hacer clic en la tarjeta, abre el documento en una nueva pestaña y registra la visualización
         card.onclick = () => {
             const url = item.pdf || item.pdf_url;
-            if (url) { window.open(url, '_blank'); logUserAction('view', item.id, item.nombre); }
+            if (url) { 
+                window.open(url, '_blank'); 
+                logUserAction('view', item.id, item.nombre); 
+            }
         };
         contenedorCards.appendChild(card);
     });
 
-    // Mostrar mensaje cuando no hay resultados
+    // Retroalimentación visual si no hay resultados tras aplicar los filtros
     if (items.length === 0) {
         const noResultsMessage = document.createElement('div');
         noResultsMessage.className = 'no-results-message';
@@ -205,11 +270,16 @@ card.innerHTML = `
         contenedorCards.appendChild(noResultsMessage);
     }
 
+    // Ocultar acciones de gestión y reportes para usuarios visitantes/estudiantes
     if (addTrabajoBtn) addTrabajoBtn.style.display = isGuest ? 'none' : '';
     if (elaborarReporteBtn) elaborarReporteBtn.style.display = isGuest ? 'none' : '';
 }
 
-// --- Reporte (FUNCIÓN CORREGIDA) ---
+/**
+ * Consulta los registros de auditoría (`/report`), procesa estadísticas agregadas
+ * (conteo de acciones por usuario y top de documentos más consultados) y despliega el modal de reporte.
+ * @async
+ */
 async function openReportModal() {
     try {
         const response = await fetch('/report');
@@ -381,9 +451,9 @@ addTrabajoForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        uploadStatus.textContent = "Subiendo archivo a la nube...";
+        uploadStatus.textContent = "Subiendo archivo...";
         
-        // 2. Si hay un archivo nuevo, subirlo a Cloudinary
+        // 2. Si hay un archivo nuevo, subirlo al servidor o almacenamiento configurado
         if (file) {
             const formData = new FormData();
             formData.append('documento', file);
@@ -600,9 +670,15 @@ function showHeaderButtons() {
     }
 }
 
-// Función para borrar corregida
+/**
+ * Elimina un trabajo académico de la base de datos y su archivo asociado en el servidor.
+ * Solicita confirmación previa del usuario y actualiza la vista reactivamente.
+ * @param {Event} event - Evento del clic para detener la propagación hacia la tarjeta.
+ * @param {string} id - Identificador único del trabajo a eliminar.
+ * @async
+ */
 async function deleteItem(event, id) {
-    if (event) event.stopPropagation(); // Evita abrir el PDF
+    if (event) event.stopPropagation(); // Evita abrir el visor de documento
     if (!confirm('¿Estás seguro de que deseas eliminar este trabajo?')) return;
 
     try {
@@ -615,9 +691,15 @@ async function deleteItem(event, id) {
         console.error("Error al borrar:", error);
     }
 }
-// Función para descargar sin abrir el visor
+
+/**
+ * Descarga el archivo del trabajo en la máquina local del cliente sin abrir el visor embebido,
+ * y envía la notificación de auditoría al servidor (`/log-action`).
+ * @param {Event} event - Evento del clic para detener propagación.
+ * @param {string} id - Identificador del trabajo a descargar.
+ */
 function downloadItem(event, id) {
-    event.stopPropagation(); // Evita abrir el PDF
+    event.stopPropagation(); // Evita abrir el visor en pestaña nueva
     const item = trabajos.find(t => t.id === id);
     if (item) {
         const a = document.createElement('a');
@@ -629,8 +711,11 @@ function downloadItem(event, id) {
     }
 }
 
-
-
+/**
+ * Abre el modal de edición precargando en los campos del formulario los metadatos del trabajo seleccionado.
+ * @param {Event} event - Evento del clic.
+ * @param {string} id - Identificador del trabajo a editar.
+ */
 function openEditModal(event, id) {
     if (event) event.stopPropagation(); // Evita abrir el PDF
     
@@ -640,7 +725,7 @@ function openEditModal(event, id) {
     editingIdInput.value = id; 
     document.getElementById('trabajoNombre').value = item.nombre;
     document.getElementById('trabajoCarrera').value = item.carrera;
-    document.getElementById('trabajoAno').value = item.ano; // Con N
+    document.getElementById('trabajoAno').value = item.ano;
     document.getElementById('trabajoTipo').value = item.tipo;
 
     const modalTitle = document.querySelector('#addTrabajoModal h2');
@@ -649,34 +734,38 @@ function openEditModal(event, id) {
     addTrabajoModal.style.display = 'flex';
 }
 
-// --- FUNCIÓN PARA CAMBIAR CONTRASEÑA ---
+// =========================================================================
+// MÓDULO DE GESTIÓN DE SEGURIDAD (CAMBIO DE CONTRASEÑA DE USUARIO)
+// =========================================================================
+
 const changePasswordModal = document.getElementById('changePasswordModal');
 const changePasswordBtn = document.getElementById('changePasswordBtn');
 const closeChangePassBtn = document.getElementById('closeChangePassBtn');
 const cancelChangePassBtn = document.getElementById('cancelChangePassBtn');
 const savePasswordBtn = document.getElementById('savePasswordBtn');
 
-// Abrir modal
+// Abrir modal de cambio de clave
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener('click', () => {
         if (changePasswordModal) changePasswordModal.style.display = 'flex';
     });
 }
 
-// Cerrar modal
+// Cerrar modal al pulsar la 'X'
 if (closeChangePassBtn) {
     closeChangePassBtn.addEventListener('click', () => {
         changePasswordModal.style.display = 'none';
     });
 }
 
+// Cerrar modal al pulsar botón cancelar
 if (cancelChangePassBtn) {
     cancelChangePassBtn.addEventListener('click', () => {
         changePasswordModal.style.display = 'none';
     });
 }
 
-// Guardar nueva contraseña en la Base de Datos
+// Enviar solicitud de cambio de clave validando credencial actual
 if (savePasswordBtn) {
     savePasswordBtn.addEventListener('click', async () => {
         const current = document.getElementById('currentPassword').value;
@@ -684,12 +773,12 @@ if (savePasswordBtn) {
         const userId = localStorage.getItem('currentUserId');
 
         if (!userId) {
-            alert('Error: No se detectó sesión de usuario.');
+            alert('Error: No se detectó sesión de usuario activa.');
             return;
         }
 
         if (!current || !neo) {
-            alert('Por favor, completa los campos.');
+            alert('Por favor, completa los campos requeridos.');
             return;
         }
 
@@ -709,14 +798,14 @@ if (savePasswordBtn) {
             if (data.success) {
                 alert('¡Contraseña actualizada correctamente!');
                 changePasswordModal.style.display = 'none';
-                // Limpiar campos
+                // Restablecer valores de los inputs
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
             } else {
                 alert('Error: ' + (data.message || 'No se pudo cambiar la contraseña.'));
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error al cambiar contraseña:', error);
             alert('Error de conexión con el servidor.');
         }
     });

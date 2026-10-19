@@ -1,12 +1,24 @@
 /**
- * ARCHIVO: custom-alert.js
- * Sobrescribe la función nativa window.alert con un diseño personalizado y animaciones premium.
- * Soporta ejecución asíncrona retornando una Promesa (permitiendo usar 'await alert(...)').
+ * @file custom-alert.js
+ * @description Módulo de diálogo modal personalizado institucional para reemplazar el `window.alert` nativo del navegador.
+ * Proporciona una interfaz visual enriquecida con efecto de desenfoque de fondo (backdrop-filter: blur),
+ * animación pop-in, auto-detección contextual de iconos según la semántica del mensaje (éxito, error, advertencia),
+ * atajos de teclado accesibles (Enter / Esc) y soporte para Promesas (`Promise<void>`) que permite
+ * sincronizar flujos asíncronos mediante `await alert(...)`.
+ * 
+ * @module Client/CustomAlert
+ * @author IUTEPAL - División de Sistemas
+ * @version 1.0.0
  */
 
+/**
+ * Sobrescribe la función nativa `window.alert`.
+ * @param {string} message - Mensaje de texto a presentar en el modal.
+ * @returns {Promise<void>} Promesa que se resuelve cuando el usuario presiona "Aceptar", presiona Enter o Escape.
+ */
 window.alert = function(message) {
     return new Promise((resolve) => {
-        // Evitar múltiples alertas simultáneas
+        // Prevención de colisiones: Evitar renderizar múltiples alertas simultáneas si ya existe una en pantalla
         if (document.querySelector('.custom-alert-backdrop')) {
             resolve();
             return;

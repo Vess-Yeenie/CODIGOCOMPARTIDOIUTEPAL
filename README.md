@@ -127,6 +127,7 @@ http://localhost:3000
 | `npm run seed` | Inicializa y puebla la base de datos con los datos institucionales. |
 | `npm run migrate` | Descarga todos los archivos desde Cloudinary a disco local (`uploads/`) y actualiza la BD. |
 | `npm run migrate:cloudinary` | Sube los archivos locales a Cloudinary y actualiza la base de datos a URLs de la nube. |
+| `npm run export:mysql` | Exporta la base de datos completa con URLs de Cloudinary a un volcado SQL para MySQL (`database_mysql_cloudinary.sql`). |
 | `npm run generate-pdf` | Compila y genera el manual del analista en formato PDF (`manual_analista_sistemas.pdf`). |
 
 ---

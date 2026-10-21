@@ -41,6 +41,8 @@ CODIGOCOMPARTIDOIUTEPAL/
 │
 ├── .env                                # Configuración de variables de entorno activas (ignorado en git)
 ├── .env.example                        # Plantilla documentada de variables de entorno
+├── database_clevercloud.sql            # Volcado SQL listo para Clever Cloud (sin CREATE DATABASE para evitar error #1044)
+├── database_mysql_cloudinary.sql       # Volcado SQL completo con URLs de Cloudinary
 ├── db.js                               # Capa de abstracción y adaptador dual SQLite / MySQL
 ├── document_upload(3).sql              # Volcado SQL institucional con datos semilla
 ├── index.html                          # Vista de bienvenida institucional (reloj y accesos)
@@ -61,7 +63,9 @@ CODIGOCOMPARTIDOIUTEPAL/
 
 ### 1. Núcleo Backend y Base de Datos
 - **[`server.js`](server.js):** Punto de entrada del servidor Express.js. Expone los endpoints REST (`/upload`, `/trabajos`, `/addTrabajo`, `/updateTrabajo`, `/deleteTrabajo`, `/register`, `/login-admin`, `/login-guest`, `/log-access`, `/change-password`, `/report`, `/log-action`). Implementa almacenamiento híbrido mediante Multer (disco local `uploads/` o Cloudinary en la nube) y sirve los recursos estáticos.
-- **[`db.js`](db.js):** Capa de abstracción de datos unificada. Detecta la variable `DB_CLIENT` y conmuta de forma transparente entre **SQLite embebido** (a través de `node:sqlite` nativo de Node.js) y **MySQL** (mediante `mysql2/promise`), ofreciendo la misma interfaz `execute()` y `query()`.
+- **[`db.js`](db.js):** Capa de abstracción de datos unificada. Detecta la variable `DB_CLIENT` y conmuta de forma transparente entre **SQLite embebido** (a través de `node:sqlite` nativo de Node.js) y **MySQL** (mediante `mysql2/promise`), ofreciendo la misma interfaz `execute()` y `query()`. Cuenta con limitador de pool de 3 conexiones para evitar saturar el límite de 5 conexiones de Clever Cloud.
+- **[`database_clevercloud.sql`](database_clevercloud.sql):** Script SQL preparado para importar directamente en **Clever Cloud** (o phpMyAdmin remoto). No incluye sentencias `CREATE DATABASE` ni `USE` para evitar el error `#1044 (Access denied)`.
+- **[`database_mysql_cloudinary.sql`](database_mysql_cloudinary.sql):** Volcado completo en MySQL con las URLs activas de Cloudinary.
 - **[`.env.example`](.env.example):** Plantilla que documenta todas las variables requeridas: puerto (`PORT`), motor de base de datos (`DB_CLIENT`), credenciales MySQL, modo de almacenamiento (`STORAGE_TYPE`) y claves de Cloudinary.
 
 ### 2. Frontend y Vistas de Usuario
@@ -80,6 +84,7 @@ CODIGOCOMPARTIDOIUTEPAL/
 ### 3. Scripts de Mantenimiento y DevOps
 - **[`scripts/seed.js`](scripts/seed.js):** Procesa el volcado institucional `document_upload(3).sql` y puebla de forma idempotente las tablas de usuarios, trabajos y bitácora en la base de datos configurada.
 - **[`scripts/migrate.js`](scripts/migrate.js):** Utilidad para respaldar y migrar masivamente archivos desde Cloudinary al almacenamiento local en disco (`uploads/`) o retransmitir entre cuentas en la nube.
+- **[`scripts/export-mysql.js`](scripts/export-mysql.js):** Exportador dinámico de la base de datos a SQL con datos limpios y URLs activas.
 - **[`scripts/generate-analista-pdf.js`](scripts/generate-analista-pdf.js):** Motor de compilación documental basado en `PDFKit` que toma `MANUAL_ANALISTA_SISTEMAS.md` y genera un PDF profesional con portada y tablas.
 
 ---
@@ -127,7 +132,38 @@ http://localhost:3000
 | `npm run seed` | Inicializa y puebla la base de datos con los datos institucionales. |
 | `npm run migrate` | Descarga todos los archivos desde Cloudinary a disco local (`uploads/`) y actualiza la BD. |
 | `npm run migrate:cloudinary` | Sube los archivos locales a Cloudinary y actualiza la base de datos a URLs de la nube. |
+| `npm run export:mysql` | Exporta la base de datos completa con URLs de Cloudinary a un volcado SQL para MySQL (`database_mysql_cloudinary.sql`). |
 | `npm run generate-pdf` | Compila y genera el manual del analista en formato PDF (`manual_analista_sistemas.pdf`). |
+
+---
+
+## ☁️ Conexión y Despliegue con Clever Cloud (MySQL)
+
+Para conectar el sistema a una base de datos MySQL en la nube de **Clever Cloud**:
+
+### 1. Configurar `.env`
+Configura las credenciales provistas por el panel de Clever Cloud:
+```env
+DB_CLIENT=mysql
+DB_HOST=tu-host.services.clever-cloud.com
+DB_PORT=3306
+DB_USER=tu-usuario
+DB_PASSWORD=tu-contraseña
+DB_NAME=tu-base-de-datos
+DB_CONNECTION_LIMIT=3
+```
+
+### 2. Importar la Base de Datos en phpMyAdmin
+> [!IMPORTANT]
+> **Evitar Error #1044 (`Access denied to database 'document_upload'`):**
+> En Clever Cloud los usuarios no tienen permisos para crear bases de datos globales (`CREATE DATABASE`).
+> 1. En phpMyAdmin, **haz clic en el nombre de tu base de datos en el panel izquierdo**.
+> 2. Ve a la pestaña **Importar** (o pestaña **SQL**).
+> 3. Utiliza el archivo [`database_clevercloud.sql`](database_clevercloud.sql) (este archivo ya tiene excluidas las sentencias `CREATE DATABASE` y `USE`).
+
+> [!WARNING]
+> **Evitar Error HY000/1226 (`max_user_connections: 5`):**
+> El plan gratuito de Clever Cloud admite máximo 5 conexiones concurrentes. La aplicación ya limita el pool a 3 conexiones en [`db.js`](db.js). Si se presenta este error, asegúrate de detener temporalmente el servidor local (`npm start`) mientras uses phpMyAdmin.
 
 ---
 

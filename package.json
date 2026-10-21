@@ -10,6 +10,7 @@
     "seed": "node scripts/seed.js",
     "migrate": "node scripts/migrate.js --target=local",
     "migrate:cloudinary": "node scripts/migrate.js --target=cloudinary",
+    "export:mysql": "node scripts/export-mysql.js",
     "generate-pdf": "node scripts/generate-analista-pdf.js",
     "generate-manual": "node generate-manual.js"
   },

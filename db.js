@@ -146,16 +146,42 @@ if (dbClient === 'sqlite') {
    * Configuración del Pool de conexiones de MySQL
    * Soporta tanto URI completa (`MYSQL_ADDON_URI`) como variables individuales (.env).
    */
-  const poolConfig = process.env.MYSQL_ADDON_URI || {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT, 10) || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'document_upload',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  };
+  /**
+   * Configuración del Pool de conexiones de MySQL
+   * Soporta tanto URI completa (`MYSQL_ADDON_URI`) como variables individuales (.env).
+   * Límite predeterminado configurado en 3 conexiones para compatibilidad con planes gratuitos (Clever Cloud limita a 5).
+   */
+  let poolConfig;
+  const maxConnections = parseInt(process.env.DB_CONNECTION_LIMIT, 10) || 3;
+
+  if (process.env.MYSQL_ADDON_URI) {
+    try {
+      const url = new URL(process.env.MYSQL_ADDON_URI);
+      poolConfig = {
+        host: url.hostname,
+        port: parseInt(url.port, 10) || 3306,
+        user: decodeURIComponent(url.username),
+        password: decodeURIComponent(url.password),
+        database: url.pathname.replace(/^\//, ''),
+        waitForConnections: true,
+        connectionLimit: maxConnections,
+        queueLimit: 0
+      };
+    } catch {
+      poolConfig = process.env.MYSQL_ADDON_URI;
+    }
+  } else {
+    poolConfig = {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT, 10) || 3306,
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'document_upload',
+      waitForConnections: true,
+      connectionLimit: maxConnections,
+      queueLimit: 0
+    };
+  }
 
   const pool = mysql.createPool(poolConfig);
 

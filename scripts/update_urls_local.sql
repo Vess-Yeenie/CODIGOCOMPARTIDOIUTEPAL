@@ -1,6 +1,6 @@
 --
 -- ACTUALIZACIÓN MASIVA DE RUTAS DE ARCHIVOS (LOCAL)
--- Generado automáticamente el: 2026-10-18T02:11:51.008Z
+-- Generado automáticamente el: 2026-10-19T17:20:33.581Z
 --
 START TRANSACTION;
 UPDATE trabajos SET pdf_url = '/uploads/rh65vts0vnduynvu8bum.pdf' WHERE id = 't1';

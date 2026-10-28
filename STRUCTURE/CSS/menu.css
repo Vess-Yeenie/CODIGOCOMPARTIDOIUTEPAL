@@ -183,63 +183,49 @@ body {
     color: rgba(255, 255, 255, 0.5);
 }
 
-.date-dropdown {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    padding: 8px 20px;
-    display: flex;
-    align-items: center;
-    font-size: 1em;
+.year-select-wrapper {
     position: relative;
-    cursor: pointer;
-    margin-right: 12px;
-    color: var(--text-on-yellow);
-    transition: var(--transition-smooth);
-}
-
-.date-dropdown:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-soft);
-}
-
-.date-dropdown #monthYearMenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 5px;
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 10px;
-    display: flex;
-    gap: 10px;
+    display: inline-flex;
     align-items: center;
+    margin-right: 12px;
 }
 
-.date-dropdown select {
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    background: #fff;
-}
-
-.date-dropdown button {
-    font-size: 1em;
-    padding: 5px 12px;
-    border: none;
-    border-radius: 5px;
-    background: var(--iutepal-yellow);
-    color: var(--text-on-yellow);
-    cursor: pointer;
+.year-select-direct {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2304224e' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 14px center;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    padding: 8px 38px 8px 16px;
+    font-size: 0.95em;
     font-weight: 700;
+    color: var(--iutepal-blue);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     transition: var(--transition-smooth);
+    min-width: 110px;
+    height: 38px;
+    line-height: 1;
 }
 
-.date-dropdown button:hover {
-    background: var(--iutepal-yellow-hover);
+.year-select-direct:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    border-color: rgba(253, 213, 52, 0.6);
+}
+
+.year-select-direct:focus {
+    outline: none;
+    border-color: var(--iutepal-yellow);
+    box-shadow: 0 0 0 3px rgba(253, 213, 52, 0.35);
+}
+
+.year-select-direct option {
+    background: #ffffff;
+    color: #1e293b;
+    font-weight: 600;
+    padding: 6px;
 }
 
 #typeFilter{
@@ -300,26 +286,33 @@ body {
 .sidebar-icon-btn {
     background: var(--iutepal-yellow);
     border: none;
-    border-radius: 50%;
-    padding: 2px;
-    margin-top: 2px;
-    width: 24px;
-    height: 24px;
+    border-radius: 50% !important;
+    padding: 6px !important;
+    margin: 4px 0;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    min-height: 36px;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center !important;
+    justify-content: center !important;
     cursor: pointer;
+    box-sizing: border-box !important;
     transition: var(--transition-smooth);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
 }
 .sidebar-icon-btn img {
-    width: 24px;
-    height: 24px;
+    width: 22px !important;
+    height: 22px !important;
+    object-fit: contain !important;
     pointer-events: none;
+    display: block;
+    filter: brightness(0.12) contrast(1.15);
 }
 .sidebar-icon-btn:hover {
     background: var(--iutepal-yellow-hover);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 6px 14px rgba(253, 213, 52, 0.45);
 }
 
 .sidebar-title {
@@ -342,7 +335,7 @@ body {
     box-shadow: var(--shadow-soft);
 }
 
-.sidebar button:not(.sidebar-icon-btn) {
+.sidebar button:not(.sidebar-icon-btn):not(.carrera-btn) {
     background: #fff;
     color: #000; 
     border: none;
@@ -355,13 +348,13 @@ body {
     text-align: left;
 }
 
-.sidebar button.selected {
+.sidebar button:not(.carrera-btn).selected {
     background: #55b6fc; /* Tono más claro que #00bcd4 */
     color: #fff;
     font-weight: bold;
 }
 
-.sidebar button:hover{
+.sidebar button:not(.carrera-btn):hover{
     transform: scale(1.05);
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
@@ -370,42 +363,61 @@ body {
 .carrera-buttons {
     display: flex;
     flex-direction: column;
-    gap: 2px; /* mínimo espacio */
-    margin: 2px 0;
-    flex-wrap: wrap; /* permitir ajuste si hay problema de altura */
+    gap: 8px; /* espacio cómodo y armónico entre círculos */
+    margin: 6px 0 12px 0;
+    align-items: center;
     justify-content: center;
 }
 
 /* botones con íconos para filtrar por carrera */
 .carrera-btn {
-    /* círculo blanco grande para el icono */
-    background: #fff;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    padding: 6px; /* espacio interno para el icono */
+    /* Círculo amarillo institucional IUTEPAL */
+    background: var(--iutepal-yellow) !important;
+    border: 2px solid transparent !important;
+    border-radius: 50% !important;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px;
+    min-height: 56px;
+    padding: 6px !important;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+    position: relative;
 }
+
 .carrera-btn img {
     display: block;
-    width: 80px; /* icono más grande y visible */
-    height: 80px;
-    /* object-fit: contain; */
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    object-fit: contain !important;
     pointer-events: none;
+    transition: transform 0.25s ease;
+    filter: brightness(0.12) contrast(1.15); /* trazos oscuros limpios y nítidos sobre el amarillo */
 }
+
 .carrera-btn:hover {
-    transform: scale(1.1);
+    background: var(--iutepal-yellow-hover) !important;
+    transform: translateY(-2px) scale(1.08) !important;
+    box-shadow: 0 6px 16px rgba(253, 213, 52, 0.45);
 }
+
+.carrera-btn:hover img {
+    transform: scale(1.08);
+}
+
 .carrera-btn.selected {
-    /* en selección, usar color actual para borde y sombra */
-    border-color: currentColor;
-    box-shadow: 0 0 0 2px currentColor, 0 1px 3px rgba(0,0,0,0.15);
+    background: var(--iutepal-yellow) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 0 3px var(--iutepal-yellow), 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+    transform: translateY(-2px) scale(1.12) !important;
 }
 
 
@@ -432,11 +444,19 @@ body {
 
 /* selected color already handled by color property above */
 
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+}
+
 .documents {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 100px;
-    padding: 40px;
+    padding: 20px 40px 40px 40px;
     
     grid-auto-rows: auto; 
     
@@ -445,7 +465,7 @@ body {
     align-items: start; 
     
     
-    flex: 1; /
+    flex: 1;
 }
 
 /* STRUCTURE/CSS/menu.css */
@@ -554,21 +574,65 @@ body {
   display: block;
 }
 
-#addTrabajoBtn {
-    margin-top: 20px;
-    background: var(--iutepal-yellow);
+#addTrabajoBtn,
+.sidebar-icon-btn.add-trabajo-primary {
+    margin: 14px 0 8px 0 !important;
+    background: var(--iutepal-yellow) !important;
     color: var(--text-on-yellow);
     border: none;
-    padding: 10px;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 8px !important;
     cursor: pointer;
-    border-radius: 25px;
+    border-radius: 50% !important;
+    display: inline-flex;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
     transition: var(--transition-smooth);
+    box-shadow: 0 4px 14px rgba(253, 213, 52, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25) !important;
 }
 
-#addTrabajoBtn:hover{
-    background: var(--iutepal-yellow-hover);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lift);
+/* Ocultamiento estricto para botones de administración cuando no corresponda mostrarlos */
+.admin-only-btn,
+body:not(.is-admin) .admin-only-btn,
+body:not(.is-admin) #addTrabajoBtn,
+body:not(.is-admin) #elaborarReporteBtn,
+body:not(.is-admin) #addCarreraBtn,
+.sidebar-icon-btn[style*="display: none"],
+.sidebar-icon-btn[style*="display:none"],
+#addTrabajoBtn[style*="display: none"],
+#addTrabajoBtn[style*="display:none"],
+#elaborarReporteBtn[style*="display: none"],
+#elaborarReporteBtn[style*="display:none"],
+#addCarreraBtn[style*="display: none"],
+#addCarreraBtn[style*="display:none"] {
+    display: none !important;
+}
+
+/* Solo se muestran en pantalla si el cuerpo del documento tiene autenticación de Administrador */
+body.is-admin .admin-only-btn {
+    display: inline-flex !important;
+}
+
+#addTrabajoBtn img,
+.sidebar-icon-btn.add-trabajo-primary img {
+    width: 26px !important;
+    height: 26px !important;
+    max-width: 26px !important;
+    max-height: 26px !important;
+    object-fit: contain !important;
+    display: block;
+    filter: none !important; /* El SVG ya tiene trazos en azul marino institucional #04224e */
+}
+
+#addTrabajoBtn:hover,
+.sidebar-icon-btn.add-trabajo-primary:hover {
+    background: var(--iutepal-yellow-hover) !important;
+    transform: translateY(-3px) scale(1.1) !important;
+    box-shadow: 0 8px 20px rgba(253, 213, 52, 0.6), 0 3px 8px rgba(0, 0, 0, 0.3) !important;
     color: var(--text-on-yellow);
 }
 
@@ -732,6 +796,46 @@ body {
     box-shadow: var(--shadow-lift);
 }
 
+.modal-content button.btn-danger,
+.modal-content #deleteCarreraBtn {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border: none;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content button.btn-danger:hover,
+.modal-content #deleteCarreraBtn:hover {
+    background-color: #dc2626 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+#carreraSelectAction {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #1e293b;
+    transition: var(--transition-smooth);
+}
+
+#carreraSelectAction:focus {
+    border-color: var(--iutepal-blue);
+    box-shadow: 0 0 0 3px rgba(4, 34, 78, 0.15);
+}
+
 /* Close button styling */
 .close-modal {
     position: absolute;
@@ -758,8 +862,40 @@ body {
 }
 
 #reportModal .modal-content {
-    width: 750px;
-    max-width: 95vw;
+    width: 940px;
+    max-width: 96vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 28px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+#reportModal .modal-content h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.45em;
+    color: var(--iutepal-blue);
+    font-weight: 800;
+    text-align: left;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.report-modal-subtitle {
+    margin: 0 0 14px 0;
+    font-size: 0.86em;
+    color: #64748b;
+    text-align: left;
+}
+
+#reportContent {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 .card-actions {
 	display: flex;
@@ -1469,3 +1605,673 @@ button:not(.type-btnHeader):not(.carrera-btn),
     line-height: 1.5;
     margin: 0;
 }
+
+/* =========================================================================
+   BOTÓN LIMPIEZA RÁPIDA DE FILTROS EN BARRA DE BÚSQUEDA
+   ========================================================================= */
+.clear-search-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    margin-left: 8px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.clear-search-btn:hover {
+    opacity: 1;
+    background: var(--iutepal-yellow);
+    color: var(--iutepal-blue);
+    transform: scale(1.1);
+}
+
+/* =========================================================================
+   CONTROLES DE PAGINACIÓN DE DOCUMENTOS (20 por página)
+   ========================================================================= */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 40px 0 40px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.pagination-container:empty {
+    display: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    background: #ffffff;
+    color: var(--iutepal-blue);
+    border: 1.5px solid #dcdfe6;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    min-width: 38px;
+    text-align: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--iutepal-blue);
+    color: #ffffff;
+    border-color: var(--iutepal-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(4, 34, 78, 0.2);
+}
+
+.pagination-btn.active {
+    background: var(--iutepal-yellow) !important;
+    color: var(--iutepal-blue) !important;
+    border-color: var(--iutepal-yellow) !important;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(253, 213, 52, 0.4);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f5f7fa;
+    border-color: #e4e7ed;
+    color: #a8abb2;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination-ellipsis {
+    padding: 0 6px;
+    color: #888;
+    font-weight: bold;
+    user-select: none;
+}
+
+.pagination-info {
+    font-size: 0.9em;
+    color: #444;
+    font-weight: 500;
+    text-align: center;
+}
+
+.pagination-info b {
+    color: var(--iutepal-blue);
+}
+
+.file-helper-text {
+    color: #555;
+    font-size: 0.85em;
+    margin-top: 4px;
+    display: block;
+    line-height: 1.4;
+}
+
+/* =========================================================================
+   DISEÑO MODERNO Y ELEGANTE DEL REPORTE DE AUDITORÍA Y ACTIVIDAD
+   ========================================================================= */
+.report-content-wrapper {
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: calc(90vh - 120px);
+}
+
+/* Scrollbar estilizado para el reporte */
+.report-content-wrapper::-webkit-scrollbar,
+.report-list-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.report-content-wrapper::-webkit-scrollbar-track,
+.report-list-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.report-content-wrapper::-webkit-scrollbar-thumb,
+.report-list-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.report-content-wrapper::-webkit-scrollbar-thumb:hover,
+.report-list-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Tarjetas KPI de resumen superior */
+.report-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.report-kpi-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(4, 34, 78, 0.08);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.report-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(4, 34, 78, 0.08);
+}
+
+.report-kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.report-kpi-icon.yellow { background: rgba(253, 213, 52, 0.25); color: #b45309; }
+.report-kpi-icon.blue { background: rgba(4, 34, 78, 0.1); color: var(--iutepal-blue); }
+.report-kpi-icon.green { background: rgba(16, 185, 129, 0.15); color: #047857; }
+
+.report-kpi-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-kpi-value {
+    font-size: 1.45em;
+    font-weight: 800;
+    color: var(--iutepal-blue);
+    line-height: 1.1;
+}
+
+.report-kpi-label {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* Grilla con 2 columnas para rankings Top 8 */
+.report-columns-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 768px) {
+    .report-columns-grid {
+        grid-template-columns: 1fr;
+    }
+    .report-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.report-column {
+    background: #ffffff;
+    border: 1px solid rgba(4, 34, 78, 0.09);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.report-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+.report-column-title {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: var(--iutepal-blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.report-count-badge {
+    background: rgba(4, 34, 78, 0.08);
+    color: var(--iutepal-blue);
+    font-size: 0.75em;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+
+.report-list-scroll {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+/* Tarjetas individuales de ranking */
+.report-item-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.report-item-card:hover {
+    border-color: rgba(253, 213, 52, 0.85);
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(4, 34, 78, 0.08);
+}
+
+.report-item-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Medallas y badges de ranking */
+.rank-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #f59e0b);
+    color: #451a03;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+    color: #334155;
+    box-shadow: 0 2px 6px rgba(203, 213, 225, 0.4);
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #fed7aa, #ea580c);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3);
+}
+
+.rank-badge.rank-other {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.report-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--iutepal-blue);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85em;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.report-user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.report-user-name {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.report-role-pill {
+    font-size: 0.65em;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.report-role-pill.iutepalista { background: #dcfce7; color: #15803d; }
+.report-role-pill.visitante { background: #f1f5f9; color: #475569; }
+.report-role-pill.admin { background: #fef3c7; color: #b45309; }
+
+.report-stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78em;
+    color: #64748b;
+    margin-top: 3px;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.report-stats-pill {
+    background: #f8fafc;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+}
+
+.report-stats-pill b {
+    color: var(--iutepal-blue);
+}
+
+/* Barras de progreso de actividad */
+.report-bar-bg {
+    width: 100%;
+    height: 5px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.report-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--iutepal-yellow), #f59e0b);
+    transition: width 0.4s ease;
+}
+
+.report-bar-fill.blue {
+    background: linear-gradient(90deg, #38bdf8, var(--iutepal-blue));
+}
+
+/* Tarjeta de Documento Más Visto */
+.report-doc-title {
+    font-size: 0.88em;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.report-doc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   MINI MODALES DE CONFIRMACIÓN (ELIMINACIÓN DE DOCUMENTOS Y USUARIOS)
+   ========================================================================== */
+.mini-modal-content {
+    max-width: 420px !important;
+    padding: 28px 24px 22px !important;
+    border-radius: 18px !important;
+    text-align: center;
+    border-top: 5px solid #ef4444 !important;
+    box-shadow: 0 25px 50px -12px rgba(4, 34, 78, 0.35) !important;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.mini-modal-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: alertIconPop 0.35s ease-out;
+}
+
+.mini-modal-icon.danger-icon {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.mini-modal-icon.warning-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.mini-modal-title {
+    margin: 0 0 8px 0 !important;
+    font-size: 1.35em !important;
+    color: var(--iutepal-blue) !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+}
+
+.mini-modal-desc {
+    font-size: 0.9em;
+    color: #64748b;
+    line-height: 1.45;
+    margin: 0 0 16px 0;
+    text-align: center;
+}
+
+.mini-modal-target-card {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.mini-modal-target-label {
+    display: block;
+    font-size: 0.72em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.mini-modal-target-title {
+    font-size: 0.95em;
+    font-weight: 700;
+    color: var(--iutepal-blue);
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+.mini-modal-target-meta {
+    font-size: 0.82em;
+    color: #64748b;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.mini-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.mini-modal-btn {
+    flex: 1;
+    border-radius: 999px !important;
+    padding: 11px 18px !important;
+    font-size: 0.95em !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+#changePasswordModal #deleteUserBtn {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+#changePasswordModal #deleteUserBtn:hover {
+    background-color: #dc2626 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+/* ==========================================================================
+   MINI TABS EN MODAL DE ADMINISTRACIÓN DE CREDENCIALES
+   ========================================================================== */
+.modal-tabs {
+    display: flex;
+    gap: 8px;
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.modal-tab-btn {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    outline: none;
+}
+
+.modal-tab-btn:hover {
+    color: var(--iutepal-blue);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.modal-tab-btn.active {
+    background: #ffffff;
+    color: var(--iutepal-blue);
+    box-shadow: 0 3px 10px rgba(4, 34, 78, 0.12);
+}
+
+/* ==========================================================================
+   SUPERPOSICIÓN DE MINI MODALES DE CONFIRMACIÓN (Z-INDEX ALTO)
+   ========================================================================== */
+#deleteDocModal,
+#deleteUserModal,
+#deleteCarreraModal {
+    z-index: 99999 !important;
+    background: rgba(4, 34, 78, 0.68) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+/* ==========================================================================
+   DOCUMENTOS MÁS VISTOS CLICABLES EN EL REPORTE
+   ========================================================================== */
+.report-item-doc-clickable {
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.report-item-doc-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(4, 34, 78, 0.12);
+    border-color: #38bdf8;
+    background-color: #f8fafc;
+}
+
+.report-open-doc-hint {
+    font-size: 1.05em;
+    color: #0284c7;
+    margin-left: auto;
+    padding-left: 8px;
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.report-item-doc-clickable:hover .report-open-doc-hint {
+    opacity: 1;
+    transform: translate(2px, -2px);
+}
+
+

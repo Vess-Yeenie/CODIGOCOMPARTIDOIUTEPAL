@@ -1,0 +1,209 @@
+================================================================================
+GUIA DE CONFIGURACION: SERVIDOR LOCAL EN RED (WINDOWS Y LINUX)
+Sistema de Gestion de Documentos - IUTEPAL
+================================================================================
+
+DATOS RAPIDOS DE TU SERVIDOR ACTUAL:
+--------------------------------------------------------------------------------
+- Tu direccion IP local actual : 172.16.0.4
+- Puerto configurado           : 3000
+- URL para entrar en ESTA PC   : http://localhost:3000
+- URL para entrar desde OTRA PC: http://172.16.0.4:3000
+- Login directo                : http://172.16.0.4:3000/login.html
+--------------------------------------------------------------------------------
+
+REQUISITO BASICO INDISPENSABLE:
+Ambos dispositivos (la PC que sirve la pagina y la PC o celular que va a entrar)
+deben estar conectados a la MISMA RED WI-FI o al MISMO ROUTER POR CABLE.
+
+
+================================================================================
+PARTE 1: INSTRUCCIONES PARA WINDOWS
+================================================================================
+
+PASO 1: HABILITAR EL PUERTO 3000 EN EL FIREWALL DE WINDOWS
+Windows bloquea por defecto las conexiones entrantes hacia servidores locales.
+Debes permitir el puerto 3000. Tienes 2 opciones:
+
+  OPCION A (Rapida):
+  1. En esta carpeta busca el archivo: abrir_puerto_firewall.bat
+  2. Haz clic derecho sobre el y selecciona "Ejecutar como administrador".
+  3. Acepta el mensaje y presiona cualquier tecla.
+
+  OPCION B (Manual con PowerShell / CMD):
+  1. Abre PowerShell o CMD como Administrador.
+  2. Pega y ejecuta el siguiente comando:
+     netsh advfirewall firewall add rule name="Servidor Web IUTEPAL (Puerto 3000)" dir=in action=allow protocol=TCP localport=3000 profile=any
+
+PASO 2: VERIFICAR EL PERFIL DE RED EN WINDOWS
+Asegurate de que Windows considere tu red como "Privada" (no "Publica"):
+1. Abre Configuracion de Windows (teclas Windows + I).
+2. Ve a "Red e Internet" -> "Wi-Fi" (o "Ethernet").
+3. Haz clic en el nombre de tu red y selecciona la casilla "Red privada".
+
+PASO 3: INICIAR EL SERVIDOR
+Tienes dos opciones:
+  - Opcion facil: Haz doble clic en el archivo "iniciar_servidor.bat".
+  - Opcion manual: Abre la terminal en esta carpeta y ejecuta:
+      npm start
+
+La consola se iniciara y te mostrara:
+  URL Local       : http://localhost:3000
+  URL Red Local   : http://172.16.0.4:3000 (desde otra PC / telefono)
+
+PASO 4: INGRESAR DESDE LA OTRA COMPUTADORA O TELEFONO
+1. En la otra computadora, abre cualquier navegador (Google Chrome, Edge, Firefox).
+2. En la barra de direcciones escribe:
+     http://172.16.0.4:3000
+   (o directamente: http://172.16.0.4:3000/login.html)
+3. Listo, cargara el sistema normalmente.
+
+
+================================================================================
+PARTE 2: INSTRUCCIONES PARA LINUX (Ubuntu, Debian, Fedora, Mint, etc.)
+================================================================================
+
+Si vas a migrar o correr este servidor en una computadora o VPS con Linux:
+
+PASO 1: INSTALAR NODE.JS Y GIT
+En Debian / Ubuntu / Linux Mint:
+  sudo apt update
+  sudo apt install nodejs npm git -y
+
+Verifica que quedaron instalados:
+  node -v
+  npm -v
+
+PASO 2: INSTALAR LAS DEPENDENCIAS DEL PROYECTO
+Dentro de la carpeta del proyecto, ejecuta:
+  npm install
+
+PASO 3: CONOCER LA IP LOCAL DE TU MAQUINA LINUX
+Ejecuta en la terminal:
+  hostname -I
+(Tomaras la primera direccion IP que aparezca, ej. 192.168.1.50 o 172.16.0.X).
+
+PASO 4: ABRIR EL PUERTO EN EL FIREWALL DE LINUX
+Segun la distribucion que uses:
+
+  - Si usas UFW (Ubuntu / Debian):
+      sudo ufw allow 3000/tcp
+      sudo ufw reload
+
+  - Si usas Firewalld (Fedora / RHEL / CentOS):
+      sudo firewall-cmd --permanent --add-port=3000/tcp
+      sudo firewall-cmd --reload
+
+  - Si usas Iptables directo:
+      sudo iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
+
+PASO 5: INICIAR EL SERVIDOR
+Puedes usar el script preparado:
+  chmod +x iniciar_servidor.sh
+  ./iniciar_servidor.sh
+
+O directamente:
+  npm start
+
+PASO 6 (RECOMENDADO): DEJARLO EN SEGUNDO PLANO 24/7 CON PM2
+Para que el servidor siga funcionando aunque cierres la terminal en Linux:
+  sudo npm install -g pm2
+  pm2 start server.js --name "iutepal-web"
+  pm2 save
+  pm2 startup
+
+
+================================================================================
+PARTE 3: SOLUCION DE PROBLEMAS COMUNES (TROUBLESHOOTING)
+================================================================================
+
+1. LA OTRA COMPUTADORA NO CARGA LA PAGINA ("No se puede acceder a este sitio"):
+   a) Verifica si hay conexion entre ambas PCs. En la otra PC abre la terminal y escribe:
+        ping 172.16.0.4
+      - Si da "Tiempo de espera agotado", el Firewall de Windows sigue bloqueando
+        o estan en redes diferentes.
+   b) Verifica si tu router Wi-Fi tiene "Aislamiento de AP" (AP Isolation / Client Isolation).
+      Esta opcion en algunos routers impide que dos dispositivos Wi-Fi se comuniquen entre si.
+      Si es asi, debes desactivarla en la configuracion del router.
+   c) Asegurate de escribir "http://" y no "https://".
+
+2. ¿QUE PASA SI SE REINICIA EL ROUTER Y CAMBIA MI IP?
+   Los routers pueden cambiar la direccion IP local.
+   Cada vez que inicies el servidor con "iniciar_servidor.bat" o "npm start",
+   la consola detecta automaticamente tu IP actual y te muestra en pantalla el enlace exacto.
+
+3. ¿COMO ACCEDER DESDE OTRA RED O POR INTERNET (FUERA DE CASA / OFICINA)?
+   Si una persona necesita entrar desde otra ciudad o con datos moviles fuera del Wi-Fi:
+   Puedes usar Cloudflare Tunnel o Ngrok sin necesidad de abrir puertos en tu router:
+   - Descarga Ngrok (ngrok.com)
+   - Ejecuta: ngrok http 3000
+   - Te dara una direccion web publica y segura (https://xxxxx.ngrok-free.app)
+     que podras compartir con quien quieras.
+
+================================================================================
+PARTE 4: CREAR UN ICONO O ACCESO DIRECTO EN EL ESCRITORIO
+================================================================================
+
+Tienes 3 alternativas faciles para darle un acceso directo con icono al usuario:
+
+METODO 1: INSTALAR COMO APLICACION PWA (EL MAS ELEGANTE)
+Tu proyecto ya incluye manifest.json con el logo oficial de IUTEPAL.
+1. En la otra PC (o telefono), entra a: http://172.16.0.4:3000
+2. En Google Chrome:
+   - Haz clic en el icono de pantalla con flecha ("Instalar aplicacion") que sale
+     a la derecha de la barra de direcciones.
+   - O ve a los 3 puntos del menu -> "Guardar y compartir" -> "Instalar Trabajos de Grado IUTEPAL".
+3. En Microsoft Edge:
+   - Menu 3 puntos -> "Aplicaciones" -> "Instalar este sitio como una aplicacion".
+4. Resultado: Creara un icono en el Escritorio con el logo de IUTEPAL que se abre
+   en su propia ventana independiente, como si fuera un programa nativo de Windows.
+
+METODO 2: ACCESO DIRECTO .URL (WINDOWS)
+- Puedes copiar el archivo "Acceso_IUTEPAL.url" directamente al Escritorio de la otra PC.
+- O ejecutar "crear_acceso_escritorio.bat" para que se coloque automaticamente en el Escritorio.
+
+METODO 3: ACCESO DIRECTO .DESKTOP (LINUX)
+- Copia el archivo "acceso_iutepal.desktop" a la carpeta ~/Desktop de la maquina Linux
+  y dale permisos con: chmod +x ~/Desktop/acceso_iutepal.desktop
+
+
+================================================================================
+PARTE 5: MANTENER EL SERVIDOR ACTIVO 24/7 SIN QUE SE APAGUE
+================================================================================
+
+1. EVITAR QUE WINDOWS SE SUSPENDA (LO MAS IMPORTANTE)
+   Windows por defecto se suspende despues de 15-30 minutos de inactividad.
+   Al suspenderse, la tarjeta de red se desconecta y el servidor se apaga.
+   Solucion:
+   - Ve a Configuracion de Windows -> Sistema -> Inicio/apagado (o Energia).
+   - En "Suspender el equipo", cambialo a "Nunca".
+   - (La pantalla si se puede apagar, pero el equipo debe permanecer despierto).
+
+2. EJECUTAR EN SEGUNDO PLANO (SIN VENTANAS ABIERTAS)
+   - Haz doble clic en "iniciar_en_segundo_plano.vbs".
+   - Arrancara de forma invisible y permanente sin ventanas que alguien pueda cerrar por error.
+   - Cuando quieras apagarlo, ejecuta "detener_servidor.bat".
+
+3. RECUPERACION AUTOMATICA ANTE ERRORES (AUTO-RESTART)
+   - Ya se configuraron capturadores en server.js contra excepciones fatales.
+   - Si usas iniciar_servidor.bat, tiene un bucle de vigilancia que si el proceso
+     se llega a cerrar por cualquier motivo, se reinicia solo en 3 segundos.
+
+4. FIJAR LA IP LOCAL (ESTATICA)
+   - Para que el router nunca le cambie la IP a tu computadora, fija la IP 172.16.0.4
+     en las propiedades de tu tarjeta de red o en la lista de reservas DHCP de tu router.
+
+
+================================================================================
+Archivos incluidos en el proyecto para facilitar el uso:
+- iniciar_servidor.bat          -> Arranca el servidor con vigilancia y auto-reinicio 24/7.
+- iniciar_en_segundo_plano.vbs  -> Arranca el servidor de forma silenciosa e invisible.
+- detener_servidor.bat          -> Cierra los procesos del servidor cuando lo desees.
+- crear_acceso_escritorio.bat   -> Crea el acceso directo en el Escritorio con logo.
+- Acceso_IUTEPAL.url            -> Acceso directo listo para copiar a cualquier PC.
+- acceso_iutepal.desktop        -> Acceso directo para Linux.
+- abrir_puerto_firewall.bat     -> Habilita el puerto 3000 en el Firewall de Windows.
+- iniciar_servidor.sh           -> Script de arranque para Linux/macOS.
+- GUIA_SERVIDOR_RED_LOCAL.txt   -> Este archivo de instrucciones.
+- GUIA_SERVIDOR_RED_LOCAL.md    -> Guia detallada en formato Markdown.
+================================================================================

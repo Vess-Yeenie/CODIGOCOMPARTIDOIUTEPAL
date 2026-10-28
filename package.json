@@ -10,8 +10,10 @@
     "seed": "node scripts/seed.js",
     "migrate": "node scripts/migrate.js --target=local",
     "migrate:cloudinary": "node scripts/migrate.js --target=cloudinary",
+    "export:mysql": "node scripts/export-mysql.js",
     "generate-pdf": "node scripts/generate-analista-pdf.js",
-    "generate-manual": "node generate-manual.js"
+    "generate-manual": "node generate-manual.js",
+    "compile:manuals": "python scripts/compile_manuals_pdf.py"
   },
   "dependencies": {
     "cloudinary": "^1.41.0",

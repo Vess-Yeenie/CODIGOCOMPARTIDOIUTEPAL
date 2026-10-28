@@ -74,6 +74,14 @@ if (dbClient === 'sqlite') {
       FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
       FOREIGN KEY (doc_id) REFERENCES trabajos(id) ON DELETE SET NULL
     );
+
+    CREATE TABLE IF NOT EXISTS carreras (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      codigo VARCHAR(50) NOT NULL UNIQUE,
+      nombre VARCHAR(100) NOT NULL,
+      icono TEXT DEFAULT NULL,
+      color VARCHAR(20) DEFAULT '#00bcd4'
+    );
   `);
 
   /**
@@ -85,6 +93,32 @@ if (dbClient === 'sqlite') {
     sqlite.prepare(
       "INSERT OR IGNORE INTO usuario (id, nombre, email, password, esIutepalista) VALUES (?, ?, ?, ?, ?)"
     ).run(0, 'Admin', 'admin', '123', 1);
+  }
+
+  /**
+   * Sembrar carreras institucionales por defecto si la tabla está vacía.
+   */
+  const defaultCarreras = [
+    { codigo: 'INFORMATICA', nombre: 'Informática', icono: 'STRUCTURE/IMG/INFORMATICA.png', color: '#00bcd4' },
+    { codigo: 'PRODUCCION', nombre: 'Producción industrial', icono: 'STRUCTURE/IMG/PRODUCCION.png', color: '#ff9800' },
+    { codigo: 'ELECTRONICA', nombre: 'Electrónica', icono: 'STRUCTURE/IMG/ELECTRONICA.png', color: '#4caf50' },
+    { codigo: 'CONTABILIDAD', nombre: 'Contabilidad', icono: 'STRUCTURE/IMG/CONTABILIDAD.png', color: '#e91e63' },
+    { codigo: 'ADMINISTRACION', nombre: 'Administración de empresas', icono: 'STRUCTURE/IMG/ADMINISTRACION.png', color: '#2196f3' },
+    { codigo: 'PREESCOLAR', nombre: 'Educación preescolar', icono: 'STRUCTURE/IMG/PREESCOLAR.png', color: '#ff69b4' }
+  ];
+
+  try {
+    const carreraCheck = sqlite.prepare("SELECT COUNT(*) AS count FROM carreras").all();
+    if (!carreraCheck || carreraCheck[0].count === 0) {
+      const insertCarrera = sqlite.prepare(
+        "INSERT OR IGNORE INTO carreras (codigo, nombre, icono, color) VALUES (?, ?, ?, ?)"
+      );
+      for (const c of defaultCarreras) {
+        insertCarrera.run(c.codigo, c.nombre, c.icono, c.color);
+      }
+    }
+  } catch (err) {
+    console.warn('[Database] Error al sembrar carreras en SQLite:', err);
   }
 
   /**
@@ -146,16 +180,42 @@ if (dbClient === 'sqlite') {
    * Configuración del Pool de conexiones de MySQL
    * Soporta tanto URI completa (`MYSQL_ADDON_URI`) como variables individuales (.env).
    */
-  const poolConfig = process.env.MYSQL_ADDON_URI || {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT, 10) || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'document_upload',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  };
+  /**
+   * Configuración del Pool de conexiones de MySQL
+   * Soporta tanto URI completa (`MYSQL_ADDON_URI`) como variables individuales (.env).
+   * Límite predeterminado configurado en 3 conexiones para compatibilidad con planes gratuitos (Clever Cloud limita a 5).
+   */
+  let poolConfig;
+  const maxConnections = parseInt(process.env.DB_CONNECTION_LIMIT, 10) || 3;
+
+  if (process.env.MYSQL_ADDON_URI) {
+    try {
+      const url = new URL(process.env.MYSQL_ADDON_URI);
+      poolConfig = {
+        host: url.hostname,
+        port: parseInt(url.port, 10) || 3306,
+        user: decodeURIComponent(url.username),
+        password: decodeURIComponent(url.password),
+        database: url.pathname.replace(/^\//, ''),
+        waitForConnections: true,
+        connectionLimit: maxConnections,
+        queueLimit: 0
+      };
+    } catch {
+      poolConfig = process.env.MYSQL_ADDON_URI;
+    }
+  } else {
+    poolConfig = {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT, 10) || 3306,
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'document_upload',
+      waitForConnections: true,
+      connectionLimit: maxConnections,
+      queueLimit: 0
+    };
+  }
 
   const pool = mysql.createPool(poolConfig);
 

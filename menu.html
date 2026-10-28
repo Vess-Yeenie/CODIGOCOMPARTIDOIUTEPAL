@@ -5,93 +5,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
-    <link rel="stylesheet" href="STRUCTURE/CSS/theme.css">
-    <link rel="stylesheet" href="STRUCTURE/CSS/menu.css">
-    
+    <link rel="icon" type="image/x-icon" href="STRUCTURE/IMG/iutepal.ico">
+    <link rel="icon" type="image/png" href="STRUCTURE/IMG/iutepal.png">
+    <link rel="stylesheet" href="STRUCTURE/CSS/theme.css?v=3">
+    <link rel="stylesheet" href="STRUCTURE/CSS/menu.css?v=3">
+
 </head>
 
 
-    <header class="header fade-in">
-        <div class="header-left">
-            <span id="homeLogo"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></span>
+<header class="header fade-in">
+    <div class="header-left">
+        <span id="homeLogo"><img src="STRUCTURE/IMG/iutepal_logo.png" alt="" class="logo"></span>
+    </div>
+    <div class="header-center">
+        <div class="search-bar">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" id="searchInput" placeholder="BUSQUEDA">
+            <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Limpiar búsqueda y filtros"
+                aria-label="Limpiar búsqueda y filtros" style="display: none;">&times;</button>
         </div>
-        <div class="header-center">
-            <div class="search-bar">
-                <span class="search-icon">&#128269;</span>
-                <input type="text" placeholder="BUSQUEDA">
-            </div>
-            <div class="type-filter" id="typeButtons">
-                <button class="type-btn type-btnHeader" data-type="trabajo" title="Trabajo" aria-label="Trabajo">
-                    <span class="type-btn-icon"></span>
-                </button>
-                <button class="type-btn type-btnHeader" data-type="presentacion" title="Presentación" aria-label="Presentación">
-                    <span class="type-btn-icon"></span>
-                </button>
-                <button class="type-btn type-btnHeader" data-type="resumen" title="Hoja de resumen" aria-label="Hoja de resumen">
-                    <span class="type-btn-icon"></span>
-                </button>
-                <button id="openLineasModalBtn" class="type-btnHeader special-btn" title="Líneas de Investigación" aria-label="Líneas de Investigación">
-                    <!-- icono genérico para líneas de investigación -->
-                    <span class="type-btn-icon" style="background-image:url('STRUCTURE/IMG/document-layout-right-svgrepo-com.svg');"></span>
-                </button>
-            </div>
-        </div>
-        <div class="header-right">
-            <h1 class="filterTitle">Filtrar por año:</h1>
-            <div class="date-dropdown" id="dateDropdown">
-                <span id="selectedDate"></span>
-                <span class="dropdown-icon">&#9660;</span>
-                <div id="monthYearMenu" style="display:none;">
-                    <select id="yearSelect">
-                        <option value="todos">Todos</option>
-                        <!-- LAs opciones son generadas por JS -->
-                    </select>
-                    <button id="setYear">OK</button>
-                </div>
-            </div>
-            <div class="header-actions">
-                <!-- Icon-only buttons: el title asegura el tooltip al hacer hover -->
-                <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" aria-label="Cambiar contraseña" style="display:none">
-                    <img src="STRUCTURE/IMG/password.svg" alt="" class="action-icon">
-                </button>
-                <button id="logoutBtn" class="action-btn" title="Cerrar sesión" aria-label="Cerrar sesión" style="display:none">
-                    <img src="STRUCTURE/IMG/logout.svg" alt="" class="action-icon">
-                </button>
-            </div>
-        </div>
-    </header>
-    <main class="main-content fade-in fade-in-delay-1">
-        <aside class="sidebar">
-            <div class="sidebar-title" title="Mostrar todos los trabajos">CARRERAS</div>
-            <!-- botones de carrera con iconos, el title sirve como tooltip -->
-            <div class="carrera-buttons">
-                <button id="btn-inf" class="carrera-btn" data-carrera="INFORMATICA" title="Informática">
-                    <img src="STRUCTURE/IMG/INFORMATICA.png" alt="Informatica">
-                </button>
-                <button id="btn-prd" class="carrera-btn" data-carrera="PRODUCCION" title="Producción industrial">
-                    <img src="STRUCTURE/IMG/PRODUCCION.png" alt="Producción">
-                </button>
-                <button id="btn-elec" class="carrera-btn" data-carrera="ELECTRONICA" title="Electrónica">
-                    <img src="STRUCTURE/IMG/ELECTRONICA.png" alt="Electrónica">
-                </button>
-                <button id="btn-cont" class="carrera-btn" data-carrera="CONTABILIDAD" title="Contabilidad">
-                    <img src="STRUCTURE/IMG/CONTABILIDAD.png" alt="Contabilidad">
-                </button>
-                <button id="btn-adm" class="carrera-btn" data-carrera="ADMINISTRACION" title="Administración de empresas">
-                    <img src="STRUCTURE/IMG/ADMINISTRACION.png" alt="Administración">
-                </button>
-                <button id="btn-pre" class="carrera-btn" data-carrera="PREESCOLAR" title="Preescolar">
-                    <img src="STRUCTURE/IMG/PREESCOLAR.png" alt="Preescolar">
-                </button>
-            </div>
-            <!-- botones de acción iconográficos -->
-            <button id="elaborarReporteBtn" class="sidebar-icon-btn" title="Generar reporte">
-                <img src="STRUCTURE/IMG/report-svgrepo-com.svg" alt="Reporte">
+        <div class="type-filter" id="typeButtons">
+            <button class="type-btn type-btnHeader" data-type="trabajo" title="Trabajo" aria-label="Trabajo">
+                <span class="type-btn-icon"></span>
             </button>
-            <button id="addTrabajoBtn" class="sidebar-icon-btn" title="Añadir trabajo">
-                <img src="STRUCTURE/IMG/document-add-svgrepo-com.svg" alt="+">
+            <button class="type-btn type-btnHeader" data-type="presentacion" title="Presentación"
+                aria-label="Presentación">
+                <span class="type-btn-icon"></span>
             </button>
-        </aside>
+            <button class="type-btn type-btnHeader" data-type="resumen" title="Hoja de resumen"
+                aria-label="Hoja de resumen">
+                <span class="type-btn-icon"></span>
+            </button>
+            <button id="openLineasModalBtn" class="type-btnHeader special-btn" title="Líneas de Investigación"
+                aria-label="Líneas de Investigación">
+                <!-- icono genérico para líneas de investigación -->
+                <span class="type-btn-icon"
+                    style="background-image:url('STRUCTURE/IMG/document-layout-right-svgrepo-com.svg');"></span>
+            </button>
+        </div>
+    </div>
+    <div class="header-right">
+        <label for="yearSelect" class="filterTitle">Filtrar por año:</label>
+        <div class="year-select-wrapper">
+            <select id="yearSelect" class="year-select-direct" aria-label="Filtrar por año">
+                <option value="todos">Todos</option>
+                <!-- Opciones generadas dinámicamente por JS -->
+            </select>
+        </div>
+        <div class="header-actions">
+            <!-- Icon-only buttons: el title asegura el tooltip al hacer hover -->
+            <button id="changePasswordBtn" class="action-btn" title="Cambiar contraseña" aria-label="Cambiar contraseña"
+                style="display:none">
+                <img src="STRUCTURE/IMG/password.svg" alt="" class="action-icon">
+            </button>
+            <button id="logoutBtn" class="action-btn" title="Cerrar sesión" aria-label="Cerrar sesión"
+                style="display:none">
+                <img src="STRUCTURE/IMG/logout.svg" alt="" class="action-icon">
+            </button>
+        </div>
+    </div>
+</header>
+<main class="main-content fade-in fade-in-delay-1">
+    <aside class="sidebar">
+        <div class="sidebar-title" title="Mostrar todos los trabajos">CARRERAS</div>
+        <!-- botones de carrera con iconos cargados dinámicamente desde la BD -->
+        <div class="carrera-buttons" id="carreraButtonsContainer">
+            <!-- Se cargan dinámicamente vía JS desde la base de datos -->
+        </div>
+        <!-- botones de acción iconográficos (exclusivos de administradores) -->
+        <button id="addTrabajoBtn" class="sidebar-icon-btn add-trabajo-primary admin-only-btn" title="Añadir trabajo" style="display:none;">
+            <img src="STRUCTURE/IMG/document-add-svgrepo-com.svg?v=2" alt="+">
+        </button>
+        <button id="elaborarReporteBtn" class="sidebar-icon-btn admin-only-btn" title="Generar reporte" style="display:none;">
+            <img src="STRUCTURE/IMG/report-svgrepo-com.svg" alt="Reporte">
+        </button>
+        <button id="addCarreraBtn" class="sidebar-icon-btn admin-only-btn" title="Gestionar carreras (Añadir o Editar)"
+            style="display:none;">
+            <img src="STRUCTURE/IMG/carreras.png?v=2" alt="Gestionar Carreras">
+        </button>
+    </aside>
+    <div class="content-wrapper">
+        <!-- Contenedor para controles interactivos de paginación (límite de 20 documentos por página) ubicado arriba de las tarjetas -->
+        <div id="paginationContainer" class="pagination-container"></div>
         <section class="documents">
             <!-- <div class="doc-card" data-carrera="INFORMATICA" data-ano="2023" data-tipo="presentacion">
                 <div class="doc-x" style="display:none;">&#10006;</div>
@@ -148,13 +143,14 @@
                 </div>
             </div> -->
         </section>
-    </main>
-    <!-- Modal para añadir trabajo -->
-    <div id="addTrabajoModal" class="modal" style="display:none;">
+    </div>
+</main>
+<!-- Modal para añadir / editar trabajo -->
+<div id="addTrabajoModal" class="modal" style="display:none;">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <h2 id="modalTitle">Añadir Nuevo Trabajo</h2>
-        
+
         <form id="addTrabajoForm">
             <input type="hidden" id="editingId">
 
@@ -163,28 +159,26 @@
 
             <label for="trabajoCarrera">Carrera:</label>
             <select id="trabajoCarrera" required>
-                <option value="INFORMATICA">INFORMATICA</option>
-                <option value="ADMINISTRACION">ADMINISTRACION</option>
-                <option value="PRODUCCION">PRODUCCION</option>
-                <option value="ELECTRONICA">ELECTRONICA</option>
-                <option value="CONTABILIDAD">CONTABILIDAD</option>
-                <option value="PREESCOLAR">PREESCOLAR</option>
+                <option value="">Cargando carreras...</option>
             </select>
 
-            <label for="trabajoAno">Año:</label>
-            <input type="number" id="trabajoAno" required min="2000" max="2026">
+            <label for="trabajoAno">Año (exactamente 4 dígitos numéricos):</label>
+            <input type="text" id="trabajoAno" required maxlength="4" pattern="[0-9]{4}" inputmode="numeric"
+                placeholder="Ej: 2024" title="Ingrese exactamente 4 dígitos numéricos">
 
             <label for="trabajoTipo">Tipo de Documento:</label>
             <select id="trabajoTipo" required>
                 <option value="trabajo">Trabajo de Grado</option>
                 <option value="presentacion">Presentación</option>
                 <option value="resumen">Resumen</option>
-               
             </select>
 
-            <label for="trabajoPdf">Archivo (PDF o Video):</label>
-            <input type="file" id="trabajoPdf" accept=".pdf, .mp4, .mov, .avi">
-            
+            <label for="trabajoPdf">Archivo <span id="fileTypeHint">(PDF o Word)</span>:</label>
+            <input type="file" id="trabajoPdf" accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword">
+            <small id="fileFormatHelp" class="file-helper-text"
+                style="display: block; margin-top: 4px; font-size: 0.85em; color: #555;">Formatos permitidos:
+                Documento PDF (.pdf) o Word (.docx, .doc) — se protegerá automáticamente contra modificación y plagio</small>
+
             <p id="uploadStatus" style="font-size: 0.8em; color: #666;"></p>
             <div class="progress-bar" id="uploadProgress">
                 <div class="progress-fill" id="progressFill"></div>
@@ -195,72 +189,287 @@
     </div>
 </div>
 
-    <!-- Nuevo: Modal para mostrar el reporte de accesos/revisiones -->
-    <div id="reportModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="reportCloseBtn">&times;</span>
-            <h2>Reporte de Usuarios y Documentos Revisados</h2>
-            <div id="reportContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
-                <!-- Contenido generado por JS -->
-            </div>
+<!-- Modal para mostrar el reporte de auditoría y actividad -->
+<div id="reportModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-modal" id="reportCloseBtn">&times;</span>
+        <h2>📊 Reporte de Auditoría y Actividad</h2>
+        <p class="report-modal-subtitle">Monitoreo de interacciones, ranking de usuarios y documentos más consultados en
+            el repositorio.</p>
+        <div id="reportContent">
+            <!-- Contenido generado por JS -->
         </div>
     </div>
-    <!-- Modal para cambiar contraseña (solo admin) -->
-    <div id="changePasswordModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="closeChangePassBtn">&times;</span>
-            <h2>Cambiar contraseña (Administrador)</h2>
-            <form id="changePasswordForm">
-                <label>Usuario actual:</label>
-                <div id="currentAdminUserDisplay" style="margin-bottom:8px;color:#333;font-weight:600"></div>
-                <label>Nuevo usuario (opcional):</label>
-                <input type="text" id="newAdminUser" placeholder="Dejar vacío para no cambiar">
-                <label>Contraseña actual:</label>
-                <input type="password" id="currentAdminPass" required>
-                <label>Nueva contraseña (opcional):</label>
-                <input type="password" id="newAdminPass" placeholder="Dejar vacío para no cambiar">
-                <label>Confirmar nueva contraseña:</label>
-                <input type="password" id="confirmNewAdminPass" placeholder="Dejar vacío si no cambia">
-                <div style="margin-top:10px;display:flex;gap:8px;">
-                    <button type="submit">Actualizar</button>
-                    <button type="button" id="cancelChangePassBtn">Cancelar</button>
+</div>
+<!-- Modal para administración individual de credenciales / contraseñas -->
+<div id="changePasswordModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 520px;">
+        <span class="close-modal" id="closeChangePassBtn">&times;</span>
+        <h2 id="credsModalTitle" style="margin-bottom: 12px;">Administración de Credenciales</h2>
+
+        <!-- Mini Tabs (Solo visibles en modo Administrador) -->
+        <div id="adminModalTabs" class="modal-tabs" style="display: none;">
+            <button type="button" class="modal-tab-btn active" id="tabAdminSelfBtn">
+                🔑 Mi Contraseña
+            </button>
+            <button type="button" class="modal-tab-btn" id="tabAdminUsersBtn">
+                👥 Configurar Usuarios
+            </button>
+        </div>
+
+        <form id="changePasswordForm">
+            <!-- PESTAÑA ADMIN 1: Cambio de contraseña del propio administrador -->
+            <div id="adminSelfCredsContainer" style="display: none;">
+                <p style="font-size: 0.88em; color: #64748b; margin-top: 0; margin-bottom: 14px;">
+                    Actualiza la clave de acceso de la cuenta de Administrador institucional.
+                </p>
+                <label for="adminSelfCurrentPass">Contraseña Actual:</label>
+                <input type="password" id="adminSelfCurrentPass" placeholder="Ingrese la contraseña actual del admin" style="margin-bottom: 12px;">
+
+                <label for="adminSelfNewPass">Nueva Contraseña:</label>
+                <input type="password" id="adminSelfNewPass" placeholder="Mínimo 3 caracteres" style="margin-bottom: 12px;">
+
+                <label for="adminSelfConfirmPass">Confirmar Nueva Contraseña:</label>
+                <input type="password" id="adminSelfConfirmPass" placeholder="Confirme la nueva contraseña" style="margin-bottom: 12px;">
+            </div>
+
+            <!-- PESTAÑA ADMIN 2: Gestión y configuración de otros usuarios -->
+            <div id="adminCredsContainer" style="display: none;">
+                <label for="adminUserSelect">Seleccionar Usuario a configurar:</label>
+                <select id="adminUserSelect"
+                    style="width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px;">
+                    <option value="">Cargando lista de usuarios...</option>
+                </select>
+
+                <label for="adminTargetName">Nombre del Usuario:</label>
+                <input type="text" id="adminTargetName" placeholder="Nombre y Apellido" style="margin-bottom: 12px;">
+
+                <label for="adminTargetEmail">Correo Electrónico / Identificador:</label>
+                <input type="text" id="adminTargetEmail" placeholder="usuario@correo.com" style="margin-bottom: 12px;">
+
+                <label for="adminTargetNewPass">Nueva Contraseña (opcional):</label>
+                <input type="password" id="adminTargetNewPass"
+                    placeholder="Dejar en blanco para mantener la contraseña actual" style="margin-bottom: 12px;">
+
+                <label for="adminTargetConfirmPass">Confirmar Nueva Contraseña:</label>
+                <input type="password" id="adminTargetConfirmPass" placeholder="Confirmar nueva contraseña"
+                    style="margin-bottom: 12px;">
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                    <input type="checkbox" id="adminTargetIutepalista" style="width: 18px; height: 18px;">
+                    <label for="adminTargetIutepalista" style="margin: 0; font-weight: 600; cursor: pointer;">Estudiante
+                        IUTEPALISTA (Acceso a Resúmenes)</label>
                 </div>
-            </form>
-        </div>
-    </div>
-    <!-- Modal de Lineas de Investigacion -->
-    <div id="lineasModal" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width: 90%; max-height: 90%; width: 800px; height: 90vh;">
-            <span class="close-modal" id="closeLineasModalBtn">&times;</span>
-            <h2>Líneas de Investigación</h2>
-            <iframe id="lineasPdfViewer" style="width: 100%; height: calc(100% - 50px);" frameborder="0"></iframe>
-        </div>
-    </div>
-    <footer class="main-footer fade-in fade-in-delay-2">
-        <div class="footer-content">
-            <p>&copy; 2026 IUTEPAL. Todos los derechos reservados.</p>
-            <!-- reemplazado: botón con texto -> botón icon-only -->
-            <div class="footer-about-container">
-                <button id="aboutBtn" class="action-btn" title="Acerca de" aria-label="Acerca de">
-                    <img src="STRUCTURE/IMG/about.svg" alt="" class="action-icon">
-                </button>
             </div>
-        </div>
-    </footer>
 
-    <!-- Modal Acerca de -->
-    <div id="aboutModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="closeAboutBtn">&times;</span>
-            <h2>Acerca de</h2>
-            <div style="line-height:1.45;color:#333;margin-top:8px;">
-                <p>&copy; 2026 IUTEPAL. Todos los derechos reservados.</p>
-                <p style="margin-top:8px;">Sistema para visualizar, administrar y reportar trabajos de grado, presentaciones y hojas de resumen. Permite filtrar por carrera y año, registrar acciones de visualización/descarga y generar reportes por usuario.</p>
-                <p style="margin-top:10px;font-weight:700;">Creadores: Elias Curiel y Neomar Vasquez</p>
+            <!-- Sección para Estudiante / Visitante no administrador: Cambio de su propia contraseña (Mantener igual) -->
+            <div id="userCredsContainer" style="display: none;">
+                <label for="userCurrentPass">Contraseña Actual:</label>
+                <input type="password" id="userCurrentPass" placeholder="Ingrese su contraseña actual"
+                    style="margin-bottom: 12px;">
+
+                <label for="userNewPass">Nueva Contraseña:</label>
+                <input type="password" id="userNewPass" placeholder="Mínimo 3 caracteres" style="margin-bottom: 12px;">
+
+                <label for="userConfirmPass">Confirmar Nueva Contraseña:</label>
+                <input type="password" id="userConfirmPass" placeholder="Repita la nueva contraseña"
+                    style="margin-bottom: 12px;">
             </div>
+
+            <div class="form-buttons" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="submit" id="saveCredsBtn" class="btn-primary" style="flex: 1;">Guardar Cambios</button>
+                <button type="button" id="deleteUserBtn" class="btn-danger" style="display: none;" title="Eliminar este usuario permanentemente de la base de datos">🗑️ Eliminar Usuario</button>
+                <button type="button" id="cancelChangePassBtn" class="btn-secondary" style="flex: 1;">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Mini Modal de Confirmación para Eliminar Documento -->
+<div id="deleteDocModal" class="modal" style="display:none;">
+    <div class="modal-content mini-modal-content">
+        <span class="close-modal" id="closeDeleteDocBtn">&times;</span>
+        <div class="mini-modal-icon danger-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+        <h2 class="mini-modal-title">¿Eliminar este documento?</h2>
+        <p class="mini-modal-desc">
+            Esta acción no se puede deshacer y eliminará permanentemente el archivo del repositorio institucional.
+        </p>
+        <div class="mini-modal-target-card">
+            <span class="mini-modal-target-label">Documento a eliminar</span>
+            <div id="deleteDocTitle" class="mini-modal-target-title"></div>
+            <div id="deleteDocMeta" class="mini-modal-target-meta"></div>
+        </div>
+        <div class="mini-modal-actions">
+            <button type="button" id="confirmDeleteDocBtn" class="btn-danger mini-modal-btn">
+                🗑️ Sí, eliminar
+            </button>
+            <button type="button" id="cancelDeleteDocBtn" class="btn-secondary mini-modal-btn">
+                Cancelar
+            </button>
         </div>
     </div>
+</div>
 
-    <script src="STRUCTURE/SCRIPTS/custom-alert.js"></script>
-    <script src="STRUCTURE/SCRIPTS/menu.js"></script>
+<!-- Mini Modal de Confirmación para Eliminar Usuario -->
+<div id="deleteUserModal" class="modal" style="display:none;">
+    <div class="modal-content mini-modal-content">
+        <span class="close-modal" id="closeDeleteUserBtn">&times;</span>
+        <div class="mini-modal-icon danger-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="18" y1="8" x2="23" y2="13"></line>
+                <line x1="23" y1="8" x2="18" y2="13"></line>
+            </svg>
+        </div>
+        <h2 class="mini-modal-title">¿Eliminar este usuario?</h2>
+        <p class="mini-modal-desc">
+            Se eliminará permanentemente la cuenta de la base de datos junto con su historial de accesos y descargas.
+        </p>
+        <div class="mini-modal-target-card">
+            <span class="mini-modal-target-label">Usuario seleccionado</span>
+            <div id="deleteUserTargetName" class="mini-modal-target-title"></div>
+            <div id="deleteUserTargetMeta" class="mini-modal-target-meta"></div>
+        </div>
+        <div class="mini-modal-actions">
+            <button type="button" id="confirmDeleteUserBtn" class="btn-danger mini-modal-btn">
+                🗑️ Sí, eliminar
+            </button>
+            <button type="button" id="cancelDeleteUserModalBtn" class="btn-secondary mini-modal-btn">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Mini Modal de Confirmación para Eliminar Carrera -->
+<div id="deleteCarreraModal" class="modal" style="display:none;">
+    <div class="modal-content mini-modal-content">
+        <span class="close-modal" id="closeDeleteCarreraBtn">&times;</span>
+        <div class="mini-modal-icon danger-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+        <h2 class="mini-modal-title">¿Eliminar esta carrera?</h2>
+        <p class="mini-modal-desc">
+            Los trabajos existentes mantendrán su información, pero la categoría ya no figurará en la lista activa.
+        </p>
+        <div class="mini-modal-target-card">
+            <span class="mini-modal-target-label">Carrera seleccionada</span>
+            <div id="deleteCarreraTargetName" class="mini-modal-target-title"></div>
+            <div id="deleteCarreraTargetMeta" class="mini-modal-target-meta"></div>
+        </div>
+        <div class="mini-modal-actions">
+            <button type="button" id="confirmDeleteCarreraBtn" class="btn-danger mini-modal-btn">
+                🗑️ Sí, eliminar
+            </button>
+            <button type="button" id="cancelDeleteCarreraModalBtn" class="btn-secondary mini-modal-btn">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Modal de Lineas de Investigacion -->
+<div id="lineasModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 90%; max-height: 90%; width: 800px; height: 90vh;">
+        <span class="close-modal" id="closeLineasModalBtn">&times;</span>
+        <h2>Líneas de Investigación</h2>
+        <iframe id="lineasPdfViewer" style="width: 100%; height: calc(100% - 50px);" frameborder="0"></iframe>
+    </div>
+</div>
+<footer class="main-footer fade-in fade-in-delay-2">
+    <div class="footer-content">
+        <p>&copy; 2026 IUTEPAL Puerto Cabello. Todos los derechos reservados.</p>
+        <!-- reemplazado: botón con texto -> botón icon-only -->
+        <div class="footer-about-container">
+            <button id="aboutBtn" class="action-btn" title="Acerca de" aria-label="Acerca de">
+                <img src="STRUCTURE/IMG/about.svg" alt="" class="action-icon">
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- Modal Acerca de -->
+<div id="aboutModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-modal" id="closeAboutBtn">&times;</span>
+        <h2>Acerca de</h2>
+        <div style="line-height:1.45;color:#333;margin-top:8px;">
+            <p>&copy; 2026 IUTEPAL Puerto Cabello. Todos los derechos reservados.</p>
+            <p style="margin-top:8px;">Sistema para visualizar, administrar y reportar trabajos de grado, presentaciones
+                y hojas de resumen. Permite filtrar por carrera y año, registrar acciones de visualización/descarga y
+                generar reportes por usuario.</p>
+            <p style="margin-top:10px;font-weight:700;">Creadores: Elias Curiel y Neomar Vasquez</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir o editar carrera (solo admin) -->
+<div id="addCarreraModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 490px;">
+        <span class="close-modal" id="closeAddCarreraBtn">&times;</span>
+        <h2 id="modalCarreraTitle">Añadir Nueva Carrera</h2>
+
+        <form id="addCarreraForm">
+            <input type="hidden" id="editingCarreraId" value="">
+
+            <label for="carreraSelectAction">Acción / Carrera a modificar:</label>
+            <select id="carreraSelectAction"
+                style="width: 100%; padding: 10px 12px; margin-bottom: 14px; border-radius: 8px; border: 1.5px solid #d1d5db; font-size: 14px; font-weight: 500; cursor: pointer; background-color: #fff;">
+                <option value="new">➕ Añadir nueva carrera</option>
+            </select>
+
+            <label for="carreraNombre">Nombre de la Carrera:</label>
+            <input type="text" id="carreraNombre" required placeholder="Ej: Enfermería, Mercadeo, Diseño Gráfico">
+
+            <label for="carreraCodigo">Código Identificador (opcional):</label>
+            <input type="text" id="carreraCodigo" placeholder="Ej: ENFERMERIA (se autogenera si se deja vacío)">
+
+            <label for="carreraColor">Color Distintivo:</label>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+                <input type="color" id="carreraColor" value="#00bcd4"
+                    style="width: 50px; height: 38px; padding: 2px; border: none; border-radius: 8px; cursor: pointer;">
+                <span id="carreraColorHex"
+                    style="font-weight:600; font-size:0.95em; color:var(--iutepal-blue);">#00bcd4</span>
+            </div>
+
+            <label for="carreraIcono">Icono de la Carrera (Imagen PNG, SVG, JPG):</label>
+            <input type="file" id="carreraIcono" accept="image/*">
+            <small id="carreraIconoHelp" style="display:block; margin-top:4px; font-size:0.82em; color:#666;">Selecciona
+                una imagen representativa para la carrera.</small>
+
+            <div id="carreraIconoPreviewContainer" style="display:none; align-items:center; gap:12px; margin-top:10px;">
+                <span id="carreraIconoPreviewLabel" style="font-size:0.85em; color:#555; font-weight:600;">Vista
+                    previa:</span>
+                <img id="carreraIconoPreview" src="" alt="Icono"
+                    style="width:50px; height:50px; object-fit:contain; border-radius:50%; border:2px solid #ccc; background:#fff; padding:3px;">
+            </div>
+
+            <p id="carreraStatus" style="font-size: 0.85em; color: #666; margin-top: 10px;"></p>
+
+            <div class="form-buttons" style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="submit" id="saveCarreraBtn" class="btn-primary" style="flex: 1;">Guardar Carrera</button>
+                <button type="button" id="deleteCarreraBtn" class="btn-danger"
+                    style="display:none; background-color:#ef4444; color:#fff; border:none; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer;"
+                    title="Eliminar esta carrera">🗑️ Eliminar</button>
+                <button type="button" id="cancelAddCarreraBtn" class="btn-secondary" style="flex: 1;">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="STRUCTURE/SCRIPTS/custom-alert.js?v=3"></script>
+<script src="STRUCTURE/SCRIPTS/menu.js?v=3"></script>
+
 </html>

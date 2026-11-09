@@ -56,7 +56,7 @@ if (loginForm) {
                 const data = await response.json();
                 
                 if (!data.success) {
-                    alert('Usuario no encontrado o contraseña incorrecta.');
+                    alert(data.message || 'Usuario no encontrado o contraseña incorrecta.');
                     return;
                 }
                 const found = data.user;

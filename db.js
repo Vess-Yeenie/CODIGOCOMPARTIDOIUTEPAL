@@ -51,9 +51,11 @@ if (dbClient === 'sqlite') {
     CREATE TABLE IF NOT EXISTS usuario (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre VARCHAR(100) NOT NULL,
+      apellido VARCHAR(100) DEFAULT '',
       email VARCHAR(100) NOT NULL UNIQUE,
       password VARCHAR(255) NOT NULL,
-      esIutepalista INTEGER DEFAULT 0
+      esIutepalista INTEGER DEFAULT 0,
+      activo INTEGER DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS trabajos (
@@ -83,6 +85,30 @@ if (dbClient === 'sqlite') {
       color VARCHAR(20) DEFAULT '#00bcd4'
     );
   `);
+
+  /**
+   * Migración automática: asegurar columnas `activo` y `apellido` en tabla `usuario`
+   */
+  try {
+    const userCols = sqlite.prepare("PRAGMA table_info(usuario)").all();
+    const hasActivo = userCols.some(col => col.name === 'activo');
+    if (!hasActivo) {
+      sqlite.exec("ALTER TABLE usuario ADD COLUMN activo INTEGER DEFAULT 1;");
+      sqlite.exec("UPDATE usuario SET activo = 1 WHERE activo IS NULL;");
+      console.log("[Database] Columna 'activo' añadida exitosamente a la tabla 'usuario' (SQLite).");
+    }
+    const hasApellido = userCols.some(col => col.name === 'apellido');
+    if (!hasApellido) {
+      sqlite.exec("ALTER TABLE usuario ADD COLUMN apellido VARCHAR(100) DEFAULT '';");
+      sqlite.exec("UPDATE usuario SET apellido = '' WHERE apellido IS NULL;");
+      console.log("[Database] Columna 'apellido' añadida exitosamente a la tabla 'usuario' (SQLite).");
+    }
+    // Completar apellidos conocidos si quedaron vacíos en registros previos
+    sqlite.exec("UPDATE usuario SET apellido = 'Curiel' WHERE LOWER(email) = 'eliascuriel06@gmail.com' AND (apellido IS NULL OR apellido = '');");
+    sqlite.exec("UPDATE usuario SET apellido = 'Vasquez' WHERE LOWER(email) = 'neomarvas@gmail.com' AND (apellido IS NULL OR apellido = '');");
+  } catch (migErr) {
+    console.warn("[Database] Aviso al verificar columnas en SQLite:", migErr.message);
+  }
 
   /**
    * Sembrar usuario administrador institucional predeterminado (id: 0, email: 'admin', pass: '123')
@@ -254,6 +280,26 @@ if (dbClient === 'sqlite') {
   };
   const targetHost = typeof poolConfig === 'string' ? 'URI' : `${poolConfig.host}:${poolConfig.port}`;
   console.log(`[Database] Pool de conexión inicializado para MySQL (${targetHost})`);
+
+  // Asegurar columnas 'activo' y 'apellido' en tabla 'usuario' para MySQL
+  (async () => {
+    try {
+      const [cols] = await pool.query("SHOW COLUMNS FROM `usuario` LIKE 'activo'");
+      if (!cols || cols.length === 0) {
+        await pool.query("ALTER TABLE `usuario` ADD COLUMN `activo` TINYINT(1) DEFAULT 1");
+        await pool.query("UPDATE `usuario` SET `activo` = 1 WHERE `activo` IS NULL");
+        console.log("[Database] Columna 'activo' añadida exitosamente a la tabla 'usuario' (MySQL).");
+      }
+      const [colsAp] = await pool.query("SHOW COLUMNS FROM `usuario` LIKE 'apellido'");
+      if (!colsAp || colsAp.length === 0) {
+        await pool.query("ALTER TABLE `usuario` ADD COLUMN `apellido` VARCHAR(100) DEFAULT ''");
+        await pool.query("UPDATE `usuario` SET `apellido` = '' WHERE `apellido` IS NULL");
+        console.log("[Database] Columna 'apellido' añadida exitosamente a la tabla 'usuario' (MySQL).");
+      }
+    } catch (_) {
+      // Silencioso si la tabla aún no existe o hay desconexión inicial
+    }
+  })();
 }
 
 module.exports = dbInstance;

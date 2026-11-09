@@ -95,16 +95,18 @@ async function exportToMySQL() {
   sql += `CREATE TABLE \`usuario\` (\n`;
   sql += `  \`id\` int(11) NOT NULL AUTO_INCREMENT,\n`;
   sql += `  \`nombre\` varchar(100) NOT NULL,\n`;
+  sql += `  \`apellido\` varchar(100) DEFAULT '',\n`;
   sql += `  \`email\` varchar(100) NOT NULL UNIQUE,\n`;
   sql += `  \`password\` varchar(255) NOT NULL,\n`;
   sql += `  \`esIutepalista\` tinyint(1) DEFAULT 0,\n`;
+  sql += `  \`activo\` tinyint(1) DEFAULT 1,\n`;
   sql += `  PRIMARY KEY (\`id\`)\n`;
   sql += `) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n`;
 
   if (usuarios.length > 0) {
-    sql += `INSERT INTO \`usuario\` (\`id\`, \`nombre\`, \`email\`, \`password\`, \`esIutepalista\`) VALUES\n`;
+    sql += `INSERT INTO \`usuario\` (\`id\`, \`nombre\`, \`apellido\`, \`email\`, \`password\`, \`esIutepalista\`, \`activo\`) VALUES\n`;
     const userLines = usuarios.map(u => 
-      `  (${u.id}, ${escapeSqlString(u.nombre)}, ${escapeSqlString(u.email)}, ${escapeSqlString(u.password)}, ${u.esIutepalista ? 1 : 0})`
+      `  (${u.id}, ${escapeSqlString(u.nombre)}, ${escapeSqlString(u.apellido || '')}, ${escapeSqlString(u.email)}, ${escapeSqlString(u.password)}, ${u.esIutepalista ? 1 : 0}, ${u.activo !== undefined && u.activo !== null ? (Number(u.activo) === 0 ? 0 : 1) : 1})`
     );
     sql += userLines.join(',\n') + ';\n\n';
   }

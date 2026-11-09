@@ -154,10 +154,10 @@ async function verifyDocumentAccess(req, res, next) {
       return next();
     }
 
-    // Verificar existencia del usuario en la base de datos
-    const [rows] = await db.execute('SELECT id, nombre, email, esIutepalista FROM usuario WHERE id = ?', [userId]);
-    if (!rows || rows.length === 0) {
-      return res.status(403).send('Acceso denegado: Usuario no registrado o sesión inválida.');
+    // Verificar existencia y estado activo del usuario en la base de datos
+    const [rows] = await db.execute('SELECT id, nombre, email, esIutepalista, activo FROM usuario WHERE id = ?', [userId]);
+    if (!rows || rows.length === 0 || Number(rows[0].activo) === 0) {
+      return res.status(403).send('Acceso denegado: Usuario no registrado, cuenta deshabilitada o sesión inválida.');
     }
 
     req.authenticatedUser = rows[0];
@@ -887,14 +887,16 @@ app.get('/view/:id', verifyDocumentAccess, async (req, res) => {
 
 /**
  * @name GET /usuarios
- * @description Obtiene el listado de todos los usuarios registrados para administración individual.
+ * @description Obtiene el listado de todos los usuarios activos registrados para administración individual.
  * 
  * @param {express.Request} req - Petición HTTP.
- * @param {express.Response} res - Array JSON de usuarios con { id, nombre, email, esIutepalista }.
+ * @param {express.Response} res - Array JSON de usuarios activos con { id, nombre, email, esIutepalista, activo }.
  */
 app.get('/usuarios', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT id, nombre, email, esIutepalista FROM usuario ORDER BY id ASC');
+    const [rows] = await db.execute(
+      'SELECT id, nombre, apellido, email, esIutepalista, activo FROM usuario WHERE (activo = 1 OR activo IS NULL) ORDER BY id ASC'
+    );
     res.json(rows);
   } catch (error) {
     console.error("Error al obtener usuarios:", error);
@@ -904,15 +906,15 @@ app.get('/usuarios', async (req, res) => {
 
 /**
  * @name POST /admin/update-user
- * @description Actualiza individualmente el nombre, correo o contraseña de un usuario específico.
+ * @description Actualiza individualmente el nombre, apellido, correo o contraseña de un usuario específico.
  * Permite al Administrador gestionar las credenciales de cada usuario por separado en vez de un cambio global.
  * 
- * @param {express.Request} req - Body con { targetUserId, nombre, email, newPassword, esIutepalista }.
+ * @param {express.Request} req - Body con { targetUserId, nombre, apellido, email, newPassword, esIutepalista }.
  * @param {express.Response} res - JSON { success: boolean, message: string }.
  */
 app.post('/admin/update-user', async (req, res) => {
   try {
-    const { targetUserId, nombre, email, newPassword, esIutepalista } = req.body;
+    const { targetUserId, nombre, apellido, email, newPassword, esIutepalista } = req.body;
 
     if (targetUserId === undefined || targetUserId === null || String(targetUserId).trim() === '') {
       return res.status(400).json({ success: false, message: 'Debe seleccionar un usuario para modificar.' });
@@ -936,8 +938,30 @@ app.post('/admin/update-user', async (req, res) => {
     const params = [];
 
     if (nombre && nombre.trim() !== '') {
-      updates.push("nombre = ?");
-      params.push(nombre.trim());
+      const cleanFull = nombre.trim().replace(/\s+/g, ' ');
+      if (apellido !== undefined && apellido !== null) {
+        updates.push("nombre = ?");
+        params.push(cleanFull);
+        updates.push("apellido = ?");
+        params.push(String(apellido).trim());
+      } else {
+        // Si se envió "Nombre Apellido" en un solo campo, separar primer nombre y apellido
+        const parts = cleanFull.split(' ');
+        if (parts.length > 1) {
+          updates.push("nombre = ?");
+          params.push(parts[0]);
+          updates.push("apellido = ?");
+          params.push(parts.slice(1).join(' '));
+        } else {
+          updates.push("nombre = ?");
+          params.push(cleanFull);
+          updates.push("apellido = ?");
+          params.push('');
+        }
+      }
+    } else if (apellido !== undefined && apellido !== null) {
+      updates.push("apellido = ?");
+      params.push(String(apellido).trim());
     }
 
     if (email && email.trim() !== '') {
@@ -975,7 +999,9 @@ app.post('/admin/update-user', async (req, res) => {
 
 /**
  * @name DELETE /admin/delete-user/:id
- * @description Elimina permanentemente un usuario de la base de datos y sus registros asociados en logs.
+ * @description Deshabilita (borrado lógico / soft-delete) un usuario en la base de datos:
+ * conserva el registro del usuario y todas sus acciones en `logs` para auditoría y reportes,
+ * pero impide que vuelva a iniciar sesión hasta que vuelva a crear/registrar su cuenta.
  * Restringido: Protege al Administrador institucional principal (id 0 o email 'admin') contra eliminación.
  * 
  * @param {express.Request} req - Parámetro :id con el identificador del usuario.
@@ -994,7 +1020,7 @@ app.delete('/admin/delete-user/:id', async (req, res) => {
       return res.status(403).json({ success: false, message: 'La cuenta del Administrador principal no puede ser eliminada.' });
     }
 
-    const [rows] = await db.execute('SELECT id, nombre, email FROM usuario WHERE id = ?', [id]);
+    const [rows] = await db.execute('SELECT id, nombre, email, activo FROM usuario WHERE id = ?', [id]);
     if (!rows || rows.length === 0) {
       return res.status(404).json({ success: false, message: 'El usuario seleccionado no existe en la base de datos.' });
     }
@@ -1004,20 +1030,13 @@ app.delete('/admin/delete-user/:id', async (req, res) => {
       return res.status(403).json({ success: false, message: 'No se puede eliminar la cuenta de administrador institucional.' });
     }
 
-    // 1. Limpieza de logs asociados
-    try {
-      await db.execute('DELETE FROM logs WHERE usuario_id = ?', [id]);
-    } catch (logErr) {
-      console.warn('[Admin] Advertencia al eliminar logs vinculados al usuario:', logErr.message);
-    }
-
-    // 2. Eliminación de la cuenta de usuario
-    await db.execute('DELETE FROM usuario WHERE id = ?', [id]);
-    console.log(`[Admin] Usuario eliminado exitosamente: ID ${id} (${targetUser.nombre} - ${targetUser.email})`);
+    // Borrado lógico (soft-delete): conservar registro en BD y sus acciones en `logs`, pero desactivar acceso
+    await db.execute('UPDATE usuario SET activo = 0 WHERE id = ?', [id]);
+    console.log(`[Admin] Usuario deshabilitado (soft-delete con historial preservado): ID ${id} (${targetUser.nombre} - ${targetUser.email})`);
 
     res.json({
       success: true,
-      message: `El usuario "${targetUser.nombre}" (${targetUser.email}) fue eliminado exitosamente de la base de datos.`
+      message: `La cuenta de "${targetUser.nombre}" (${targetUser.email}) fue eliminada del acceso activo. Se conservó el historial de sus acciones en el sistema y no podrá iniciar sesión hasta volver a crear su cuenta.`
     });
   } catch (error) {
     console.error('Error al eliminar usuario por admin:', error);
@@ -1027,7 +1046,7 @@ app.delete('/admin/delete-user/:id', async (req, res) => {
 
 /**
  * @name POST /admin/delete-user
- * @description Endpoint alternativo vía POST para eliminar usuarios de la base de datos.
+ * @description Endpoint alternativo vía POST para deshabilitar (soft-delete) usuarios preservando sus acciones en BD.
  */
 app.post('/admin/delete-user', async (req, res) => {
   try {
@@ -1041,7 +1060,7 @@ app.post('/admin/delete-user', async (req, res) => {
       return res.status(403).json({ success: false, message: 'La cuenta del Administrador principal no puede ser eliminada.' });
     }
 
-    const [rows] = await db.execute('SELECT id, nombre, email FROM usuario WHERE id = ?', [targetUserId]);
+    const [rows] = await db.execute('SELECT id, nombre, email, activo FROM usuario WHERE id = ?', [targetUserId]);
     if (!rows || rows.length === 0) {
       return res.status(404).json({ success: false, message: 'El usuario seleccionado no existe en la base de datos.' });
     }
@@ -1051,18 +1070,13 @@ app.post('/admin/delete-user', async (req, res) => {
       return res.status(403).json({ success: false, message: 'No se puede eliminar la cuenta de administrador institucional.' });
     }
 
-    try {
-      await db.execute('DELETE FROM logs WHERE usuario_id = ?', [targetUserId]);
-    } catch (logErr) {
-      console.warn('[Admin] Advertencia al eliminar logs vinculados al usuario:', logErr.message);
-    }
-
-    await db.execute('DELETE FROM usuario WHERE id = ?', [targetUserId]);
-    console.log(`[Admin] Usuario eliminado exitosamente vía POST: ID ${targetUserId} (${targetUser.nombre} - ${targetUser.email})`);
+    // Borrado lógico (soft-delete): conservar registro en BD y sus acciones en `logs`, pero desactivar acceso
+    await db.execute('UPDATE usuario SET activo = 0 WHERE id = ?', [targetUserId]);
+    console.log(`[Admin] Usuario deshabilitado vía POST (soft-delete con historial preservado): ID ${targetUserId} (${targetUser.nombre} - ${targetUser.email})`);
 
     res.json({
       success: true,
-      message: `El usuario "${targetUser.nombre}" (${targetUser.email}) fue eliminado exitosamente de la base de datos.`
+      message: `La cuenta de "${targetUser.nombre}" (${targetUser.email}) fue eliminada del acceso activo. Se conservó el historial de sus acciones en el sistema y no podrá iniciar sesión hasta volver a crear su cuenta.`
     });
   } catch (error) {
     console.error('Error al eliminar usuario por admin vía POST:', error);
@@ -1128,16 +1142,45 @@ app.delete('/deleteTrabajo/:id', async (req, res) => {
 /**
  * @name POST /register
  * @description Registra una nueva cuenta de usuario en el sistema.
+ * Si el correo pertenecía a una cuenta eliminada lógicamente (`activo = 0`),
+ * reactiva dicho registro con las nuevas credenciales manteniendo intacto su historial en `logs`.
  * 
  * @param {express.Request} req - Body con { nombre, email, password, esIutepalista }.
  * @param {express.Response} res - Respuesta JSON { success: true, message: string }.
  */
 app.post('/register', async (req, res) => {
   try {
-    const { nombre, email, password, esIutepalista } = req.body;
+    const { nombre, apellido, email, password, esIutepalista } = req.body;
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanNombre = (nombre || '').trim();
+    const cleanApellido = (apellido || '').trim();
+
+    if (!cleanNombre || !cleanEmail || !password) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    // Verificar si ya existe un registro con ese correo electrónico
+    const [existing] = await db.execute(
+      'SELECT id, activo FROM usuario WHERE LOWER(email) = ?',
+      [cleanEmail]
+    );
+
+    if (existing && existing.length > 0) {
+      const existingUser = existing[0];
+      // Si la cuenta estaba eliminada/inactiva (activo = 0), permitir volver a crearla reactivando el registro
+      if (Number(existingUser.activo) === 0) {
+        await db.execute(
+          'UPDATE usuario SET nombre = ?, apellido = ?, email = ?, password = ?, esIutepalista = ?, activo = 1 WHERE id = ?',
+          [cleanNombre, cleanApellido, cleanEmail, password, esIutepalista ? 1 : 0, existingUser.id]
+        );
+        return res.json({ success: true, message: 'Cuenta creada y reactivada con éxito' });
+      }
+      return res.status(400).json({ error: 'Este correo electrónico ya se encuentra registrado en el sistema' });
+    }
+
     await db.execute(
-      'INSERT INTO usuario (nombre, email, password, esIutepalista) VALUES (?, ?, ?, ?)',
-      [nombre, email, password, esIutepalista ? 1 : 0]
+      'INSERT INTO usuario (nombre, apellido, email, password, esIutepalista, activo) VALUES (?, ?, ?, ?, ?, 1)',
+      [cleanNombre, cleanApellido, cleanEmail, password, esIutepalista ? 1 : 0]
     );
     res.json({ success: true, message: 'Usuario registrado con éxito' });
   } catch (error) {
@@ -1163,8 +1206,8 @@ app.post('/login-admin', async (req, res) => {
     // 1. Verificar credenciales en la base de datos (por usuario, email o id = 0 si es admin)
     const isAdminLookup = cleanUsername.toLowerCase() === 'admin';
     const sql = isAdminLookup
-      ? 'SELECT * FROM usuario WHERE (email = ? OR nombre = ? OR id = 0) AND password = ?'
-      : 'SELECT * FROM usuario WHERE (email = ? OR nombre = ?) AND password = ?';
+      ? 'SELECT * FROM usuario WHERE (email = ? OR nombre = ? OR id = 0) AND password = ? AND (activo = 1 OR activo IS NULL OR id = 0)'
+      : 'SELECT * FROM usuario WHERE (email = ? OR nombre = ?) AND password = ? AND (activo = 1 OR activo IS NULL)';
     const params = [cleanUsername, cleanUsername, cleanPassword];
 
     const [rows] = await db.execute(sql, params);
@@ -1188,6 +1231,7 @@ app.post('/login-admin', async (req, res) => {
 /**
  * @name POST /login-guest
  * @description Autentica a estudiantes y visitantes mediante su correo electrónico institucional o personal.
+ * Rechaza el inicio de sesión si la cuenta fue eliminada (`activo = 0`) hasta que vuelva a registrarse.
  * 
  * @param {express.Request} req - Body con { email, password }.
  * @param {express.Response} res - { success: boolean, user?: Object }.
@@ -1195,16 +1239,29 @@ app.post('/login-admin', async (req, res) => {
 app.post('/login-guest', async (req, res) => {
   try {
     const { email, password } = req.body;
+    const cleanEmail = (email || '').trim().toLowerCase();
     const [rows] = await db.execute(
-      'SELECT id, nombre, email, password, esIutepalista FROM usuario WHERE email = ? AND password = ?',
-      [email, password]
+      'SELECT id, nombre, apellido, email, password, esIutepalista, activo FROM usuario WHERE LOWER(email) = ?',
+      [cleanEmail]
     );
 
-    if (rows.length > 0) {
-      res.json({ success: true, user: rows[0] });
-    } else {
-      res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+    if (!rows || rows.length === 0) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado o contraseña incorrecta.' });
     }
+
+    const user = rows[0];
+    if (Number(user.activo) === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Esta cuenta fue eliminada del sistema. No puede iniciar sesión hasta volver a crear la cuenta en la página de registro.'
+      });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado o contraseña incorrecta.' });
+    }
+
+    res.json({ success: true, user });
   } catch (error) {
     console.error("Error en login-guest:", error);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -1248,13 +1305,18 @@ app.post('/change-password', async (req, res) => {
       return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 3 caracteres' });
     }
 
-    // Buscar usuario por id numérico, texto o fallback de administrador principal
+    // Buscar usuario por id numérico o fallback de administrador principal
+    const uidNum = String(usuario_id).trim().toLowerCase() === 'admin' ? 0 : Number(usuario_id);
     const [user] = await db.execute(
-      'SELECT id, password FROM usuario WHERE id = ? OR (id = 0 AND ? = "0")', 
-      [usuario_id, String(usuario_id)]
+      'SELECT id, password, activo FROM usuario WHERE id = ?', 
+      [Number.isNaN(uidNum) ? usuario_id : uidNum]
     );
 
-    if (!user || user.length === 0 || user[0].password !== currentPassword) {
+    if (!user || user.length === 0 || Number(user[0].activo) === 0) {
+      return res.status(403).json({ success: false, message: 'Cuenta no disponible o eliminada.' });
+    }
+
+    if (user[0].password !== currentPassword) {
       return res.status(401).json({ success: false, message: 'La contraseña actual es incorrecta' });
     }
 
@@ -1286,7 +1348,7 @@ app.get('/report', async (req, res) => {
       : `WHERE (l.usuario_id != 0 AND l.usuario_id != '0') AND (u.nombre IS NULL OR LOWER(u.nombre) NOT LIKE '%admin%') AND (u.email IS NULL OR LOWER(u.email) NOT LIKE '%admin%')`;
 
     const [rows] = await db.execute(`
-      SELECT l.usuario_id, u.nombre, u.email, u.esIutepalista, l.fecha, l.action, l.doc_id, t.id as trabajo_id, t.nombre as doc_name
+      SELECT l.usuario_id, u.nombre, u.apellido, u.email, u.esIutepalista, l.fecha, l.action, l.doc_id, t.id as trabajo_id, t.nombre as doc_name
       FROM logs l 
       LEFT JOIN usuario u ON l.usuario_id = u.id
       LEFT JOIN trabajos t ON l.doc_id = t.id

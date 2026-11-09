@@ -203,7 +203,7 @@
 </div>
 <!-- Modal para administración individual de credenciales / contraseñas -->
 <div id="changePasswordModal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width: 520px;">
+    <div class="modal-content" id="changePasswordModalContent" style="max-width: 640px;">
         <span class="close-modal" id="closeChangePassBtn">&times;</span>
         <h2 id="credsModalTitle" style="margin-bottom: 12px;">Administración de Credenciales</h2>
 
@@ -233,32 +233,55 @@
                 <input type="password" id="adminSelfConfirmPass" placeholder="Confirme la nueva contraseña" style="margin-bottom: 12px;">
             </div>
 
-            <!-- PESTAÑA ADMIN 2: Gestión y configuración de otros usuarios -->
+            <!-- PESTAÑA ADMIN 2: Gestión y configuración de otros usuarios (Vista Grid) -->
             <div id="adminCredsContainer" style="display: none;">
-                <label for="adminUserSelect">Seleccionar Usuario a configurar:</label>
-                <select id="adminUserSelect"
-                    style="width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px;">
-                    <option value="">Cargando lista de usuarios...</option>
-                </select>
+                <div class="admin-users-grid-header">
+                    <div class="admin-users-grid-title-row">
+                        <label style="margin: 0;">Seleccionar Usuario Registrado:</label>
+                        <span id="adminUsersCountBadge" class="users-grid-count-badge">0 usuarios</span>
+                    </div>
+                    <input type="text" id="adminUserSearchInput" class="admin-user-search-input"
+                        placeholder="🔍 Filtrar usuario por nombre o correo..." autocomplete="off">
+                </div>
 
-                <label for="adminTargetName">Nombre del Usuario:</label>
-                <input type="text" id="adminTargetName" placeholder="Nombre y Apellido" style="margin-bottom: 12px;">
+                <!-- Vista de Grid para seleccionar usuarios registrados -->
+                <div id="adminUsersGrid" class="admin-users-grid" role="listbox" aria-label="Usuarios registrados">
+                    <div class="users-grid-empty">Cargando lista de usuarios...</div>
+                </div>
+                <!-- Controles de paginación para el Grid de usuarios -->
+                <div id="adminUsersPagination" class="admin-users-pagination"></div>
+                <input type="hidden" id="adminUserSelect" value="">
 
-                <label for="adminTargetEmail">Correo Electrónico / Identificador:</label>
-                <input type="text" id="adminTargetEmail" placeholder="usuario@correo.com" style="margin-bottom: 12px;">
+                <div id="adminSelectedUserBanner" class="admin-selected-user-banner">
+                    👆 Haz clic sobre un usuario en la cuadrícula (grid) superior para editar sus datos o eliminarlo.
+                </div>
 
-                <label for="adminTargetNewPass">Nueva Contraseña (opcional):</label>
-                <input type="password" id="adminTargetNewPass"
-                    placeholder="Dejar en blanco para mantener la contraseña actual" style="margin-bottom: 12px;">
+                <div id="adminUserEditFieldsWrapper" style="display: none;">
+                    <div class="admin-user-form-grid">
+                        <div>
+                            <label for="adminTargetName">Nombre del Usuario:</label>
+                            <input type="text" id="adminTargetName" placeholder="Nombre y Apellido">
+                        </div>
+                        <div>
+                            <label for="adminTargetEmail">Correo Electrónico:</label>
+                            <input type="text" id="adminTargetEmail" placeholder="usuario@correo.com">
+                        </div>
+                        <div>
+                            <label for="adminTargetNewPass">Nueva Contraseña (opcional):</label>
+                            <input type="password" id="adminTargetNewPass"
+                                placeholder="Dejar en blanco para mantener">
+                        </div>
+                        <div>
+                            <label for="adminTargetConfirmPass">Confirmar Contraseña:</label>
+                            <input type="password" id="adminTargetConfirmPass" placeholder="Confirmar nueva contraseña">
+                        </div>
+                    </div>
 
-                <label for="adminTargetConfirmPass">Confirmar Nueva Contraseña:</label>
-                <input type="password" id="adminTargetConfirmPass" placeholder="Confirmar nueva contraseña"
-                    style="margin-bottom: 12px;">
-
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                    <input type="checkbox" id="adminTargetIutepalista" style="width: 18px; height: 18px;">
-                    <label for="adminTargetIutepalista" style="margin: 0; font-weight: 600; cursor: pointer;">Estudiante
-                        IUTEPALISTA (Acceso a Resúmenes)</label>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 12px;">
+                        <input type="checkbox" id="adminTargetIutepalista" style="width: 18px; height: 18px;">
+                        <label for="adminTargetIutepalista" style="margin: 0; font-weight: 600; cursor: pointer;">Estudiante
+                            IUTEPALISTA (Acceso a Resúmenes)</label>
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +301,7 @@
 
             <div class="form-buttons" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
                 <button type="submit" id="saveCredsBtn" class="btn-primary" style="flex: 1;">Guardar Cambios</button>
-                <button type="button" id="deleteUserBtn" class="btn-danger" style="display: none;" title="Eliminar este usuario permanentemente de la base de datos">🗑️ Eliminar Usuario</button>
+                <button type="button" id="deleteUserBtn" class="btn-danger" style="display: none;" title="Deshabilitar acceso de este usuario conservando el registro de sus acciones en el sistema">🗑️ Eliminar Usuario</button>
                 <button type="button" id="cancelChangePassBtn" class="btn-secondary" style="flex: 1;">Cancelar</button>
             </div>
         </form>
@@ -331,7 +354,7 @@
         </div>
         <h2 class="mini-modal-title">¿Eliminar este usuario?</h2>
         <p class="mini-modal-desc">
-            Se eliminará permanentemente la cuenta de la base de datos junto con su historial de accesos y descargas.
+            El usuario no podrá volver a iniciar sesión hasta crear su cuenta nuevamente, pero se conservará el registro de todas sus acciones en el sistema.
         </p>
         <div class="mini-modal-target-card">
             <span class="mini-modal-target-label">Usuario seleccionado</span>

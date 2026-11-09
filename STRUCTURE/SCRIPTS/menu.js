@@ -685,7 +685,13 @@ async function openReportModal() {
 
         nonAdminLogs.forEach(log => {
             totalInteractions++;
-            const userName = (log.nombre && log.nombre.trim()) ? log.nombre.trim() : 'Usuario anónimo';
+            const firstName = (log.nombre && log.nombre.trim()) ? log.nombre.trim() : '';
+            const lastName = (log.apellido && log.apellido.trim()) ? log.apellido.trim() : '';
+            let userName = firstName;
+            if (lastName && !firstName.toLowerCase().endsWith(lastName.toLowerCase())) {
+                userName = `${firstName} ${lastName}`.trim();
+            }
+            if (!userName) userName = 'Usuario anónimo';
             
             if (!usersMap[userName]) {
                 const isIutepalista = log.esIutepalista === 1 || log.esIutepalista === true;
@@ -1409,8 +1415,14 @@ const adminSelfCurrentPass = document.getElementById('adminSelfCurrentPass');
 const adminSelfNewPass = document.getElementById('adminSelfNewPass');
 const adminSelfConfirmPass = document.getElementById('adminSelfConfirmPass');
 
-// Sección Pestaña 2: Gestión de otros usuarios
+// Sección Pestaña 2: Gestión de otros usuarios (Vista Grid con Paginación)
 const adminCredsContainer = document.getElementById('adminCredsContainer');
+const adminUsersGrid = document.getElementById('adminUsersGrid');
+const adminUsersPagination = document.getElementById('adminUsersPagination');
+const adminUserSearchInput = document.getElementById('adminUserSearchInput');
+const adminUsersCountBadge = document.getElementById('adminUsersCountBadge');
+const adminSelectedUserBanner = document.getElementById('adminSelectedUserBanner');
+const adminUserEditFieldsWrapper = document.getElementById('adminUserEditFieldsWrapper');
 const adminUserSelect = document.getElementById('adminUserSelect');
 const adminTargetName = document.getElementById('adminTargetName');
 const adminTargetEmail = document.getElementById('adminTargetEmail');
@@ -1419,6 +1431,9 @@ const adminTargetConfirmPass = document.getElementById('adminTargetConfirmPass')
 const adminTargetIutepalista = document.getElementById('adminTargetIutepalista');
 const deleteUserBtn = document.getElementById('deleteUserBtn');
 const saveCredsBtn = document.getElementById('saveCredsBtn');
+
+const USERS_PER_PAGE = 6; // Cantidad de tarjetas de usuario por página en el Grid
+let currentUserGridPage = 1;
 
 // Elementos del mini modal de confirmación de eliminación de usuario
 const deleteUserModal = document.getElementById('deleteUserModal');
@@ -1451,7 +1466,10 @@ function switchAdminTab(tab) {
         if (adminSelfCredsContainer) adminSelfCredsContainer.style.display = 'block';
         if (adminCredsContainer) adminCredsContainer.style.display = 'none';
         if (deleteUserBtn) deleteUserBtn.style.display = 'none';
-        if (saveCredsBtn) saveCredsBtn.textContent = 'Actualizar Contraseña Admin';
+        if (saveCredsBtn) {
+            saveCredsBtn.style.display = 'inline-flex';
+            saveCredsBtn.textContent = 'Actualizar Contraseña Admin';
+        }
         if (credsModalTitle) credsModalTitle.textContent = 'Administración - Mi Contraseña';
     } else {
         if (tabAdminUsersBtn) tabAdminUsersBtn.classList.add('active');
@@ -1480,80 +1498,327 @@ function updateDeleteUserBtnVisibility() {
     const isUserAdmin = localStorage.getItem('admin') === 'true';
     if (!isUserAdmin || currentAdminTab !== 'users') {
         deleteUserBtn.style.display = 'none';
+        if (saveCredsBtn && currentAdminTab === 'self') {
+            saveCredsBtn.style.display = 'inline-flex';
+        }
         return;
     }
 
     const selectedId = adminUserSelect ? adminUserSelect.value : '';
     if (!selectedId) {
         deleteUserBtn.style.display = 'none';
+        if (saveCredsBtn) saveCredsBtn.style.display = 'none';
         return;
     }
 
     const user = cachedUsersList.find(u => String(u.id) === String(selectedId));
     if (user && (user.id === 0 || user.email === 'admin')) {
         deleteUserBtn.style.display = 'none'; // El Administrador principal no se puede eliminar
+        if (saveCredsBtn) saveCredsBtn.style.display = 'inline-flex';
     } else if (user) {
         deleteUserBtn.style.display = 'inline-flex';
+        if (saveCredsBtn) saveCredsBtn.style.display = 'inline-flex';
     } else {
         deleteUserBtn.style.display = 'none';
+        if (saveCredsBtn) saveCredsBtn.style.display = 'none';
     }
 }
 
 /**
- * Carga la lista completa de usuarios registrados desde el backend
- * y puebla el selector individual para la configuración de otros usuarios.
+ * Obtiene el nombre completo (Nombre y Apellido) de un objeto de usuario.
+ * @param {Object} u - Objeto usuario con { nombre, apellido }.
+ * @returns {string} Nombre completo formateado.
+ */
+function getFullUserName(u) {
+    if (!u) return 'Usuario sin nombre';
+    const first = (u.nombre || '').trim();
+    const last = (u.apellido || '').trim();
+    if (last && !first.toLowerCase().endsWith(last.toLowerCase())) {
+        return `${first} ${last}`.trim();
+    }
+    return first || last || 'Usuario sin nombre';
+}
+
+/**
+ * Selecciona un usuario desde la vista de Grid y sincroniza el formulario de edición.
+ * Oculta los inputs de edición hasta que se toque un usuario en la cuadrícula.
+ * @param {string|number} userId - ID del usuario seleccionado o vacío para limpiar.
+ */
+function selectAdminUserFromGrid(userId) {
+    const selectedId = userId !== undefined && userId !== null ? String(userId) : '';
+    if (adminUserSelect) {
+        adminUserSelect.value = selectedId;
+    }
+
+    if (adminUsersGrid) {
+        adminUsersGrid.querySelectorAll('.user-grid-card').forEach(card => {
+            const isSelected = String(card.dataset.userId) === selectedId && selectedId !== '';
+            card.classList.toggle('selected', isSelected);
+            card.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        });
+    }
+
+    const user = cachedUsersList.find(u => String(u.id) === selectedId);
+    if (user) {
+        const fullName = getFullUserName(user);
+        if (adminUserEditFieldsWrapper) adminUserEditFieldsWrapper.style.display = 'block';
+        if (adminTargetName) adminTargetName.value = fullName;
+        if (adminTargetEmail) adminTargetEmail.value = user.email || '';
+        if (adminTargetNewPass) adminTargetNewPass.value = '';
+        if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
+        if (adminTargetIutepalista) adminTargetIutepalista.checked = Boolean(user.esIutepalista);
+        if (adminSelectedUserBanner) {
+            const roleLabel = user.esIutepalista ? 'IUTEPALISTA' : 'VISITANTE';
+            adminSelectedUserBanner.textContent = `✅ Usuario seleccionado: ${fullName} (${user.email}) — [${roleLabel}]`;
+            adminSelectedUserBanner.classList.add('has-selection');
+        }
+    } else {
+        if (adminUserEditFieldsWrapper) adminUserEditFieldsWrapper.style.display = 'none';
+        if (adminTargetName) adminTargetName.value = '';
+        if (adminTargetEmail) adminTargetEmail.value = '';
+        if (adminTargetNewPass) adminTargetNewPass.value = '';
+        if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
+        if (adminTargetIutepalista) adminTargetIutepalista.checked = false;
+        if (adminSelectedUserBanner) {
+            adminSelectedUserBanner.textContent = '👆 Haz clic sobre un usuario en la cuadrícula (grid) superior para editar sus datos o eliminarlo.';
+            adminSelectedUserBanner.classList.remove('has-selection');
+        }
+    }
+    updateDeleteUserBtnVisibility();
+}
+
+/**
+ * Renderiza los controles de paginación para el Grid de usuarios registrados.
+ * @param {number} totalPages - Total de páginas del grid de usuarios.
+ * @param {number} totalUsers - Total de usuarios que coinciden con el filtro.
+ */
+function renderAdminUsersPagination(totalPages, totalUsers) {
+    if (!adminUsersPagination) return;
+    adminUsersPagination.innerHTML = '';
+
+    if (totalUsers === 0) return;
+
+    const startCount = (currentUserGridPage - 1) * USERS_PER_PAGE + 1;
+    const endCount = Math.min(currentUserGridPage * USERS_PER_PAGE, totalUsers);
+
+    const info = document.createElement('div');
+    info.className = 'users-page-info';
+    info.innerHTML = `Mostrando <b>${startCount}-${endCount}</b> de <b>${totalUsers}</b> (Pág. <b>${currentUserGridPage}</b>/${totalPages})`;
+
+    const controls = document.createElement('div');
+    controls.className = 'users-page-controls';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'users-page-btn';
+    prevBtn.innerHTML = '&laquo; Ant.';
+    prevBtn.disabled = currentUserGridPage <= 1;
+    prevBtn.addEventListener('click', () => {
+        if (currentUserGridPage > 1) {
+            currentUserGridPage--;
+            renderAdminUsersGrid();
+        }
+    });
+    controls.appendChild(prevBtn);
+
+    let pagesToShow = [];
+    if (totalPages <= 5) {
+        for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+    } else {
+        pagesToShow.push(1);
+        if (currentUserGridPage > 3) pagesToShow.push('...');
+        const start = Math.max(2, currentUserGridPage - 1);
+        const end = Math.min(totalPages - 1, currentUserGridPage + 1);
+        for (let i = start; i <= end; i++) pagesToShow.push(i);
+        if (currentUserGridPage < totalPages - 2) pagesToShow.push('...');
+        pagesToShow.push(totalPages);
+    }
+
+    pagesToShow.forEach(p => {
+        if (p === '...') {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.textContent = '...';
+            controls.appendChild(span);
+        } else {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = 'users-page-btn' + (p === currentUserGridPage ? ' active' : '');
+            pageBtn.textContent = String(p);
+            pageBtn.addEventListener('click', () => {
+                if (currentUserGridPage !== p) {
+                    currentUserGridPage = p;
+                    renderAdminUsersGrid();
+                }
+            });
+            controls.appendChild(pageBtn);
+        }
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'users-page-btn';
+    nextBtn.innerHTML = 'Sig. &raquo;';
+    nextBtn.disabled = currentUserGridPage >= totalPages;
+    nextBtn.addEventListener('click', () => {
+        if (currentUserGridPage < totalPages) {
+            currentUserGridPage++;
+            renderAdminUsersGrid();
+        }
+    });
+    controls.appendChild(nextBtn);
+
+    adminUsersPagination.appendChild(info);
+    adminUsersPagination.appendChild(controls);
+}
+
+/**
+ * Renderiza la vista de Grid paginada con las tarjetas de los usuarios registrados.
+ */
+function renderAdminUsersGrid() {
+    if (!adminUsersGrid) return;
+    adminUsersGrid.innerHTML = '';
+
+    // Filtrar para mostrar estrictamente otros usuarios activos (excluyendo admin principal id:0 y email:'admin')
+    const otherUsers = cachedUsersList.filter(
+        u => u.id !== 0 && String(u.id) !== '0' && (u.email || '').toLowerCase() !== 'admin'
+    );
+
+    if (adminUsersCountBadge) {
+        adminUsersCountBadge.textContent = `${otherUsers.length} usuario${otherUsers.length === 1 ? '' : 's'}`;
+    }
+
+    const filterQuery = (adminUserSearchInput ? adminUserSearchInput.value : '').trim().toLowerCase();
+    const filteredUsers = filterQuery
+        ? otherUsers.filter(u => {
+            const fullName = getFullUserName(u).toLowerCase();
+            return fullName.includes(filterQuery) || (u.email && u.email.toLowerCase().includes(filterQuery));
+          })
+        : otherUsers;
+
+    if (otherUsers.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'users-grid-empty';
+        emptyDiv.textContent = '👥 No hay otros usuarios registrados activos en este momento.';
+        adminUsersGrid.appendChild(emptyDiv);
+        if (adminUsersPagination) adminUsersPagination.innerHTML = '';
+        return;
+    }
+
+    if (filteredUsers.length === 0) {
+        const noMatchDiv = document.createElement('div');
+        noMatchDiv.className = 'users-grid-empty';
+        noMatchDiv.textContent = '🔍 Ningún usuario coincide con el filtro ingresado.';
+        adminUsersGrid.appendChild(noMatchDiv);
+        if (adminUsersPagination) adminUsersPagination.innerHTML = '';
+        return;
+    }
+
+    // Cálculo de paginación del Grid de usuarios
+    const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE) || 1;
+    if (currentUserGridPage > totalPages) currentUserGridPage = totalPages;
+    if (currentUserGridPage < 1) currentUserGridPage = 1;
+
+    const startIndex = (currentUserGridPage - 1) * USERS_PER_PAGE;
+    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + USERS_PER_PAGE);
+
+    const currentSelectedId = adminUserSelect ? String(adminUserSelect.value) : '';
+
+    paginatedUsers.forEach(u => {
+        const card = document.createElement('div');
+        const isSelected = String(u.id) === currentSelectedId && currentSelectedId !== '';
+        card.className = 'user-grid-card' + (isSelected ? ' selected' : '');
+        card.dataset.userId = String(u.id);
+        card.setAttribute('role', 'option');
+        card.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        card.tabIndex = 0;
+
+        const initial = ((u.nombre || 'U').trim().charAt(0) || 'U').toUpperCase();
+        const isIut = Boolean(u.esIutepalista);
+        const roleClass = isIut ? 'iutepalista' : 'visitante';
+        const roleLabel = isIut ? 'IUTEPALISTA' : 'VISITANTE';
+
+        const topRow = document.createElement('div');
+        topRow.className = 'user-grid-card-top';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'user-grid-avatar';
+        avatar.textContent = initial;
+
+        const badge = document.createElement('span');
+        badge.className = `user-grid-role-badge ${roleClass}`;
+        badge.textContent = roleLabel;
+
+        const check = document.createElement('span');
+        check.className = 'user-grid-check';
+        check.textContent = '✓';
+
+        topRow.appendChild(avatar);
+        topRow.appendChild(badge);
+        topRow.appendChild(check);
+
+        const fullName = getFullUserName(u);
+        const nameEl = document.createElement('div');
+        nameEl.className = 'user-grid-name';
+        nameEl.textContent = fullName;
+        nameEl.title = fullName;
+
+        const emailEl = document.createElement('div');
+        emailEl.className = 'user-grid-email';
+        emailEl.textContent = u.email || '';
+        emailEl.title = u.email || '';
+
+        card.appendChild(topRow);
+        card.appendChild(nameEl);
+        card.appendChild(emailEl);
+
+        card.addEventListener('click', () => {
+            const currentId = adminUserSelect ? String(adminUserSelect.value) : '';
+            const nextId = currentId === String(u.id) ? '' : u.id;
+            selectAdminUserFromGrid(nextId);
+        });
+        card.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+                ev.preventDefault();
+                const currentId = adminUserSelect ? String(adminUserSelect.value) : '';
+                const nextId = currentId === String(u.id) ? '' : u.id;
+                selectAdminUserFromGrid(nextId);
+            }
+        });
+
+        adminUsersGrid.appendChild(card);
+    });
+
+    renderAdminUsersPagination(totalPages, filteredUsers.length);
+}
+
+if (adminUserSearchInput) {
+    adminUserSearchInput.addEventListener('input', () => {
+        currentUserGridPage = 1;
+        renderAdminUsersGrid();
+    });
+}
+
+/**
+ * Carga la lista completa de usuarios registrados activos desde el backend
+ * y renderiza la vista de Grid para la configuración de otros usuarios.
  */
 async function loadUsersForAdmin() {
     try {
         const res = await fetch('/usuarios');
         if (res.ok) {
             cachedUsersList = await res.json();
-            if (adminUserSelect) {
-                adminUserSelect.innerHTML = '<option value="">-- Seleccionar usuario a configurar --</option>';
-                // Filtrar para mostrar estrictamente otros usuarios (excluyendo admin principal id:0 y email:'admin')
-                const otherUsers = cachedUsersList.filter(u => u.id !== 0 && String(u.id) !== '0' && (u.email || '').toLowerCase() !== 'admin');
-                if (otherUsers.length === 0) {
-                    const emptyOpt = document.createElement('option');
-                    emptyOpt.value = "";
-                    emptyOpt.textContent = "No hay otros usuarios registrados";
-                    adminUserSelect.appendChild(emptyOpt);
-                } else {
-                    otherUsers.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u.id;
-                        const roleLabel = u.esIutepalista ? 'IUTEPALISTA' : 'VISITANTE';
-                        opt.textContent = `${u.nombre} (${u.email}) [${roleLabel}]`;
-                        adminUserSelect.appendChild(opt);
-                    });
-                }
+            const currentSelectedId = adminUserSelect ? String(adminUserSelect.value) : '';
+            const stillExists = currentSelectedId && cachedUsersList.some(u => String(u.id) === currentSelectedId);
+            if (!stillExists) {
+                selectAdminUserFromGrid('');
             }
+            renderAdminUsersGrid();
         }
     } catch (e) {
         console.error('Error cargando lista de usuarios:', e);
     }
     updateDeleteUserBtnVisibility();
-}
-
-// Al seleccionar un usuario de la lista, sincronizar los campos del formulario con sus datos
-if (adminUserSelect) {
-    adminUserSelect.addEventListener('change', () => {
-        const selectedId = adminUserSelect.value;
-        const user = cachedUsersList.find(u => String(u.id) === String(selectedId));
-        if (user) {
-            if (adminTargetName) adminTargetName.value = user.nombre || '';
-            if (adminTargetEmail) adminTargetEmail.value = user.email || '';
-            if (adminTargetNewPass) adminTargetNewPass.value = '';
-            if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
-            if (adminTargetIutepalista) adminTargetIutepalista.checked = Boolean(user.esIutepalista);
-        } else {
-            if (adminTargetName) adminTargetName.value = '';
-            if (adminTargetEmail) adminTargetEmail.value = '';
-            if (adminTargetNewPass) adminTargetNewPass.value = '';
-            if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
-            if (adminTargetIutepalista) adminTargetIutepalista.checked = false;
-        }
-        updateDeleteUserBtnVisibility();
-    });
 }
 
 /**
@@ -1574,7 +1839,7 @@ function openDeleteUserModal(userId) {
 
     pendingDeleteUserId = userId;
     if (deleteUserTargetName) {
-        deleteUserTargetName.textContent = user.nombre || 'Usuario sin nombre';
+        deleteUserTargetName.textContent = getFullUserName(user);
     }
     if (deleteUserTargetMeta) {
         const role = user.esIutepalista ? 'Estudiante Iutepalista' : 'Visitante';
@@ -1632,16 +1897,12 @@ if (confirmDeleteUserBtn) {
             const data = await response.json().catch(() => ({}));
 
             if (data.success) {
-                alert(data.message || '¡Usuario eliminado exitosamente de la base de datos!');
+                alert(data.message || '¡Usuario deshabilitado exitosamente conservando su historial de acciones!');
 
-                // Limpiar campos del formulario
-                if (adminTargetName) adminTargetName.value = '';
-                if (adminTargetEmail) adminTargetEmail.value = '';
-                if (adminTargetNewPass) adminTargetNewPass.value = '';
-                if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
-                if (adminTargetIutepalista) adminTargetIutepalista.checked = false;
+                // Limpiar selección y campos del formulario
+                selectAdminUserFromGrid('');
 
-                // Recargar lista actualizada de usuarios
+                // Recargar lista actualizada de usuarios en el Grid
                 await loadUsersForAdmin();
                 updateDeleteUserBtnVisibility();
             } else {
@@ -1681,6 +1942,7 @@ if (changePasswordBtn) {
             if (adminSelfCurrentPass) adminSelfCurrentPass.value = '';
             if (adminSelfNewPass) adminSelfNewPass.value = '';
             if (adminSelfConfirmPass) adminSelfConfirmPass.value = '';
+            selectAdminUserFromGrid('');
             switchAdminTab('self');
             await loadUsersForAdmin();
         } else {
@@ -1690,7 +1952,10 @@ if (changePasswordBtn) {
             if (adminCredsContainer) adminCredsContainer.style.display = 'none';
             if (userCredsContainer) userCredsContainer.style.display = 'block';
             if (deleteUserBtn) deleteUserBtn.style.display = 'none';
-            if (saveCredsBtn) saveCredsBtn.textContent = 'Guardar Cambios';
+            if (saveCredsBtn) {
+                saveCredsBtn.style.display = 'inline-flex';
+                saveCredsBtn.textContent = 'Guardar Cambios';
+            }
             if (userCurrentPass) userCurrentPass.value = '';
             if (userNewPass) userNewPass.value = '';
             if (userConfirmPass) userConfirmPass.value = '';
@@ -1776,7 +2041,7 @@ if (changePasswordForm) {
             else {
                 const targetUserId = adminUserSelect ? adminUserSelect.value : '';
                 if (!targetUserId) {
-                    alert('Por favor, selecciona un usuario de la lista desplegable.');
+                    alert('Por favor, selecciona un usuario de la cuadrícula (grid).');
                     return;
                 }
 

@@ -241,7 +241,7 @@
                         <span id="adminUsersCountBadge" class="users-grid-count-badge">0 usuarios</span>
                     </div>
                     <input type="text" id="adminUserSearchInput" class="admin-user-search-input"
-                        placeholder="🔍 Filtrar usuario por nombre o correo..." autocomplete="off">
+                        placeholder="🔍 Filtrar usuario por nombre, cédula o correo..." autocomplete="off">
                 </div>
 
                 <!-- Vista de Grid para seleccionar usuarios registrados -->
@@ -267,6 +267,17 @@
                             <input type="text" id="adminTargetEmail" placeholder="usuario@correo.com">
                         </div>
                         <div>
+                            <label for="adminTargetTipoCedula">Tipo de Cédula:</label>
+                            <select id="adminTargetTipoCedula">
+                                <option value="V">V - Venezolano</option>
+                                <option value="E">E - Extranjero</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="adminTargetCedula">Cédula de Identidad:</label>
+                            <input type="text" id="adminTargetCedula" placeholder="Ej: 12345678" inputmode="numeric" maxlength="9">
+                        </div>
+                        <div>
                             <label for="adminTargetNewPass">Nueva Contraseña (opcional):</label>
                             <input type="password" id="adminTargetNewPass"
                                 placeholder="Dejar en blanco para mantener">
@@ -280,7 +291,7 @@
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 12px;">
                         <input type="checkbox" id="adminTargetIutepalista" style="width: 18px; height: 18px;">
                         <label for="adminTargetIutepalista" style="margin: 0; font-weight: 600; cursor: pointer;">Estudiante
-                            IUTEPALISTA (Acceso a Resúmenes)</label>
+                            IUTEPALISTA (Acceso Completo)</label>
                     </div>
                 </div>
             </div>

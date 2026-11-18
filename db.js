@@ -52,6 +52,8 @@ if (dbClient === 'sqlite') {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre VARCHAR(100) NOT NULL,
       apellido VARCHAR(100) DEFAULT '',
+      tipo_cedula VARCHAR(5) DEFAULT 'V',
+      cedula VARCHAR(20) DEFAULT '',
       email VARCHAR(100) NOT NULL UNIQUE,
       password VARCHAR(255) NOT NULL,
       esIutepalista INTEGER DEFAULT 0,
@@ -102,6 +104,18 @@ if (dbClient === 'sqlite') {
       sqlite.exec("ALTER TABLE usuario ADD COLUMN apellido VARCHAR(100) DEFAULT '';");
       sqlite.exec("UPDATE usuario SET apellido = '' WHERE apellido IS NULL;");
       console.log("[Database] Columna 'apellido' añadida exitosamente a la tabla 'usuario' (SQLite).");
+    }
+    const hasTipoCedula = userCols.some(col => col.name === 'tipo_cedula');
+    if (!hasTipoCedula) {
+      sqlite.exec("ALTER TABLE usuario ADD COLUMN tipo_cedula VARCHAR(5) DEFAULT 'V';");
+      sqlite.exec("UPDATE usuario SET tipo_cedula = 'V' WHERE tipo_cedula IS NULL OR tipo_cedula = '';");
+      console.log("[Database] Columna 'tipo_cedula' añadida exitosamente a la tabla 'usuario' (SQLite).");
+    }
+    const hasCedula = userCols.some(col => col.name === 'cedula');
+    if (!hasCedula) {
+      sqlite.exec("ALTER TABLE usuario ADD COLUMN cedula VARCHAR(20) DEFAULT '';");
+      sqlite.exec("UPDATE usuario SET cedula = '' WHERE cedula IS NULL;");
+      console.log("[Database] Columna 'cedula' añadida exitosamente a la tabla 'usuario' (SQLite).");
     }
     // Completar apellidos conocidos si quedaron vacíos en registros previos
     sqlite.exec("UPDATE usuario SET apellido = 'Curiel' WHERE LOWER(email) = 'eliascuriel06@gmail.com' AND (apellido IS NULL OR apellido = '');");
@@ -295,6 +309,18 @@ if (dbClient === 'sqlite') {
         await pool.query("ALTER TABLE `usuario` ADD COLUMN `apellido` VARCHAR(100) DEFAULT ''");
         await pool.query("UPDATE `usuario` SET `apellido` = '' WHERE `apellido` IS NULL");
         console.log("[Database] Columna 'apellido' añadida exitosamente a la tabla 'usuario' (MySQL).");
+      }
+      const [colsTc] = await pool.query("SHOW COLUMNS FROM `usuario` LIKE 'tipo_cedula'");
+      if (!colsTc || colsTc.length === 0) {
+        await pool.query("ALTER TABLE `usuario` ADD COLUMN `tipo_cedula` VARCHAR(5) DEFAULT 'V'");
+        await pool.query("UPDATE `usuario` SET `tipo_cedula` = 'V' WHERE `tipo_cedula` IS NULL OR `tipo_cedula` = ''");
+        console.log("[Database] Columna 'tipo_cedula' añadida exitosamente a la tabla 'usuario' (MySQL).");
+      }
+      const [colsCed] = await pool.query("SHOW COLUMNS FROM `usuario` LIKE 'cedula'");
+      if (!colsCed || colsCed.length === 0) {
+        await pool.query("ALTER TABLE `usuario` ADD COLUMN `cedula` VARCHAR(20) DEFAULT ''");
+        await pool.query("UPDATE `usuario` SET `cedula` = '' WHERE `cedula` IS NULL");
+        console.log("[Database] Columna 'cedula' añadida exitosamente a la tabla 'usuario' (MySQL).");
       }
     } catch (_) {
       // Silencioso si la tabla aún no existe o hay desconexión inicial

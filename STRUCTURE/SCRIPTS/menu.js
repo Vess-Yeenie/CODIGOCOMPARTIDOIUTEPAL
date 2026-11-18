@@ -501,9 +501,8 @@ if (clearSearchBtn) {
  * Algoritmo:
  * 1. Sincroniza la clase visual `.selected` en los botones de carreras y tipos.
  * 2. Aplica reglas de visibilidad por rol:
- *    - Administrador: Acceso a todos los tipos (trabajos, presentaciones, resúmenes).
- *    - Estudiante IUTEPALISTA: Acceso exclusivo a Hojas de Resumen.
- *    - Visitante/General: Acceso a Trabajos Especiales de Grado completos y Presentaciones.
+ *    - Administrador y Estudiante IUTEPALISTA: Acceso a todo el contenido (trabajos, presentaciones, resúmenes).
+ *    - Visitante: Acceso exclusivo a Hojas de Resumen.
  * 3. Evalúa filtros combinados en memoria: carrera, año de grado, tipo de trabajo y texto de búsqueda.
  * 4. Aplica paginación limitando a 20 documentos por página.
  * 5. Genera nodos DOM con delegación de eventos para visualización protegida, edición y descarga.
@@ -517,9 +516,11 @@ function renderCards() {
 
     typeButtons.forEach(btn => {
         const type = btn.dataset.type;
-        if (isAdmin) btn.style.display = '';
-        else if (isIutepalista) btn.style.display = (type === 'resumen') ? '' : 'none';
-        else btn.style.display = (type === 'trabajo' || type === 'presentacion') ? '' : 'none';
+        if (isAdmin || isIutepalista) {
+            btn.style.display = '';
+        } else {
+            btn.style.display = (type === 'resumen') ? '' : 'none';
+        }
     });
 
     // 1. Filtrado completo en memoria
@@ -531,9 +532,11 @@ function renderCards() {
              (item.carrera && item.carrera.toLowerCase().includes(searchText))) : true;
         
         let typeRestriction;
-        if (isAdmin) typeRestriction = true;
-        else if (isIutepalista) typeRestriction = item.tipo === 'resumen';
-        else typeRestriction = item.tipo === 'trabajo' || item.tipo === 'presentacion';
+        if (isAdmin || isIutepalista) {
+            typeRestriction = true;
+        } else {
+            typeRestriction = item.tipo === 'resumen';
+        }
 
         const tipoMatch = (selectedTipo === 'todos') ? true : item.tipo === selectedTipo;
         return typeRestriction && carreraMatch && anoMatch && tipoMatch && searchMatch;
@@ -695,8 +698,11 @@ async function openReportModal() {
             
             if (!usersMap[userName]) {
                 const isIutepalista = log.esIutepalista === 1 || log.esIutepalista === true;
+                const rawCed = (log.cedula && String(log.cedula).trim()) ? String(log.cedula).trim() : '';
+                const rawTipoCed = (log.tipo_cedula && String(log.tipo_cedula).trim().toUpperCase() === 'E') ? 'E' : 'V';
                 usersMap[userName] = {
                     name: userName,
+                    cedula: rawCed ? `${rawTipoCed}-${rawCed}` : '',
                     docs: new Set(),
                     actions: 0,
                     views: 0,
@@ -704,6 +710,9 @@ async function openReportModal() {
                     isAdmin: false,
                     isIutepalista: isIutepalista
                 };
+            } else if (!usersMap[userName].cedula && log.cedula && String(log.cedula).trim()) {
+                const rawTipoCed = (log.tipo_cedula && String(log.tipo_cedula).trim().toUpperCase() === 'E') ? 'E' : 'V';
+                usersMap[userName].cedula = `${rawTipoCed}-${String(log.cedula).trim()}`;
             }
             usersMap[userName].actions++;
             if (log.action === 'view') usersMap[userName].views++;
@@ -826,6 +835,7 @@ async function openReportModal() {
                                     <h5 class="report-user-name" title="${escapeHtml(u.name)}">${escapeHtml(u.name)}</h5>
                                     <span class="report-role-pill ${roleClass}">${roleText}</span>
                                 </div>
+                                ${u.cedula ? `<div style="font-size:0.75em; color:#64748b; font-weight:600; margin-top:2px;">🪪 C.I: ${escapeHtml(u.cedula)}</div>` : ''}
                             </div>
                         </div>
                         <div class="report-stats-row">
@@ -962,9 +972,16 @@ if (closeAboutBtn) closeAboutBtn.addEventListener('click', () => aboutModal.styl
 
 // --- MANEJO DEL FORMULARIO DE AÑADIR/EDITAR TRABAJO ---
 const uploadStatus = document.getElementById('uploadStatus');
+const saveTrabajoBtn = document.getElementById('saveBtn');
+let isSubmittingTrabajo = false;
 
 addTrabajoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Bloquear clics múltiples simultáneos mientras se procesa una subida
+    if (isSubmittingTrabajo) {
+        return;
+    }
     
     // 1. Verificación de seguridad para el input de archivo
     if (!trabajoPdfInput) {
@@ -974,8 +991,25 @@ addTrabajoForm.addEventListener('submit', async (e) => {
 
     const file = trabajoPdfInput.files[0];
     const isEditing = editingIdInput.value !== "";
+    const editingIdVal = isEditing ? editingIdInput.value : null;
     const selectedTipo = trabajoTipoSelect.value;
+    const nombreInputEl = document.getElementById('trabajoNombre');
+    const carreraInputEl = document.getElementById('trabajoCarrera');
+    const nombreValue = (nombreInputEl ? nombreInputEl.value : '').trim();
+    const carreraValue = (carreraInputEl ? carreraInputEl.value : '').trim();
     let urlFinal = "";
+
+    // Validación de campos obligatorios antes de subir el archivo
+    if (!nombreValue) {
+        alert("Por favor, ingresa el nombre del proyecto.");
+        if (nombreInputEl) nombreInputEl.focus();
+        return;
+    }
+    if (!carreraValue) {
+        alert("Por favor, selecciona una carrera válida.");
+        if (carreraInputEl) carreraInputEl.focus();
+        return;
+    }
 
     // 2. Validación estricta del campo Año: Debe contener exactamente 4 dígitos numéricos
     const anoValue = (trabajoAnoInput ? trabajoAnoInput.value : '').trim();
@@ -1016,47 +1050,90 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    // Activar bloqueo contra envíos duplicados y deshabilitar botón de subida
+    isSubmittingTrabajo = true;
+    if (saveTrabajoBtn) {
+        saveTrabajoBtn.disabled = true;
+        saveTrabajoBtn.textContent = isEditing ? "Guardando cambios..." : "Subiendo documento...";
+    }
+
+    const progressBar = document.getElementById('uploadProgress');
+    const progressFill = document.getElementById('progressFill');
+    let processingInterval = null;
+    let displayedPercent = 0;
+
+    const setProgressVisual = (pct, statusMsg) => {
+        displayedPercent = Math.max(displayedPercent, Math.min(100, Math.round(pct)));
+        if (progressFill) {
+            progressFill.style.width = `${displayedPercent}%`;
+        }
+        if (statusMsg && uploadStatus) {
+            uploadStatus.textContent = statusMsg;
+        }
+    };
+
     try {
+        // Mostrar e inicializar barra de progreso con animación fluida desde 0%
+        if (progressBar && progressFill) {
+            progressFill.style.transition = 'none';
+            progressFill.style.width = '0%';
+            progressBar.style.display = 'block';
+            void progressBar.offsetWidth; // Forzar reflow para activar transición CSS
+            progressFill.style.transition = 'width 0.25s ease-out';
+        }
+
         if (file) {
             const fileName = file.name.toLowerCase();
             const fileExt = fileName.substring(fileName.lastIndexOf('.'));
-            if (['.docx', '.doc'].includes(fileExt)) {
-                uploadStatus.textContent = "Convirtiendo Word a PDF y aplicando protección anti-plagio...";
-            } else if (fileExt === '.pdf') {
-                uploadStatus.textContent = "Aplicando protección criptográfica y subiendo...";
-            } else {
-                uploadStatus.textContent = "Subiendo archivo...";
-            }
-        } else {
-            uploadStatus.textContent = "Guardando cambios...";
-        }
-        
-        // 4. Si hay un archivo nuevo, subirlo al servidor o almacenamiento configurado
-        if (file) {
+            const processingLabel = ['.docx', '.doc'].includes(fileExt)
+                ? "Convirtiendo Word a PDF y aplicando protección anti-plagio..."
+                : (fileExt === '.pdf'
+                    ? "Aplicando protección criptográfica y procesando PDF..."
+                    : "Procesando archivo en el servidor...");
+
+            setProgressVisual(8, "Iniciando subida del archivo... 8%");
+
             const formData = new FormData();
             formData.append('documento', file);
             formData.append('tipo', selectedTipo);
 
-            // Mostrar barra de progreso
-            const progressBar = document.getElementById('uploadProgress');
-            const progressFill = document.getElementById('progressFill');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
-
             urlFinal = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
-                
+
+                // Animación progresiva continua durante la subida y el procesamiento en servidor
+                processingInterval = setInterval(() => {
+                    if (displayedPercent < 88) {
+                        const step = displayedPercent < 50 ? 6 : (displayedPercent < 75 ? 3 : 1);
+                        const nextPct = Math.min(88, displayedPercent + step);
+                        const msg = nextPct >= 55
+                            ? `${processingLabel} ${nextPct}%`
+                            : `Subiendo archivo... ${nextPct}%`;
+                        setProgressVisual(nextPct, msg);
+                    }
+                }, 140);
+
                 xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const percentComplete = (e.loaded / e.total) * 100;
-                        progressFill.style.width = percentComplete + '%';
-                        uploadStatus.textContent = `Subiendo... ${Math.round(percentComplete)}%`;
+                    if (e.lengthComputable && e.total > 0) {
+                        // Escalar envío de red al tramo 10% - 55% y dejar 55% - 90% para la encriptación/procesamiento
+                        const rawRatio = e.loaded / e.total;
+                        const mappedPct = Math.round(10 + rawRatio * 45);
+                        if (mappedPct > displayedPercent) {
+                            const msg = rawRatio >= 1
+                                ? `${processingLabel} ${mappedPct}%`
+                                : `Subiendo... ${mappedPct}%`;
+                            setProgressVisual(mappedPct, msg);
+                        }
                     }
                 });
 
                 xhr.addEventListener('load', () => {
+                    if (processingInterval) {
+                        clearInterval(processingInterval);
+                        processingInterval = null;
+                    }
                     if (xhr.status === 200) {
                         const data = JSON.parse(xhr.responseText);
+                        setProgressVisual(92, "Registrando documento en la base de datos... 92%");
                         resolve(data.url);
                     } else {
                         let errMsg = 'Fallo en la subida del archivo';
@@ -1069,19 +1146,25 @@ addTrabajoForm.addEventListener('submit', async (e) => {
                 });
 
                 xhr.addEventListener('error', () => {
+                    if (processingInterval) {
+                        clearInterval(processingInterval);
+                        processingInterval = null;
+                    }
                     reject(new Error('Error de red al conectar con el servidor'));
                 });
 
                 xhr.open('POST', '/upload');
                 xhr.send(formData);
             });
+        } else {
+            setProgressVisual(50, "Guardando cambios... 50%");
         }
 
-        // 5. Preparar datos para el servidor
+        // 5. Preparar datos validados previamente para el servidor
         const trabajoData = {
-            id: isEditing ? editingIdInput.value : null,
-            nombre: document.getElementById('trabajoNombre').value.trim(),
-            carrera: document.getElementById('trabajoCarrera').value,
+            id: editingIdVal,
+            nombre: nombreValue,
+            carrera: carreraValue,
             ano: parseInt(anoValue, 10),
             tipo: selectedTipo, // Mantener el tipo seleccionado estrictamente
             pdf_url: urlFinal
@@ -1098,7 +1181,11 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         const respData = await response.json();
 
         if (response.ok && respData.success) {
+            setProgressVisual(100, "¡Completado! 100%");
+            // Pausa breve para que se visualice la animación llegando al 100%
+            await new Promise(r => setTimeout(r, 320));
             alert(isEditing ? "¡Trabajo actualizado con éxito!" : "¡Trabajo guardado con éxito!");
+            isSubmittingTrabajo = false;
             closeModal();
             // Restablecer filtros si es un nuevo trabajo para asegurar que aparezca
             if (!isEditing) {
@@ -1114,14 +1201,24 @@ addTrabajoForm.addEventListener('submit', async (e) => {
         console.error(error);
         alert("Hubo un error: " + error.message);
     } finally {
-        uploadStatus.textContent = "";
-        const progressBar = document.getElementById('uploadProgress');
+        if (processingInterval) {
+            clearInterval(processingInterval);
+            processingInterval = null;
+        }
+        isSubmittingTrabajo = false;
+        if (saveTrabajoBtn) {
+            saveTrabajoBtn.disabled = false;
+            saveTrabajoBtn.textContent = "Guardar Trabajo";
+        }
+        if (uploadStatus) uploadStatus.textContent = "";
         if (progressBar) progressBar.style.display = 'none';
+        if (progressFill) progressFill.style.width = '0%';
     }
 });
 
 // Función para cerrar modal y limpiar datos
 function closeModal() {
+    if (isSubmittingTrabajo) return; // Evitar limpiar el formulario mientras se está subiendo un documento
     document.getElementById('addTrabajoModal').style.display = 'none';
     addTrabajoForm.reset();
     editingIdInput.value = "";
@@ -1426,9 +1523,20 @@ const adminUserEditFieldsWrapper = document.getElementById('adminUserEditFieldsW
 const adminUserSelect = document.getElementById('adminUserSelect');
 const adminTargetName = document.getElementById('adminTargetName');
 const adminTargetEmail = document.getElementById('adminTargetEmail');
+const adminTargetTipoCedula = document.getElementById('adminTargetTipoCedula');
+const adminTargetCedula = document.getElementById('adminTargetCedula');
 const adminTargetNewPass = document.getElementById('adminTargetNewPass');
 const adminTargetConfirmPass = document.getElementById('adminTargetConfirmPass');
 const adminTargetIutepalista = document.getElementById('adminTargetIutepalista');
+
+if (adminTargetCedula) {
+    adminTargetCedula.addEventListener('input', () => {
+        const cleaned = adminTargetCedula.value.replace(/[^0-9]/g, '');
+        if (adminTargetCedula.value !== cleaned) {
+            adminTargetCedula.value = cleaned;
+        }
+    });
+}
 const deleteUserBtn = document.getElementById('deleteUserBtn');
 const saveCredsBtn = document.getElementById('saveCredsBtn');
 
@@ -1540,6 +1648,29 @@ function getFullUserName(u) {
 }
 
 /**
+ * Formatea la cédula de identidad del usuario (ej: "V-12345678" o "E-12345678").
+ * @param {Object} u - Objeto usuario con { tipo_cedula, cedula }.
+ * @returns {string} Cédula formateada o cadena vacía si no posee.
+ */
+function getFormattedCedula(u) {
+    if (!u || !u.cedula || !String(u.cedula).trim()) return '';
+    const tipo = String(u.tipo_cedula || 'V').trim().toUpperCase() === 'E' ? 'E' : 'V';
+    return `${tipo}-${String(u.cedula).trim()}`;
+}
+
+/**
+ * Formatea la cédula de identidad con su etiqueta de nacionalidad (Venezolano / Extranjero).
+ * @param {Object} u - Objeto usuario con { tipo_cedula, cedula }.
+ * @returns {string} Cédula formateada con nacionalidad o 'Sin cédula'.
+ */
+function getFormattedCedulaWithLabel(u) {
+    if (!u || !u.cedula || !String(u.cedula).trim()) return 'Sin cédula registrada';
+    const tipo = String(u.tipo_cedula || 'V').trim().toUpperCase() === 'E' ? 'E' : 'V';
+    const label = tipo === 'E' ? 'Extranjero' : 'Venezolano';
+    return `${tipo}-${String(u.cedula).trim()} (${label})`;
+}
+
+/**
  * Selecciona un usuario desde la vista de Grid y sincroniza el formulario de edición.
  * Oculta los inputs de edición hasta que se toque un usuario en la cuadrícula.
  * @param {string|number} userId - ID del usuario seleccionado o vacío para limpiar.
@@ -1561,21 +1692,27 @@ function selectAdminUserFromGrid(userId) {
     const user = cachedUsersList.find(u => String(u.id) === selectedId);
     if (user) {
         const fullName = getFullUserName(user);
+        const cedulaInfo = getFormattedCedulaWithLabel(user);
+        const tipoCedVal = String(user.tipo_cedula || 'V').trim().toUpperCase() === 'E' ? 'E' : 'V';
         if (adminUserEditFieldsWrapper) adminUserEditFieldsWrapper.style.display = 'block';
         if (adminTargetName) adminTargetName.value = fullName;
         if (adminTargetEmail) adminTargetEmail.value = user.email || '';
+        if (adminTargetTipoCedula) adminTargetTipoCedula.value = tipoCedVal;
+        if (adminTargetCedula) adminTargetCedula.value = user.cedula ? String(user.cedula).trim() : '';
         if (adminTargetNewPass) adminTargetNewPass.value = '';
         if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
         if (adminTargetIutepalista) adminTargetIutepalista.checked = Boolean(user.esIutepalista);
         if (adminSelectedUserBanner) {
             const roleLabel = user.esIutepalista ? 'IUTEPALISTA' : 'VISITANTE';
-            adminSelectedUserBanner.textContent = `✅ Usuario seleccionado: ${fullName} (${user.email}) — [${roleLabel}]`;
+            adminSelectedUserBanner.textContent = `✅ Usuario seleccionado: ${fullName} • C.I: ${cedulaInfo} • (${user.email}) — [${roleLabel}]`;
             adminSelectedUserBanner.classList.add('has-selection');
         }
     } else {
         if (adminUserEditFieldsWrapper) adminUserEditFieldsWrapper.style.display = 'none';
         if (adminTargetName) adminTargetName.value = '';
         if (adminTargetEmail) adminTargetEmail.value = '';
+        if (adminTargetTipoCedula) adminTargetTipoCedula.value = 'V';
+        if (adminTargetCedula) adminTargetCedula.value = '';
         if (adminTargetNewPass) adminTargetNewPass.value = '';
         if (adminTargetConfirmPass) adminTargetConfirmPass.value = '';
         if (adminTargetIutepalista) adminTargetIutepalista.checked = false;
@@ -1692,7 +1829,14 @@ function renderAdminUsersGrid() {
     const filteredUsers = filterQuery
         ? otherUsers.filter(u => {
             const fullName = getFullUserName(u).toLowerCase();
-            return fullName.includes(filterQuery) || (u.email && u.email.toLowerCase().includes(filterQuery));
+            const formattedCed = getFormattedCedulaWithLabel(u).toLowerCase();
+            const rawCed = (u.cedula || '').toLowerCase();
+            return (
+                fullName.includes(filterQuery) ||
+                (u.email && u.email.toLowerCase().includes(filterQuery)) ||
+                rawCed.includes(filterQuery) ||
+                formattedCed.includes(filterQuery)
+            );
           })
         : otherUsers;
 
@@ -1763,6 +1907,12 @@ function renderAdminUsersGrid() {
         nameEl.textContent = fullName;
         nameEl.title = fullName;
 
+        const cedulaText = getFormattedCedulaWithLabel(u);
+        const cedulaEl = document.createElement('div');
+        cedulaEl.className = 'user-grid-cedula';
+        cedulaEl.textContent = `🪪 ${cedulaText}`;
+        cedulaEl.title = `Cédula de Identidad: ${cedulaText}`;
+
         const emailEl = document.createElement('div');
         emailEl.className = 'user-grid-email';
         emailEl.textContent = u.email || '';
@@ -1770,6 +1920,7 @@ function renderAdminUsersGrid() {
 
         card.appendChild(topRow);
         card.appendChild(nameEl);
+        card.appendChild(cedulaEl);
         card.appendChild(emailEl);
 
         card.addEventListener('click', () => {
@@ -1843,7 +1994,8 @@ function openDeleteUserModal(userId) {
     }
     if (deleteUserTargetMeta) {
         const role = user.esIutepalista ? 'Estudiante Iutepalista' : 'Visitante';
-        deleteUserTargetMeta.textContent = `${user.email} • Rol: ${role}`;
+        const cedulaInfo = getFormattedCedulaWithLabel(user);
+        deleteUserTargetMeta.textContent = `C.I: ${cedulaInfo} • ${user.email} • Rol: ${role}`;
     }
 
     if (deleteUserModal) {
@@ -2047,9 +2199,22 @@ if (changePasswordForm) {
 
                 const nombre = adminTargetName ? adminTargetName.value.trim() : '';
                 const email = adminTargetEmail ? adminTargetEmail.value.trim() : '';
+                const tipo_cedula = adminTargetTipoCedula ? adminTargetTipoCedula.value.trim().toUpperCase() : 'V';
+                const cedula = adminTargetCedula ? adminTargetCedula.value.trim() : '';
                 const newPassword = adminTargetNewPass ? adminTargetNewPass.value.trim() : '';
                 const confirmPassword = adminTargetConfirmPass ? adminTargetConfirmPass.value.trim() : '';
                 const esIutepalista = adminTargetIutepalista ? adminTargetIutepalista.checked : false;
+
+                if (tipo_cedula !== 'V' && tipo_cedula !== 'E') {
+                    alert('El tipo de cédula debe ser Venezolano (V) o Extranjero (E).');
+                    return;
+                }
+
+                if (cedula && !/^[1-9][0-9]{5,8}$/.test(cedula)) {
+                    alert('La cédula de identidad debe contener solo números (entre 6 y 9 dígitos) y no comenzar en 0.');
+                    if (adminTargetCedula) adminTargetCedula.focus();
+                    return;
+                }
 
                 if (newPassword && newPassword !== confirmPassword) {
                     alert('La nueva contraseña y su confirmación no coinciden.');
@@ -2063,6 +2228,8 @@ if (changePasswordForm) {
                         body: JSON.stringify({
                             targetUserId,
                             nombre,
+                            tipo_cedula,
+                            cedula,
                             email,
                             newPassword,
                             esIutepalista

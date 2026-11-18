@@ -31,6 +31,16 @@
                     <input type="text" class="form__input" id="apellido" placeholder="Ingrese su apellido" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras y espacios">
                     <span class="error-message">Solo se permiten letras y espacios.</span>
 
+                    <label for="cedula" class="form__label">Cédula de Identidad:</label>
+                    <div class="form__cedula-group">
+                        <select class="form__input form__select-cedula" id="tipoCedula" required aria-label="Tipo de cédula (Venezolano o Extranjero)" title="Seleccione Venezolano (V) o Extranjero (E)">
+                            <option value="V">V - Venezolano</option>
+                            <option value="E">E - Extranjero</option>
+                        </select>
+                        <input type="text" class="form__input form__input-cedula" id="cedula" placeholder="Ej: 12345678" required inputmode="numeric" minlength="6" maxlength="9" pattern="[1-9][0-9]{5,8}" title="Ingrese solo números (entre 6 y 9 dígitos, sin puntos ni guiones)">
+                    </div>
+                    <span class="error-message" id="cedulaErrorMsg">Ingrese una cédula válida (solo números, entre 6 y 9 dígitos, sin comenzar en 0).</span>
+
                     <label for="passwordGuest" class="form__label">Contraseña:</label>
                     <input type="password" class="form__input" id="passwordGuest" placeholder="Ingrese su contraseña"
                         required minlength="3">

@@ -1556,19 +1556,52 @@ button:not(.type-btnHeader):not(.carrera-btn),
 /* Barra de progreso para subida de archivos */
 .progress-bar {
     width: 100%;
-    height: 20px;
-    background-color: #f0f0f0;
-    border-radius: 10px;
+    height: 18px;
+    background-color: #e2e8f0;
+    border-radius: 999px;
     overflow: hidden;
-    margin: 10px 0;
+    margin: 10px 0 14px 0;
     display: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    position: relative;
 }
 
 .progress-bar .progress-fill {
     height: 100%;
     background-color: var(--iutepal-yellow);
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.35) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.35) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 28px 28px;
     width: 0%;
-    transition: width 0.3s ease;
+    border-radius: 999px;
+    transition: width 0.25s ease-out;
+    animation: progressStripeMove 0.8s linear infinite;
+    box-shadow: 0 0 8px rgba(253, 213, 52, 0.6);
+}
+
+@keyframes progressStripeMove {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 28px 0;
+    }
+}
+
+#addTrabajoForm button[type="submit"]:disabled,
+#saveBtn:disabled {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    transform: none !important;
 }
 
 /* Estilos para el mensaje de "no results" */
@@ -2523,6 +2556,27 @@ button:not(.type-btnHeader):not(.carrera-btn),
     text-overflow: ellipsis;
 }
 
+.user-grid-cedula {
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--iutepal-blue);
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 2px 6px;
+    width: fit-content;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-grid-card.selected .user-grid-cedula {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+
 .user-grid-email {
     font-size: 0.76em;
     color: #64748b;
@@ -2577,7 +2631,8 @@ button:not(.type-btnHeader):not(.carrera-btn),
     line-height: 1.25;
 }
 
-.admin-user-form-grid input {
+.admin-user-form-grid input,
+.admin-user-form-grid select {
     margin-top: auto;
     margin-bottom: 0 !important;
 }

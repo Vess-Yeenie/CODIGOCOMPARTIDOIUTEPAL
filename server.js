@@ -610,6 +610,11 @@ app.get('/trabajos', async (req, res) => {
 });
 
 /**
+ * Deduplicador en memoria para prevenir inserciones duplicadas en ráfaga al subir trabajos.
+ */
+const recentTrabajoInsertions = new Map();
+
+/**
  * @name POST /addTrabajo
  * @description Inserta un nuevo trabajo académico en el catálogo. Genera un ID con prefijo 't' y timestamp.
  * Valida que el año contenga exactamente 4 dígitos numéricos y la coherencia del tipo de archivo.
@@ -620,6 +625,30 @@ app.get('/trabajos', async (req, res) => {
 app.post('/addTrabajo', async (req, res) => {
   try {
     const { nombre, carrera, ano, tipo, pdf_url } = req.body;
+    const cleanNombre = (nombre || '').trim();
+    const cleanCarrera = (carrera || '').trim();
+    const cleanTipo = (tipo || '').trim();
+    const cleanPdfUrl = (pdf_url || '').trim();
+
+    // Validar que no se inserten registros vacíos
+    if (!cleanNombre) {
+      return res.status(400).json({
+        success: false,
+        error: 'El nombre del proyecto es obligatorio y no puede estar vacío.'
+      });
+    }
+    if (!cleanCarrera) {
+      return res.status(400).json({
+        success: false,
+        error: 'La carrera del proyecto es obligatoria.'
+      });
+    }
+    if (!cleanPdfUrl) {
+      return res.status(400).json({
+        success: false,
+        error: 'Debe adjuntar un archivo válido para registrar el trabajo.'
+      });
+    }
 
     // Validación estricta del campo año: exactamente 4 dígitos numéricos
     if (!ano || !/^\d{4}$/.test(String(ano).trim())) {
@@ -630,9 +659,9 @@ app.post('/addTrabajo', async (req, res) => {
     }
 
     // Validación de coherencia de tipo y extensión de archivo
-    if ((tipo === 'trabajo' || tipo === 'resumen') && pdf_url) {
-      const ext = path.extname(pdf_url.split('?')[0]).toLowerCase();
-      if (ext && ext !== '.pdf' && !pdf_url.toLowerCase().includes('.pdf')) {
+    if ((cleanTipo === 'trabajo' || cleanTipo === 'resumen') && cleanPdfUrl) {
+      const ext = path.extname(cleanPdfUrl.split('?')[0]).toLowerCase();
+      if (ext && ext !== '.pdf' && !cleanPdfUrl.toLowerCase().includes('.pdf')) {
         return res.status(400).json({ 
           success: false, 
           error: 'Para Trabajos de Grado y Resúmenes, el documento asociado debe ser estrictamente un archivo PDF.' 
@@ -640,10 +669,19 @@ app.post('/addTrabajo', async (req, res) => {
       }
     }
 
-    const id = 't' + Date.now();
+    // Evitar duplicados por doble clic o peticiones simultáneas en ventana de 5 segundos
+    const dedupKey = `${cleanNombre.toLowerCase()}|${cleanCarrera.toUpperCase()}|${String(ano).trim()}|${cleanTipo}`;
+    if (recentTrabajoInsertions.has(dedupKey)) {
+      return res.json({ success: true, id: recentTrabajoInsertions.get(dedupKey), deduplicated: true });
+    }
+
+    const id = 't' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    recentTrabajoInsertions.set(dedupKey, id);
+    setTimeout(() => recentTrabajoInsertions.delete(dedupKey), 5000);
+
     await db.execute(
       'INSERT INTO trabajos (id, nombre, carrera, ano, tipo, pdf_url) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, nombre, carrera, parseInt(ano, 10), tipo, pdf_url]
+      [id, cleanNombre, cleanCarrera, parseInt(ano, 10), cleanTipo, cleanPdfUrl]
     );
     res.json({ success: true, id });
   } catch (error) {
@@ -663,9 +701,15 @@ app.post('/addTrabajo', async (req, res) => {
 app.post('/updateTrabajo', async (req, res) => {
   try {
     const { id, nombre, carrera, ano, tipo, pdf_url } = req.body;
+    const cleanNombre = (nombre || '').trim();
+    const cleanCarrera = (carrera || '').trim();
+    const cleanTipo = (tipo || '').trim();
 
     if (!id) {
       return res.status(400).json({ success: false, message: "ID requerido" });
+    }
+    if (!cleanNombre || !cleanCarrera) {
+      return res.status(400).json({ success: false, message: "El nombre del proyecto y la carrera son obligatorios." });
     }
 
     // Validación estricta del campo año: exactamente 4 dígitos numéricos
@@ -677,7 +721,7 @@ app.post('/updateTrabajo', async (req, res) => {
     }
 
     // Validación de coherencia de tipo y extensión de archivo
-    if ((tipo === 'trabajo' || tipo === 'resumen') && pdf_url) {
+    if ((cleanTipo === 'trabajo' || cleanTipo === 'resumen') && pdf_url) {
       const ext = path.extname(pdf_url.split('?')[0]).toLowerCase();
       if (ext && ext !== '.pdf' && !pdf_url.toLowerCase().includes('.pdf')) {
         return res.status(400).json({ 
@@ -688,7 +732,7 @@ app.post('/updateTrabajo', async (req, res) => {
     }
 
     let sql = "UPDATE trabajos SET nombre = ?, carrera = ?, ano = ?, tipo = ?";
-    const params = [nombre, carrera, parseInt(ano, 10), tipo];
+    const params = [cleanNombre, cleanCarrera, parseInt(ano, 10), cleanTipo];
 
     // Solo actualizar la URL del archivo si se envió un valor no vacío
     if (pdf_url !== undefined && pdf_url !== null && pdf_url !== "") {
@@ -895,7 +939,7 @@ app.get('/view/:id', verifyDocumentAccess, async (req, res) => {
 app.get('/usuarios', async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, nombre, apellido, email, esIutepalista, activo FROM usuario WHERE (activo = 1 OR activo IS NULL) ORDER BY id ASC'
+      'SELECT id, nombre, apellido, tipo_cedula, cedula, email, esIutepalista, activo FROM usuario WHERE (activo = 1 OR activo IS NULL) ORDER BY id ASC'
     );
     res.json(rows);
   } catch (error) {
@@ -906,22 +950,22 @@ app.get('/usuarios', async (req, res) => {
 
 /**
  * @name POST /admin/update-user
- * @description Actualiza individualmente el nombre, apellido, correo o contraseña de un usuario específico.
+ * @description Actualiza individualmente el nombre, apellido, cédula, correo o contraseña de un usuario específico.
  * Permite al Administrador gestionar las credenciales de cada usuario por separado en vez de un cambio global.
  * 
- * @param {express.Request} req - Body con { targetUserId, nombre, apellido, email, newPassword, esIutepalista }.
+ * @param {express.Request} req - Body con { targetUserId, nombre, apellido, tipo_cedula, cedula, email, newPassword, esIutepalista }.
  * @param {express.Response} res - JSON { success: boolean, message: string }.
  */
 app.post('/admin/update-user', async (req, res) => {
   try {
-    const { targetUserId, nombre, apellido, email, newPassword, esIutepalista } = req.body;
+    const { targetUserId, nombre, apellido, tipo_cedula, cedula, email, newPassword, esIutepalista } = req.body;
 
     if (targetUserId === undefined || targetUserId === null || String(targetUserId).trim() === '') {
       return res.status(400).json({ success: false, message: 'Debe seleccionar un usuario para modificar.' });
     }
 
     // Verificar que el usuario exista en la base de datos
-    const [existingUsers] = await db.execute('SELECT id, email FROM usuario WHERE id = ?', [targetUserId]);
+    const [existingUsers] = await db.execute('SELECT id, email, cedula FROM usuario WHERE id = ?', [targetUserId]);
     if (!existingUsers || existingUsers.length === 0) {
       return res.status(404).json({ success: false, message: 'El usuario seleccionado no existe.' });
     }
@@ -932,6 +976,41 @@ app.post('/admin/update-user', async (req, res) => {
       if (duplicateCheck && duplicateCheck.length > 0) {
         return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado por otro usuario.' });
       }
+    }
+
+    // Validar tipo de cédula y número de cédula si se proporcionan
+    let cleanTipoCedula = null;
+    if (tipo_cedula !== undefined && tipo_cedula !== null && String(tipo_cedula).trim() !== '') {
+      const tc = String(tipo_cedula).trim().toUpperCase();
+      if (tc !== 'V' && tc !== 'E') {
+        return res.status(400).json({ success: false, message: 'El tipo de cédula debe ser V (Venezolano) o E (Extranjero).' });
+      }
+      cleanTipoCedula = tc;
+    }
+
+    let cleanCedula = null;
+    if (cedula !== undefined && cedula !== null) {
+      const rawCed = String(cedula).trim();
+      if (rawCed !== '') {
+        if (!/^[1-9][0-9]{5,8}$/.test(rawCed)) {
+          return res.status(400).json({
+            success: false,
+            message: 'La cédula de identidad debe contener solo números (entre 6 y 9 dígitos) y no comenzar en 0.'
+          });
+        }
+        // Verificar que la cédula no pertenezca a otro usuario activo
+        const [dupCed] = await db.execute(
+          'SELECT id FROM usuario WHERE cedula = ? AND id != ? AND (activo = 1 OR activo IS NULL)',
+          [rawCed, targetUserId]
+        );
+        if (dupCed && dupCed.length > 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Esta cédula de identidad ya está registrada por otro usuario activo.'
+          });
+        }
+      }
+      cleanCedula = rawCed;
     }
 
     const updates = [];
@@ -962,6 +1041,16 @@ app.post('/admin/update-user', async (req, res) => {
     } else if (apellido !== undefined && apellido !== null) {
       updates.push("apellido = ?");
       params.push(String(apellido).trim());
+    }
+
+    if (cleanTipoCedula !== null) {
+      updates.push("tipo_cedula = ?");
+      params.push(cleanTipoCedula);
+    }
+
+    if (cleanCedula !== null) {
+      updates.push("cedula = ?");
+      params.push(cleanCedula);
     }
 
     if (email && email.trim() !== '') {
@@ -1145,18 +1234,32 @@ app.delete('/deleteTrabajo/:id', async (req, res) => {
  * Si el correo pertenecía a una cuenta eliminada lógicamente (`activo = 0`),
  * reactiva dicho registro con las nuevas credenciales manteniendo intacto su historial en `logs`.
  * 
- * @param {express.Request} req - Body con { nombre, email, password, esIutepalista }.
+ * @param {express.Request} req - Body con { nombre, apellido, tipo_cedula, cedula, email, password, esIutepalista }.
  * @param {express.Response} res - Respuesta JSON { success: true, message: string }.
  */
 app.post('/register', async (req, res) => {
   try {
-    const { nombre, apellido, email, password, esIutepalista } = req.body;
+    const { nombre, apellido, tipo_cedula, tipoCedula, cedula, email, password, esIutepalista } = req.body;
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanNombre = (nombre || '').trim();
     const cleanApellido = (apellido || '').trim();
+    const cleanTipoCedula = String(tipo_cedula || tipoCedula || 'V').trim().toUpperCase();
+    const cleanCedula = String(cedula || '').trim();
 
-    if (!cleanNombre || !cleanEmail || !password) {
+    if (!cleanNombre || !cleanApellido || !cleanCedula || !cleanEmail || !password) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    // Validación de tipo de cédula (V: Venezolano, E: Extranjero)
+    if (cleanTipoCedula !== 'V' && cleanTipoCedula !== 'E') {
+      return res.status(400).json({ error: 'El tipo de cédula debe ser Venezolano (V) o Extranjero (E)' });
+    }
+
+    // Validación estricta de número de cédula (solo dígitos, entre 6 y 9 caracteres, sin comenzar en 0)
+    if (!/^[1-9][0-9]{5,8}$/.test(cleanCedula)) {
+      return res.status(400).json({
+        error: 'La cédula de identidad debe contener únicamente números (entre 6 y 9 dígitos) y no debe comenzar en 0'
+      });
     }
 
     // Verificar si ya existe un registro con ese correo electrónico
@@ -1165,22 +1268,46 @@ app.post('/register', async (req, res) => {
       [cleanEmail]
     );
 
+    // Verificar que la cédula de identidad no esté en uso por otro usuario activo
+    const [existingCedula] = await db.execute(
+      'SELECT id, email, activo FROM usuario WHERE cedula = ?',
+      [cleanCedula]
+    );
+
+    if (existingCedula && existingCedula.length > 0) {
+      const activeWithSameCedula = existingCedula.find(
+        u => Number(u.activo) !== 0 && (!existing || existing.length === 0 || String(u.id) !== String(existing[0].id))
+      );
+      if (activeWithSameCedula) {
+        return res.status(400).json({ error: 'Esta cédula de identidad ya se encuentra registrada en el sistema' });
+      }
+    }
+
     if (existing && existing.length > 0) {
       const existingUser = existing[0];
       // Si la cuenta estaba eliminada/inactiva (activo = 0), permitir volver a crearla reactivando el registro
       if (Number(existingUser.activo) === 0) {
         await db.execute(
-          'UPDATE usuario SET nombre = ?, apellido = ?, email = ?, password = ?, esIutepalista = ?, activo = 1 WHERE id = ?',
-          [cleanNombre, cleanApellido, cleanEmail, password, esIutepalista ? 1 : 0, existingUser.id]
+          'UPDATE usuario SET nombre = ?, apellido = ?, tipo_cedula = ?, cedula = ?, email = ?, password = ?, esIutepalista = ?, activo = 1 WHERE id = ?',
+          [cleanNombre, cleanApellido, cleanTipoCedula, cleanCedula, cleanEmail, password, esIutepalista ? 1 : 0, existingUser.id]
         );
         return res.json({ success: true, message: 'Cuenta creada y reactivada con éxito' });
       }
       return res.status(400).json({ error: 'Este correo electrónico ya se encuentra registrado en el sistema' });
     }
 
+    // Si no existía por email pero sí existía una cuenta inactiva con esa misma cédula, reactivarla
+    if (existingCedula && existingCedula.length > 0 && Number(existingCedula[0].activo) === 0) {
+      await db.execute(
+        'UPDATE usuario SET nombre = ?, apellido = ?, tipo_cedula = ?, cedula = ?, email = ?, password = ?, esIutepalista = ?, activo = 1 WHERE id = ?',
+        [cleanNombre, cleanApellido, cleanTipoCedula, cleanCedula, cleanEmail, password, esIutepalista ? 1 : 0, existingCedula[0].id]
+      );
+      return res.json({ success: true, message: 'Cuenta creada y reactivada con éxito' });
+    }
+
     await db.execute(
-      'INSERT INTO usuario (nombre, apellido, email, password, esIutepalista, activo) VALUES (?, ?, ?, ?, ?, 1)',
-      [cleanNombre, cleanApellido, cleanEmail, password, esIutepalista ? 1 : 0]
+      'INSERT INTO usuario (nombre, apellido, tipo_cedula, cedula, email, password, esIutepalista, activo) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+      [cleanNombre, cleanApellido, cleanTipoCedula, cleanCedula, cleanEmail, password, esIutepalista ? 1 : 0]
     );
     res.json({ success: true, message: 'Usuario registrado con éxito' });
   } catch (error) {
@@ -1241,7 +1368,7 @@ app.post('/login-guest', async (req, res) => {
     const { email, password } = req.body;
     const cleanEmail = (email || '').trim().toLowerCase();
     const [rows] = await db.execute(
-      'SELECT id, nombre, apellido, email, password, esIutepalista, activo FROM usuario WHERE LOWER(email) = ?',
+      'SELECT id, nombre, apellido, tipo_cedula, cedula, email, password, esIutepalista, activo FROM usuario WHERE LOWER(email) = ?',
       [cleanEmail]
     );
 
@@ -1348,7 +1475,7 @@ app.get('/report', async (req, res) => {
       : `WHERE (l.usuario_id != 0 AND l.usuario_id != '0') AND (u.nombre IS NULL OR LOWER(u.nombre) NOT LIKE '%admin%') AND (u.email IS NULL OR LOWER(u.email) NOT LIKE '%admin%')`;
 
     const [rows] = await db.execute(`
-      SELECT l.usuario_id, u.nombre, u.apellido, u.email, u.esIutepalista, l.fecha, l.action, l.doc_id, t.id as trabajo_id, t.nombre as doc_name
+      SELECT l.usuario_id, u.nombre, u.apellido, u.tipo_cedula, u.cedula, u.email, u.esIutepalista, l.fecha, l.action, l.doc_id, t.id as trabajo_id, t.nombre as doc_name
       FROM logs l 
       LEFT JOIN usuario u ON l.usuario_id = u.id
       LEFT JOIN trabajos t ON l.doc_id = t.id

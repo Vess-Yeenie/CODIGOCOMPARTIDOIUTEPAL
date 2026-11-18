@@ -209,6 +209,31 @@ body {
     transform: translateX(-50%) translateY(0);
 }
 
+/* Grupo de Tipo de Cédula + Número de Cédula */
+.form__cedula-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin-top: -2px;
+}
+
+.form__cedula-group .form__input {
+    margin-top: 0;
+}
+
+.form__select-cedula {
+    width: 145px;
+    flex-shrink: 0;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 10px 8px;
+}
+
+.form__input-cedula {
+    flex: 1;
+    min-width: 0;
+}
+
 /* Estilos para inputs inválidos y mensajes de error */
 .form__input:not(:placeholder-shown):invalid {
     border-color: #ff4d4d !important;
@@ -224,7 +249,9 @@ body {
     font-weight: 700;
 }
 
-.form__input:not(:placeholder-shown):invalid + .error-message {
+.form__input:not(:placeholder-shown):invalid + .error-message,
+.form__cedula-group:has(.form__input-cedula:not(:placeholder-shown):invalid) + .error-message,
+.error-message.visible {
     display: block;
 }
 
